@@ -1,0 +1,28 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
+
+public class Drawer
+{
+    Material particleMaterial;
+
+    public Drawer() {
+        particleMaterial = new Material(Shader.Find("Unlit/InstancedParticle"));
+        particleMaterial.enableInstancing = true;
+        particleMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
+        particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius);
+    }
+
+    public void DrawContainer() {
+        DrawUtils.DrawOutlineBox(float2(0.0f), 0.0f, SimulationParameters.BoxDimensions, 0.1f, Color.white);
+    }
+
+    public void DrawParticles() {
+        particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius); // TODO: take out in update I put it in so it changes as user updates
+        Bounds bounds = new Bounds(Vector3.zero, Vector3.one * 100f);
+        Graphics.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleMaterial, bounds, SimulationParameters.ParticleCount);
+    }
+}
