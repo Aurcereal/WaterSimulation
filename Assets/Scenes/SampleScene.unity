@@ -180,14 +180,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 333
+  particleCount: 158
   boxWidth: 10
-  boxHeight: 14
+  boxHeight: 10
   boxThickness: 0.1
   gravity: 9.8
   particleRadius: 0.05
-  smoothingRadius: 1.51
-  targetDensity: 2.8
+  smoothingRadius: 2
+  targetDensity: 0
   pressureMultiplier: 0.05
 --- !u!1 &705507993
 GameObject:

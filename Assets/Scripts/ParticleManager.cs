@@ -125,15 +125,16 @@ public class ParticleManager
                 UnityEngine.Random.Range(-BoxDimensions.x * 0.5f + BoxThickness + ParticleRadius, BoxDimensions.x * 0.5f - BoxThickness - ParticleRadius),
                 UnityEngine.Random.Range(-BoxDimensions.y * 0.5f + BoxThickness + ParticleRadius, BoxDimensions.y * 0.5f - BoxThickness - ParticleRadius)
                 );
-            velocities[i] = normalize(UnityEngine.Random.insideUnitCircle);
+            velocities[i] = float2(0.0f); //normalize(UnityEngine.Random.insideUnitCircle);
             masses[i] = 1.0f;
         }
     }
 
-    void UpdateParticle(float dt, float2 pos, float2 vel, out float2 outPos, out float2 outVel) {
+    void UpdateParticle(float dt, int index, float2 pos, float2 vel, out float2 outPos, out float2 outVel) {
         outPos = pos; outVel = vel;
 
-        outVel = CalculatePressureForce(pos) * dt; //outVel += float2(0, -1) * SimulationParameters.Gravity * dt;
+        float2 a = CalculatePressureForce(pos) / densities[index];
+        outVel += a * dt; //outVel += float2(0, -1) * SimulationParameters.Gravity * dt;
         outPos += vel * dt;
 
         // Collision
@@ -155,7 +156,7 @@ public class ParticleManager
             float2 pos = positions[i]; float2 vel = velocities[i];
 
             float2 outPos, outVel;
-            UpdateParticle(dt, pos, vel, out outPos, out outVel);
+            UpdateParticle(dt, i, pos, vel, out outPos, out outVel);
 
             positions[i] = outPos; velocities[i] = outVel;
         }

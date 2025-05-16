@@ -16,14 +16,14 @@ public class SimulationParameters : MonoBehaviour
     public static float PressureMultiplier => Ins.pressureMultiplier;
 
     //
-    [Range(10, 500)] [SerializeField] int particleCount = 10;
-    [Range(10, 100)] [SerializeField] float boxWidth = 50.0f;
-    [Range(10, 100)] [SerializeField] float boxHeight = 40.0f;
+    [Range(1, 2000)] [SerializeField] int particleCount = 10;
+    [Range(2, 100)] [SerializeField] float boxWidth = 50.0f;
+    [Range(2, 100)] [SerializeField] float boxHeight = 40.0f;
     [Range(0.05f, 1.0f)] [SerializeField] float boxThickness = 0.1f;
     [Range(1, 20)] [SerializeField] float gravity = 9.8f;
     [Range(0.025f, 1.0f)] [SerializeField] float particleRadius = 0.05f;
-    [Range(0.005f, 2.0f)] [SerializeField] float smoothingRadius = 0.1f;
-    [Range(1.0f, 100.0f)] [SerializeField] float targetDensity = 10.0f;
+    [Range(0.005f, 10.0f)] [SerializeField] float smoothingRadius = 0.1f;
+    [Range(0.0f, 100.0f)] [SerializeField] float targetDensity = 10.0f;
     [Range(0.05f, 4.0f)] [SerializeField] float pressureMultiplier = 1.0f;
 
     private static SimulationParameters Ins;
