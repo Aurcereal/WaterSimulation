@@ -7,6 +7,7 @@ using static Unity.Mathematics.math;
 
 using static SimulationParameters;
 using static ParticlePhysics;
+using System.Threading.Tasks;
 
 public class ParticleSimulator
 {
@@ -14,10 +15,6 @@ public class ParticleSimulator
     float CalculateDensity(float2 pos)
     {
         float totalDensity = 0.0f;
-        // for (int i = 0; i < ParticleCount; i++)
-        // {
-        //     totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(positions[i] - pos));
-        // }
         GameManager.Ins.spatialHash.ForEachParticleWithinSmoothingRadius(pos, i =>
             totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(positions[i] - pos))
             );
@@ -25,13 +22,6 @@ public class ParticleSimulator
     }
 
     float[] densities;
-    void UpdateParticleDensities()
-    {
-        for (int i = 0; i < ParticleCount; i++)
-        {
-            densities[i] = CalculateDensity(positions[i]);
-        }
-    }
 
     float DensityToPressure(float density)
     {
@@ -59,16 +49,6 @@ public class ParticleSimulator
                 }
             }
         );
-        // for (int i = 0; i < ParticleCount; i++)
-        // {
-        //     if (i == particleIndex) continue;
-
-        //     totalForce +=
-        //         masses[i] *
-        //         (DensityToPressure(densities[i]) + DensityToPressure(densities[particleIndex])) * 0.5f *
-        //         (-SmoothingKernelPow2Gradient(SmoothingRadius, positions[i] - pos))
-        //         / densities[i];
-        // }
         return totalForce;
     }
 
@@ -126,13 +106,19 @@ public class ParticleSimulator
         }
 
         //
-            GameManager.Ins.spatialHash.UpdateSpatialHash();
+        GameManager.Ins.spatialHash.UpdateSpatialHash();
 
         //
-        UpdateParticleDensities();
-        for (int i = 0; i < SimulationParameters.ParticleCount; i++)
-        {
-            UpdateParticle(dt, i, ref positions[i], ref velocities[i]);
-        }
+        // for (int i = 0; i < ParticleCount; i++)
+        // {
+        //     densities[i] = CalculateDensity(positions[i]);
+        // }
+        // for (int i = 0; i < ParticleCount; i++)
+        // {
+        //     UpdateParticle(dt, i, ref positions[i], ref velocities[i]);
+        // }
+        Parallel.For(0, ParticleCount, i => densities[i] = CalculateDensity(positions[i]));
+        Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i]));
+        
     }
 }
