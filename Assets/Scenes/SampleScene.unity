@@ -183,6 +183,8 @@ MonoBehaviour:
   particleCount: 328
   boxWidth: 14.1
   boxHeight: 10.7
+  spawnWidth: 14.1
+  spawnHeight: 10.7
   boxThickness: 0.1
   gravity:
     x: 0

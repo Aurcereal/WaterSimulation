@@ -12,16 +12,19 @@ using System.Threading.Tasks;
 public class ParticleSimulator
 {
 
+    float2 CalculatePredictedPosition(int particleIndex, float lookaheadDT)
+    {
+        return positions[particleIndex] + velocities[particleIndex] * lookaheadDT;
+    }
+
     float CalculateDensity(float2 pos)
     {
         float totalDensity = 0.0f;
         GameManager.Ins.spatialHash.ForEachParticleWithinSmoothingRadius(pos, i =>
-            totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(positions[i] - pos))
+            totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(predictedPositions[i] - pos))
             );
         return totalDensity;
     }
-
-    float[] densities;
 
     float DensityToPressure(float density)
     {
@@ -34,7 +37,7 @@ public class ParticleSimulator
     // Pressure force is -PressureGradient since we'll flow from high pressure to low pressure
     float2 CalculatePressureForce(int particleIndex)
     {
-        float2 pos = positions[particleIndex];
+        float2 pos = predictedPositions[particleIndex];
 
         float2 totalForce = float2(0.0f);
         GameManager.Ins.spatialHash.ForEachParticleWithinSmoothingRadius(pos, i =>
@@ -44,7 +47,7 @@ public class ParticleSimulator
                     totalForce +=
                         masses[i] *
                         (DensityToPressure(densities[i]) + DensityToPressure(densities[particleIndex])) * 0.5f *
-                        (-SmoothingKernelPow2Gradient(SmoothingRadius, positions[i] - pos))
+                        (-SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[i] - pos))
                         / densities[i];
                 }
             }
@@ -53,12 +56,15 @@ public class ParticleSimulator
     }
 
     public float2[] positions;
+    public float2[] predictedPositions;
     public float2[] velocities;
     public float[] masses;
+    float[] densities;
 
     public ParticleSimulator()
     {
         positions = new float2[ParticleCount];
+        predictedPositions = new float2[ParticleCount];
         velocities = new float2[ParticleCount];
         masses = new float[ParticleCount];
 
@@ -68,8 +74,8 @@ public class ParticleSimulator
         {
             float t = (i * 1.0f + 0.5f) / positions.Length;
             positions[i] = float2(
-                UnityEngine.Random.Range(-BoxDimensions.x * 0.5f + BoxThickness + ParticleRadius, BoxDimensions.x * 0.5f - BoxThickness - ParticleRadius),
-                UnityEngine.Random.Range(-BoxDimensions.y * 0.5f + BoxThickness + ParticleRadius, BoxDimensions.y * 0.5f - BoxThickness - ParticleRadius)
+                UnityEngine.Random.Range(-SpawnDimensions.x * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.x * 0.5f - BoxThickness - ParticleRadius),
+                UnityEngine.Random.Range(-SpawnDimensions.y * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.y * 0.5f - BoxThickness - ParticleRadius)
                 );
             velocities[i] = float2(0.0f); //normalize(UnityEngine.Random.insideUnitCircle);
             masses[i] = 1.0f;
@@ -84,15 +90,15 @@ public class ParticleSimulator
         pos += vel * dt;
 
         // Collision
-        float2 dist = (SimulationParameters.BoxDimensions * 0.5f - SimulationParameters.BoxThickness) - abs(pos) - SimulationParameters.ParticleRadius;
+        float2 dist = (BoxDimensions * 0.5f - BoxThickness) - abs(pos) - ParticleRadius;
         if (dist.x <= 0.0f)
         {
-            pos.x = sign(pos.x) * (SimulationParameters.BoxDimensions.x * 0.5f - SimulationParameters.BoxThickness - SimulationParameters.ParticleRadius);
+            pos.x = sign(pos.x) * (BoxDimensions.x * 0.5f - BoxThickness - ParticleRadius);
             vel.x *= -0.9f;
         }
         else if (dist.y <= 0.0f)
         {
-            pos.y = sign(pos.y) * (SimulationParameters.BoxDimensions.y * 0.5f - SimulationParameters.BoxThickness - SimulationParameters.ParticleRadius);
+            pos.y = sign(pos.y) * (BoxDimensions.y * 0.5f - BoxThickness - ParticleRadius);
             vel.y *= -0.9f;
         }
     }
@@ -108,16 +114,8 @@ public class ParticleSimulator
         //
         GameManager.Ins.spatialHash.UpdateSpatialHash();
 
-        //
-        // for (int i = 0; i < ParticleCount; i++)
-        // {
-        //     densities[i] = CalculateDensity(positions[i]);
-        // }
-        // for (int i = 0; i < ParticleCount; i++)
-        // {
-        //     UpdateParticle(dt, i, ref positions[i], ref velocities[i]);
-        // }
-        Parallel.For(0, ParticleCount, i => densities[i] = CalculateDensity(positions[i]));
+        Parallel.For(0, ParticleCount, i => predictedPositions[i] = CalculatePredictedPosition(i, 1f/60f));
+        Parallel.For(0, ParticleCount, i => densities[i] = CalculateDensity(predictedPositions[i]));
         Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i]));
         
     }

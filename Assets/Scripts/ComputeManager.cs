@@ -25,7 +25,7 @@ public class ComputeManager
         colorBuffer.SetData(colors);
     }
 
-    void OnDisable()
+    public void Destructor()
     {
         positionBuffer.Dispose();
         colorBuffer.Dispose();

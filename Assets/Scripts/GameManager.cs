@@ -19,7 +19,13 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Ins = this;
+        ResetSimulation();
+    }
 
+    void ResetSimulation()
+    {
+        computeManager?.Destructor();
+        
         computeManager = new();
         drawer = new();
         particleSimulator = new();
@@ -28,6 +34,9 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+            ResetSimulation();
+
         particleSimulator.Update(Time.deltaTime);
 
         Color[] colors = new Color[SimulationParameters.ParticleCount];
