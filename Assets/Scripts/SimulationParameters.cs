@@ -15,6 +15,8 @@ public class SimulationParameters : MonoBehaviour
     public static float SmoothingRadius => Ins.smoothingRadius;
     public static float TargetDensity => Ins.targetDensity;
     public static float PressureMultiplier => Ins.pressureMultiplier;
+    public static Gradient ParticleSpeedGradient => Ins.particleSpeedGradient;
+    public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
 
     //
     [Range(1, 2000)] [SerializeField] int particleCount = 10;
@@ -28,6 +30,9 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.005f, 10.0f)] [SerializeField] float smoothingRadius = 0.1f;
     [Range(0.0f, 100.0f)] [SerializeField] float targetDensity = 10.0f;
     [Range(0.05f, 100.0f)] [SerializeField] float pressureMultiplier = 1.0f;
+    [SerializeField] Gradient particleSpeedGradient;
+    [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 1.0f;
+    [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
 
     private static SimulationParameters Ins;
     void Awake() {

@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     void ResetSimulation()
     {
         computeManager?.Destructor();
-        
+
         computeManager = new();
         drawer = new();
         particleSimulator = new();
@@ -39,12 +39,13 @@ public class GameManager : MonoBehaviour
 
         particleSimulator.Update(Time.deltaTime);
 
-        Color[] colors = new Color[SimulationParameters.ParticleCount];
-        for (int i = 0; i < colors.Length; i++) colors[i] = Color.white;
-        spatialHash.ForEachParticleWithinSmoothingRadius(WorldMousePosition, i => colors[i] = Color.red);
-        computeManager.UpdateColorBuffer(colors);
+        // Color[] colors = new Color[SimulationParameters.ParticleCount];
+        // for (int i = 0; i < colors.Length; i++) colors[i] = Color.white;
+        // spatialHash.ForEachParticleWithinSmoothingRadius(WorldMousePosition, i => colors[i] = Color.red);
+        // computeManager.UpdateColorBuffer(colors);
 
         computeManager.UpdatePositionBuffer(particleSimulator.positions);
+        drawer.UpdateParticleColors();
         drawer.DrawParticles();
         drawer.DrawContainer();
     }
