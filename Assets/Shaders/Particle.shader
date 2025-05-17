@@ -3,7 +3,6 @@ Shader "Unlit/InstancedParticle"
 {
     Properties
     {
-        _Color ("Color", Color) = (1.0,1.0,1.0,1.0)
         _Radius ("Radius", Float) = 1.0
     }
     SubShader
@@ -54,14 +53,12 @@ Shader "Unlit/InstancedParticle"
                 return o;
             }
 
-            float4 _Color;
-
             fixed4 frag (vOut o) : SV_Target
             {
                 float2 p = o.uv*2.0-1.0;
                 float exists = step(length(p), 1.0);
 
-                return float4(_Color.rgb * o.color,exists);
+                return float4(o.color.rgb,exists);
             }
             ENDCG
         }
