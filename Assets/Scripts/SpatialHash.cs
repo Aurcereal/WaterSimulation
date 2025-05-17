@@ -63,7 +63,7 @@ public class SpatialHash
             int currKey = partIDCellKeyPairs[i].y;
             if (currKey != prevKey)
             {
-                //Debug.Log($"Curr Key: {currKey} maps to {i}");
+                // Debug.Log($"Curr Key: {currKey} maps to {i}");
                 keyToStartCoord[currKey] = i;
                 prevKey = currKey;
             }
@@ -71,28 +71,32 @@ public class SpatialHash
     }
 
     Color[] particleTempColors;
-    public void ForEachParticleWithinSmoothingRadius(float2 pos, Action callback)
+    public void ForEachParticleWithinSmoothingRadius(float2 pos, Action<int> callback)
     {
-        for (int i = 0; i < ParticleCount; i++) particleTempColors[i] = Color.white;
-        int2 cell = posToCell(pos);
+        int2 centerCell = posToCell(pos);
 
-        int key = hash21(cell);
-        int currIndex = keyToStartCoord[key];
-        Debug.Log($"Key: {key}, Start Index: {currIndex}");
-        if (currIndex != -1)
+        // 3x3 surrounding cells
+        int2 cell;
+        for (int i = -1; i <= 1; i++)
         {
-            while (currIndex < partIDCellKeyPairs.Length && partIDCellKeyPairs[currIndex].y == key)
+            for (int j = -1; j <= 1; j++)
             {
-                Debug.Log($"Found {partIDCellKeyPairs[currIndex]}");
-                int particleIndex = partIDCellKeyPairs[currIndex].x;
-                particleTempColors[particleIndex] = Color.red;
-                currIndex++;
+                cell = centerCell + int2(i, j);
+
+                int key = hash21(cell);
+                int currIndex = keyToStartCoord[key];
+                if (currIndex != -1)
+                {
+                    while (currIndex < partIDCellKeyPairs.Length && partIDCellKeyPairs[currIndex].y == key)
+                    {
+                        // Debug.Log($"Found {partIDCellKeyPairs[currIndex]}");
+                        int particleIndex = partIDCellKeyPairs[currIndex].x;
+                        callback(particleIndex);
+                        currIndex++;
+                    }
+                }
             }
         }
-        for (int i = 0; i < particleTempColors.Length; i++) if (particleTempColors[i] == Color.red) Debug.Log($"Found red at {i}");
-        GameManager.Ins.computeManager.UpdateColorBuffer(particleTempColors);
-
-        // TODO: search 3x3 grid of cells
     }
 
 }

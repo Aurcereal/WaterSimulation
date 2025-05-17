@@ -14,10 +14,13 @@ public class ParticleSimulator
     float CalculateDensity(float2 pos)
     {
         float totalDensity = 0.0f;
-        for (int i = 0; i < ParticleCount; i++)
-        {
-            totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(positions[i] - pos));
-        }
+        // for (int i = 0; i < ParticleCount; i++)
+        // {
+        //     totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(positions[i] - pos));
+        // }
+        GameManager.Ins.spatialHash.ForEachParticleWithinSmoothingRadius(pos, i =>
+            totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(positions[i] - pos))
+            );
         return totalDensity;
     }
 
@@ -44,16 +47,28 @@ public class ParticleSimulator
         float2 pos = positions[particleIndex];
 
         float2 totalForce = float2(0.0f);
-        for (int i = 0; i < ParticleCount; i++)
-        {
-            if (i == particleIndex) continue;
+        GameManager.Ins.spatialHash.ForEachParticleWithinSmoothingRadius(pos, i =>
+            {
+                if (i != particleIndex)
+                {
+                    totalForce +=
+                        masses[i] *
+                        (DensityToPressure(densities[i]) + DensityToPressure(densities[particleIndex])) * 0.5f *
+                        (-SmoothingKernelPow2Gradient(SmoothingRadius, positions[i] - pos))
+                        / densities[i];
+                }
+            }
+        );
+        // for (int i = 0; i < ParticleCount; i++)
+        // {
+        //     if (i == particleIndex) continue;
 
-            totalForce +=
-                masses[i] *
-                (DensityToPressure(densities[i]) + DensityToPressure(densities[particleIndex])) * 0.5f *
-                (-SmoothingKernelPow2Gradient(SmoothingRadius, positions[i] - pos))
-                / densities[i];
-        }
+        //     totalForce +=
+        //         masses[i] *
+        //         (DensityToPressure(densities[i]) + DensityToPressure(densities[particleIndex])) * 0.5f *
+        //         (-SmoothingKernelPow2Gradient(SmoothingRadius, positions[i] - pos))
+        //         / densities[i];
+        // }
         return totalForce;
     }
 
@@ -104,13 +119,20 @@ public class ParticleSimulator
 
     public void Update(float dt)
     {
-        return;
-        // Timestep is SO IMPORTANT TO A GOOD SIM IF ITS BAD WE'LL DIVERGE
-        UpdateParticleDensities();
+        if (dt > 1.0f / 60.0f)
+        {
+            Debug.Log("Timestep is too large for an accurate simulation, slowing down time accordingly...");
+            dt = 1.0f / 60.0f;
+        }
 
+        //
+            GameManager.Ins.spatialHash.UpdateSpatialHash();
+
+        //
+        UpdateParticleDensities();
         for (int i = 0; i < SimulationParameters.ParticleCount; i++)
         {
-            UpdateParticle(1f / 60f, i, ref positions[i], ref velocities[i]);
+            UpdateParticle(dt, i, ref positions[i], ref velocities[i]);
         }
     }
 }

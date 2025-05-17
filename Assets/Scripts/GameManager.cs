@@ -29,8 +29,11 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         particleSimulator.Update(Time.deltaTime);
-        spatialHash.UpdateSpatialHash();
-        spatialHash.ForEachParticleWithinSmoothingRadius(WorldMousePosition, null);
+
+        Color[] colors = new Color[SimulationParameters.ParticleCount];
+        for (int i = 0; i < colors.Length; i++) colors[i] = Color.white;
+        spatialHash.ForEachParticleWithinSmoothingRadius(WorldMousePosition, i => colors[i] = Color.red);
+        computeManager.UpdateColorBuffer(colors);
 
         computeManager.UpdatePositionBuffer(particleSimulator.positions);
         drawer.DrawParticles();

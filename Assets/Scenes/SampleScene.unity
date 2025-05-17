@@ -180,15 +180,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 158
-  boxWidth: 10
-  boxHeight: 10
+  particleCount: 328
+  boxWidth: 14.1
+  boxHeight: 10.7
   boxThickness: 0.1
-  gravity: 9.8
+  gravity:
+    x: 0
+    y: 0
   particleRadius: 0.05
-  smoothingRadius: 2
-  targetDensity: 0
-  pressureMultiplier: 0.05
+  smoothingRadius: 1.15
+  targetDensity: 2
+  pressureMultiplier: 12.4
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -335,8 +337,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 26.991467
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -360,7 +362,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -50}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
