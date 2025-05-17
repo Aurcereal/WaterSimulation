@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 
     public ComputeManager computeManager;
     public Drawer drawer;
-    public ParticleManager particleManager;
+    public ParticleSimulator particleManager;
 
     void Start()
     {
