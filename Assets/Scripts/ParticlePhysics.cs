@@ -35,7 +35,6 @@ public static class ParticlePhysics
     {
         if (dist >= smoothingRadius) return 0.0f;
 
-        // https://www.desmos.com/calculator/7fyumtu2rw
         float vol = PI * smoothingRadius * smoothingRadius / 10.0f;
 
         float val = dist / smoothingRadius;
@@ -51,7 +50,6 @@ public static class ParticlePhysics
         float2 dir = normalizesafe(-toSample);
         if (dist >= smoothingRadius) return float2(0.0f);
 
-        // https://www.desmos.com/calculator/ligsrccvda
         float vol = PI * smoothingRadius * smoothingRadius / 10.0f;
 
         float val = dist / smoothingRadius;

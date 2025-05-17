@@ -24,6 +24,7 @@ Shader "Unlit/InstancedParticle"
 			#pragma target 4.5
 
             StructuredBuffer<float2> positionBuffer;
+            StructuredBuffer<float4> colorBuffer;
 
             struct vIn
             {
@@ -35,6 +36,7 @@ Shader "Unlit/InstancedParticle"
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+                float4 color : TEXCOORD1;
             };
 
 
@@ -48,6 +50,7 @@ Shader "Unlit/InstancedParticle"
                 v.vertex.xyz *= _Radius;
                 o.vertex = mul(UNITY_MATRIX_VP, v.vertex + float4(pos.x, pos.y, 0.0, 0.0));
                 o.uv = v.uv;
+                o.color = colorBuffer[instanceID];
                 return o;
             }
 
@@ -58,7 +61,7 @@ Shader "Unlit/InstancedParticle"
                 float2 p = o.uv*2.0-1.0;
                 float exists = step(length(p), 1.0);
 
-                return float4(_Color.rgb,exists);
+                return float4(_Color.rgb * o.color,exists);
             }
             ENDCG
         }

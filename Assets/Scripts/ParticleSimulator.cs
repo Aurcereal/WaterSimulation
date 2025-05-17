@@ -104,6 +104,7 @@ public class ParticleSimulator
 
     public void Update(float dt)
     {
+        return;
         // Timestep is SO IMPORTANT TO A GOOD SIM IF ITS BAD WE'LL DIVERGE
         UpdateParticleDensities();
 

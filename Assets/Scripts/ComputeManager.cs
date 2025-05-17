@@ -8,16 +8,26 @@ using static Unity.Mathematics.math;
 public class ComputeManager
 {
     public ComputeBuffer positionBuffer;
+    public ComputeBuffer colorBuffer;
 
-    public ComputeManager() {
+    public ComputeManager()
+    {
         positionBuffer = new ComputeBuffer(SimulationParameters.ParticleCount, sizeof(float) * 2, ComputeBufferType.Default);
+        colorBuffer = new ComputeBuffer(SimulationParameters.ParticleCount, sizeof(float) * 4, ComputeBufferType.Default);
     }
 
     public void UpdatePositionBuffer(float2[] posititions) {
         positionBuffer.SetData(posititions);
     }
 
-    void OnDisable() {
+    public void UpdateColorBuffer(Color[] colors)
+    {
+        colorBuffer.SetData(colors);
+    }
+
+    void OnDisable()
+    {
         positionBuffer.Dispose();
+        colorBuffer.Dispose();
     }
 }

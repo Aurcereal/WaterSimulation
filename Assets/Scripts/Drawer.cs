@@ -13,6 +13,7 @@ public class Drawer
         particleMaterial = new Material(Shader.Find("Unlit/InstancedParticle"));
         particleMaterial.enableInstancing = true;
         particleMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
+        particleMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
         particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius);
     }
 
