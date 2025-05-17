@@ -6,121 +6,17 @@ using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
 using static SimulationParameters;
+using static ParticlePhysics;
 
 public class ParticleSimulator
 {
-
-    static float SmoothingKernelCPY(float radius, float dst)
-    {
-        if (dst >= radius) return 0;
-        float volume = (PI * pow(radius, 4)) / 6;
-        return (radius - dst) * (radius - dst) / volume;
-    }
-
-    static float2 SmoothingKernelGradientCPY(float radius, float2 toSample)
-    {
-        float dst = length(toSample);
-
-        if (dst >= radius) return 0;
-
-        float scale = 12 / (pow(radius, 4) * PI);
-        return normalizesafe(-toSample) * (radius-dst) * scale;
-    }
-
-    static float SmoothingKernelPow2(float smoothingRadius, float dist)
-    {
-        if (dist >= smoothingRadius) return 0.0f;
-
-        float vol = PI * smoothingRadius * smoothingRadius / 6.0f;
-
-        float val = 1.0f - dist / smoothingRadius;
-        val = val * val;
-        val /= vol;
-
-        return val;
-    }
-
-    static float2 SmoothingKernelPow2Gradient(float smoothingRadius, float2 fromSample)
-    {
-        float dist = length(fromSample);
-        float2 dir = normalizesafe(fromSample);//, normalize(UnityEngine.Random.insideUnitCircle));
-
-        if (dist >= smoothingRadius) return float2(0.0f);
-
-        float vol = PI * smoothingRadius * smoothingRadius / 6.0f;
-
-        float val = 2.0f * (1.0f - dist / smoothingRadius);
-        val /= vol;
-
-        return dir * val;
-    }
-
-    static float SmoothingKernelPow3(float smoothingRadius, float dist)
-    {
-        if (dist >= smoothingRadius) return 0.0f;
-
-        // https://www.desmos.com/calculator/7fyumtu2rw
-        float vol = PI * smoothingRadius * smoothingRadius / 10.0f;
-
-        float val = dist / smoothingRadius;
-        val = 1.0f - val;
-        val = max(0.0f, val * val * val) / vol;
-
-        return val;
-    }
-
-    static float2 SmoothingKernelPow3Gradient(float smoothingRadius, float2 toSample)
-    {
-        float dist = length(toSample);
-        float2 dir = normalizesafe(-toSample);
-        if (dist >= smoothingRadius) return float2(0.0f);
-
-        // https://www.desmos.com/calculator/ligsrccvda
-        float vol = PI * smoothingRadius * smoothingRadius / 10.0f;
-
-        float val = dist / smoothingRadius;
-        val = 1.0f - val;
-        val = 3.0f * val * val;
-        val /= vol * smoothingRadius;
-        val = abs(val);
-
-        return val * dir;
-    }
-
-    static float SmoothingKernel(float smoothingRadius, float dist) {
-        // https://www.desmos.com/calculator/w1qrbwyhcs
-        float vol = PI * smoothingRadius * smoothingRadius / 4.0f;
-
-        float val = dist / smoothingRadius;
-        val = 1.0f - val * val;
-        val = max(0.0f, val * val * val) / vol;
-
-        return val;
-    }
-
-    static float2 SmoothingKernelGradient(float smoothingRadius, float2 toSample)
-    {
-        float dist = length(toSample);
-        float2 dir = normalizesafe(toSample, normalize(UnityEngine.Random.insideUnitCircle));
-        if (dist >= smoothingRadius) return float2(0.0f);
-
-        // https://www.desmos.com/calculator/s58inuu2pm
-        float vol = PI * smoothingRadius * smoothingRadius / 4.0f;
-
-        float val = dist / smoothingRadius;
-        val = 1.0f - val * val;
-        val = 6.0f * val * val * dist;
-        val /= vol * smoothingRadius * smoothingRadius;
-
-        return val*dir;
-    }
 
     float CalculateDensity(float2 pos)
     {
         float totalDensity = 0.0f;
         for (int i = 0; i < ParticleCount; i++)
         {
-            totalDensity += masses[i] * SmoothingKernelCPY(SmoothingRadius, length(positions[i] - pos));
+            totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(positions[i] - pos));
         }
         return totalDensity;
     }
@@ -153,7 +49,7 @@ public class ParticleSimulator
             if (i == particleIndex) continue;
 
             totalForce +=
-                masses[i] * 
+                masses[i] *
                 (DensityToPressure(densities[i]) + DensityToPressure(densities[particleIndex])) * 0.5f *
                 (-SmoothingKernelPow2Gradient(SmoothingRadius, positions[i] - pos))
                 / densities[i];
@@ -185,7 +81,8 @@ public class ParticleSimulator
         }
     }
 
-    void UpdateParticle(float dt, int index, ref float2 pos, ref float2 vel) {
+    void UpdateParticle(float dt, int index, ref float2 pos, ref float2 vel)
+    {
         float2 pressureAcceleration = CalculatePressureForce(index) / densities[index];
         float2 a = pressureAcceleration + Gravity;
         vel += a * dt; //outVel += float2(0, -1) * SimulationParameters.Gravity * dt;
@@ -193,22 +90,26 @@ public class ParticleSimulator
 
         // Collision
         float2 dist = (SimulationParameters.BoxDimensions * 0.5f - SimulationParameters.BoxThickness) - abs(pos) - SimulationParameters.ParticleRadius;
-        if (dist.x <= 0.0f) {
+        if (dist.x <= 0.0f)
+        {
             pos.x = sign(pos.x) * (SimulationParameters.BoxDimensions.x * 0.5f - SimulationParameters.BoxThickness - SimulationParameters.ParticleRadius);
             vel.x *= -0.9f;
-        } else if (dist.y <= 0.0f) {
+        }
+        else if (dist.y <= 0.0f)
+        {
             pos.y = sign(pos.y) * (SimulationParameters.BoxDimensions.y * 0.5f - SimulationParameters.BoxThickness - SimulationParameters.ParticleRadius);
             vel.y *= -0.9f;
         }
     }
 
-    public void Update(float dt) {
+    public void Update(float dt)
+    {
         // Timestep is SO IMPORTANT TO A GOOD SIM IF ITS BAD WE'LL DIVERGE
         UpdateParticleDensities();
 
         for (int i = 0; i < SimulationParameters.ParticleCount; i++)
         {
-            UpdateParticle(1f/60f, i, ref positions[i], ref velocities[i]);
+            UpdateParticle(1f / 60f, i, ref positions[i], ref velocities[i]);
         }
     }
 }
