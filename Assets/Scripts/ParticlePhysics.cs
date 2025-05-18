@@ -47,7 +47,7 @@ public static class ParticlePhysics
     public static float2 SmoothingKernelPow3Gradient(float smoothingRadius, float2 fromSample)
     {
         float dist = length(fromSample);
-        float2 dir = normalizesafe(fromSample, normalize(UnityEngine.Random.insideUnitCircle));
+        float2 dir = normalizesafe(fromSample);//, normalize(UnityEngine.Random.insideUnitCircle));
         if (dist >= smoothingRadius) return float2(0.0f);
 
         float vol = PI * smoothingRadius * smoothingRadius / 10.0f;

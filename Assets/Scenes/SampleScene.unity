@@ -181,17 +181,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particleCount: 679
-  boxWidth: 19
+  boxWidth: 10
   boxHeight: 10.7
-  spawnWidth: 8.7
+  spawnWidth: 5
   spawnHeight: 5.3
   gravity:
     x: 0
     y: -10
   smoothingRadius: 0.4
   mouseForceRadius: 2
-  mouseForceStrength: 400
-  targetDensity: 5.9
+  mouseForceStrength: 670
+  targetDensity: 26.9
+  nearDensityPressureMultiplier: 12
   pressureMultiplier: 215
   viscosityStrength: 54.9
   particleRadius: 0.05

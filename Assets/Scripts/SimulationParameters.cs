@@ -16,6 +16,7 @@ public class SimulationParameters : MonoBehaviour
     public static float MouseForceRadius => Ins.mouseForceRadius;
     public static float MouseForceStrength => Ins.mouseForceStrength;
     public static float TargetDensity => Ins.targetDensity;
+    public static float NearDensityPressureMultiplier => Ins.nearDensityPressureMultiplier;
     public static float PressureMultiplier => Ins.pressureMultiplier;
     public static Gradient ParticleSpeedGradient => Ins.particleSpeedGradient;
     public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
@@ -32,6 +33,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.005f, 10.0f)][SerializeField] float mouseForceRadius = 4.0f;
     [Range(0.0f, 1000.0f)][SerializeField] float mouseForceStrength = 100.0f;
     [Range(0.0f, 100.0f)] [SerializeField] float targetDensity = 10.0f;
+    [Range(0.0f, 500.0f)][SerializeField] float nearDensityPressureMultiplier = 1.0f;
     [Range(0.05f, 500.0f)] [SerializeField] float pressureMultiplier = 1.0f;
     [Range(0.0f, 100.0f)][SerializeField] float viscosityStrength = 4.0f;
 

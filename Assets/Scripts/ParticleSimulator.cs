@@ -26,12 +26,27 @@ public class ParticleSimulator
         return totalDensity;
     }
 
+    float CalculateNearDensity(float2 pos)
+    {
+        float totalDensity = 0.0f;
+        GameManager.Ins.spatialHash.ForEachParticleWithinSmoothingRadius(pos, i =>
+            totalDensity += masses[i] * SmoothingKernelPow3(SmoothingRadius, length(predictedPositions[i] - pos))
+            );
+        return totalDensity;
+    }
+
     float DensityToPressure(float density)
     {
         // TargetDensity kind of offsets pressure to determine what happens with empty space: 
         // if the result is high, our gradient will go from empty to wherever this is, 
         // if our result is low, our gradient will go from wherever this is to empty
         return PressureMultiplier * (density - TargetDensity);
+    }
+
+    float NearDensityToPressure(float nearDensity)
+    {
+        // It's always a repelling force we 'want' the near density to be 0
+        return NearDensityPressureMultiplier * nearDensity;
     }
 
     // Pressure force is -PressureGradient since we'll flow from high pressure to low pressure
@@ -48,6 +63,11 @@ public class ParticleSimulator
                         masses[i] *
                         (DensityToPressure(densities[i]) + DensityToPressure(densities[particleIndex])) * 0.5f *
                         (-SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[i] - pos))
+                        / densities[i];
+                    totalForce +=
+                        masses[i] *
+                        (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[particleIndex])) * 0.5f *
+                        (-SmoothingKernelPow3Gradient(SmoothingRadius, predictedPositions[i] - pos))
                         / densities[i];
                 }
             }
@@ -94,6 +114,7 @@ public class ParticleSimulator
     public float2[] velocities;
     public float[] masses;
     float[] densities;
+    float[] nearDensities;
 
     public ParticleSimulator()
     {
@@ -103,6 +124,7 @@ public class ParticleSimulator
         masses = new float[ParticleCount];
 
         densities = new float[ParticleCount];
+        nearDensities = new float[ParticleCount];
 
         for (int i = 0; i < positions.Length; i++)
         {
@@ -153,6 +175,7 @@ public class ParticleSimulator
         Parallel.For(0, ParticleCount, i => predictedPositions[i] = CalculatePredictedPosition(i, 1f / 60f));
         GameManager.Ins.spatialHash.UpdateSpatialHash(); // Uses predicted positions
         Parallel.For(0, ParticleCount, i => densities[i] = CalculateDensity(predictedPositions[i]));
+        Parallel.For(0, ParticleCount, i => nearDensities[i] = CalculateNearDensity(predictedPositions[i]));
         Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i]));
 
     }
