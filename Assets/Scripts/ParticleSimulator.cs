@@ -55,6 +55,27 @@ public class ParticleSimulator
         return totalForce;
     }
 
+    // Applies force to make velocity more similar to close particles
+    float2 CalculateViscosityForce(int particleIndex)
+    {
+        float2 pos = predictedPositions[particleIndex];
+        float2 vel = velocities[particleIndex];
+
+        float2 totalForce = float2(0.0f);
+        GameManager.Ins.spatialHash.ForEachParticleWithinSmoothingRadius(pos, i =>
+            {
+                if (i != particleIndex)
+                {
+                    totalForce +=
+                        masses[i] *
+                        (velocities[i] - vel) *
+                        SmoothingKernelSmoothTop(SmoothingRadius, length(predictedPositions[i] - pos));
+                }
+            }
+        );
+        return totalForce * ViscosityStrength;
+    }
+
     float2 CalculateMouseForce(int particleIndex)
     {
         float forceSign = (GameManager.Ins.inputManager.RightMouseButton ? 1 : 0) + (GameManager.Ins.inputManager.LeftMouseButton ? -1 : 0);
@@ -65,7 +86,6 @@ public class ParticleSimulator
 
         if (forceSign == 0 || dist >= MouseForceRadius) return float2(0f);
         float2 force = MouseForceStrength * forceSign * dir; //* SmoothingKernelSmoothTop(MouseForceRadius, length(toParticle));
-        Debug.Log(force);
         return force;
     }
 
@@ -82,8 +102,6 @@ public class ParticleSimulator
         velocities = new float2[ParticleCount];
         masses = new float[ParticleCount];
 
-        mouseNans = new bool[ParticleCount]; pressureNans = new bool[ParticleCount];
-
         densities = new float[ParticleCount];
 
         for (int i = 0; i < positions.Length; i++)
@@ -98,16 +116,13 @@ public class ParticleSimulator
         }
     }
 
-    bool[] mouseNans;
-    bool[] pressureNans;
-
-    void UpdateParticle(float dt, int index, ref float2 pos, ref float2 vel, ref bool mouseNan, ref bool pressureNan)
+    void UpdateParticle(float dt, int index, ref float2 pos, ref float2 vel)
     {
+        // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
         float2 pressureAcceleration = CalculatePressureForce(index) / densities[index];
         float2 mouseAcceleration = CalculateMouseForce(index) / densities[index];
-        float2 a = pressureAcceleration + mouseAcceleration + Gravity;
-        mouseNan = mouseNan || float.IsNaN(mouseAcceleration.x);
-        pressureNan = pressureNan || float.IsNaN(pressureAcceleration.x);
+        float2 viscosityAcceleration = CalculateViscosityForce(index) / densities[index];
+        float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + Gravity;
 
         vel += a * dt;
         pos += vel * dt;
@@ -138,13 +153,7 @@ public class ParticleSimulator
         Parallel.For(0, ParticleCount, i => predictedPositions[i] = CalculatePredictedPosition(i, 1f / 60f));
         GameManager.Ins.spatialHash.UpdateSpatialHash(); // Uses predicted positions
         Parallel.For(0, ParticleCount, i => densities[i] = CalculateDensity(predictedPositions[i]));
-        Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i], ref mouseNans[i], ref pressureNans[i]));
-
-        for (int i = 0; i < ParticleCount; i++)
-        {
-            if (mouseNans[i] || pressureNans[i])
-                Debug.Log($"Mouse NaN: {mouseNans[i]}, Pressure NaN: {pressureNans[i]}");
-        }
+        Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i]));
 
     }
 }

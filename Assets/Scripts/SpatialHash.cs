@@ -12,7 +12,7 @@ public class SpatialHash
 {
 
     public static float GridSize => SmoothingRadius / sqrt(2.0f);
-    const int SpatialLookupSize = 256;
+    const int SpatialLookupSize = 512;
 
     static int imod(int i, int m)
     {
