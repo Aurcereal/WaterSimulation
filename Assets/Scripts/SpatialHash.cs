@@ -42,7 +42,7 @@ public class SpatialHash
     public void UpdateSpatialHash()
     {
         //
-        float2[] positions = GameManager.Ins.particleSimulator.positions;
+        float2[] positions = GameManager.Ins.particleSimulator.predictedPositions;
 
         // Update Particle Cell Keys
         for (int i = 0; i < positions.Length; i++)

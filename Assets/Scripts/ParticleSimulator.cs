@@ -82,6 +82,8 @@ public class ParticleSimulator
         velocities = new float2[ParticleCount];
         masses = new float[ParticleCount];
 
+        mouseNans = new bool[ParticleCount]; pressureNans = new bool[ParticleCount];
+
         densities = new float[ParticleCount];
 
         for (int i = 0; i < positions.Length; i++)
@@ -96,12 +98,18 @@ public class ParticleSimulator
         }
     }
 
-    void UpdateParticle(float dt, int index, ref float2 pos, ref float2 vel)
+    bool[] mouseNans;
+    bool[] pressureNans;
+
+    void UpdateParticle(float dt, int index, ref float2 pos, ref float2 vel, ref bool mouseNan, ref bool pressureNan)
     {
         float2 pressureAcceleration = CalculatePressureForce(index) / densities[index];
         float2 mouseAcceleration = CalculateMouseForce(index) / densities[index];
         float2 a = pressureAcceleration + mouseAcceleration + Gravity;
-        vel += a * dt; //outVel += float2(0, -1) * SimulationParameters.Gravity * dt;
+        mouseNan = mouseNan || float.IsNaN(mouseAcceleration.x);
+        pressureNan = pressureNan || float.IsNaN(pressureAcceleration.x);
+
+        vel += a * dt;
         pos += vel * dt;
 
         // Collision
@@ -127,11 +135,16 @@ public class ParticleSimulator
         }
 
         //
-        GameManager.Ins.spatialHash.UpdateSpatialHash();
-//hudson wuz here
-        Parallel.For(0, ParticleCount, i => predictedPositions[i] = CalculatePredictedPosition(i, 1f/60f));
+        Parallel.For(0, ParticleCount, i => predictedPositions[i] = CalculatePredictedPosition(i, 1f / 60f));
+        GameManager.Ins.spatialHash.UpdateSpatialHash(); // Uses predicted positions
         Parallel.For(0, ParticleCount, i => densities[i] = CalculateDensity(predictedPositions[i]));
-        Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i]));
-        
+        Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i], ref mouseNans[i], ref pressureNans[i]));
+
+        for (int i = 0; i < ParticleCount; i++)
+        {
+            if (mouseNans[i] || pressureNans[i])
+                Debug.Log($"Mouse NaN: {mouseNans[i]}, Pressure NaN: {pressureNans[i]}");
+        }
+
     }
 }
