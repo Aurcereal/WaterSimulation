@@ -75,7 +75,7 @@ public static class ParticlePhysics
     public static float2 SmoothingKernelSmoothTopGradient(float smoothingRadius, float2 fromSample)
     {
         float dist = length(fromSample);
-        float2 dir = normalizesafe(fromSample, normalize(UnityEngine.Random.insideUnitCircle));
+        float2 dir = normalizesafe(fromSample); // normalizesafe random when fromSample is 0 uk but can't do UnityEngine.Random on main thread
         if (dist >= smoothingRadius) return float2(0.0f);
 
         // https://www.desmos.com/calculator/s58inuu2pm

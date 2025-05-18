@@ -38,7 +38,6 @@ Shader "Unlit/InstancedParticle"
                 float4 color : TEXCOORD1;
             };
 
-
             float _Radius;
 
             vOut vert (vIn v, uint instanceID : SV_InstanceID)

@@ -17,7 +17,7 @@ public class SpatialHash
     static int imod(int i, int m)
     {
         if (i >= 0) return i % m;
-        else return m - ((-i) % m);
+        else return m - 1 - ((-i) % m);
     }
 
     int hash21(int2 coord)
@@ -63,7 +63,6 @@ public class SpatialHash
             int currKey = partIDCellKeyPairs[i].y;
             if (currKey != prevKey)
             {
-                // Debug.Log($"Curr Key: {currKey} maps to {i}");
                 keyToStartCoord[currKey] = i;
                 prevKey = currKey;
             }

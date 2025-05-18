@@ -55,6 +55,20 @@ public class ParticleSimulator
         return totalForce;
     }
 
+    float2 CalculateMouseForce(int particleIndex)
+    {
+        float forceSign = (GameManager.Ins.inputManager.RightMouseButton ? 1 : 0) + (GameManager.Ins.inputManager.LeftMouseButton ? -1 : 0);
+        float2 toParticle = predictedPositions[particleIndex] - GameManager.Ins.inputManager.WorldMousePosition;
+
+        float dist = length(toParticle);
+        float2 dir = normalizesafe(toParticle);
+
+        if (forceSign == 0 || dist >= MouseForceRadius) return float2(0f);
+        float2 force = MouseForceStrength * forceSign * dir; //* SmoothingKernelSmoothTop(MouseForceRadius, length(toParticle));
+        Debug.Log(force);
+        return force;
+    }
+
     public float2[] positions;
     public float2[] predictedPositions;
     public float2[] velocities;
@@ -85,7 +99,8 @@ public class ParticleSimulator
     void UpdateParticle(float dt, int index, ref float2 pos, ref float2 vel)
     {
         float2 pressureAcceleration = CalculatePressureForce(index) / densities[index];
-        float2 a = pressureAcceleration + Gravity;
+        float2 mouseAcceleration = CalculateMouseForce(index) / densities[index];
+        float2 a = pressureAcceleration + mouseAcceleration + Gravity;
         vel += a * dt; //outVel += float2(0, -1) * SimulationParameters.Gravity * dt;
         pos += vel * dt;
 
@@ -113,7 +128,7 @@ public class ParticleSimulator
 
         //
         GameManager.Ins.spatialHash.UpdateSpatialHash();
-
+//hudson wuz here
         Parallel.For(0, ParticleCount, i => predictedPositions[i] = CalculatePredictedPosition(i, 1f/60f));
         Parallel.For(0, ParticleCount, i => densities[i] = CalculateDensity(predictedPositions[i]));
         Parallel.For(0, ParticleCount, i => UpdateParticle(dt, i, ref positions[i], ref velocities[i]));

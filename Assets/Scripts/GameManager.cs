@@ -9,12 +9,11 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Ins {get; private set;}
 
+    public InputManager inputManager;
     public ComputeManager computeManager;
     public Drawer drawer;
     public ParticleSimulator particleSimulator;
     public SpatialHash spatialHash;
-
-    public static float2 WorldMousePosition => (Vector2)Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
 
     void Start()
     {
@@ -26,6 +25,7 @@ public class GameManager : MonoBehaviour
     {
         computeManager?.Destructor();
 
+        inputManager = new();
         computeManager = new();
         drawer = new();
         particleSimulator = new();
@@ -34,6 +34,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        inputManager.Update();
+
         if (Input.GetKeyDown(KeyCode.R))
             ResetSimulation();
 

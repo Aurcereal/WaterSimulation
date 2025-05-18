@@ -13,6 +13,8 @@ public class SimulationParameters : MonoBehaviour
     public static float2 Gravity => Ins.gravity;
     public static float ParticleRadius => Ins.particleRadius;
     public static float SmoothingRadius => Ins.smoothingRadius;
+    public static float MouseForceRadius => Ins.mouseForceRadius;
+    public static float MouseForceStrength => Ins.mouseForceStrength;
     public static float TargetDensity => Ins.targetDensity;
     public static float PressureMultiplier => Ins.pressureMultiplier;
     public static Gradient ParticleSpeedGradient => Ins.particleSpeedGradient;
@@ -28,10 +30,12 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float2 gravity = new float2(0.0f, -9.8f);
     [Range(0.025f, 1.0f)] [SerializeField] float particleRadius = 0.05f;
     [Range(0.005f, 10.0f)] [SerializeField] float smoothingRadius = 0.1f;
+    [Range(0.005f, 10.0f)][SerializeField] float mouseForceRadius = 4.0f;
+    [Range(0.0f, 400.0f)][SerializeField] float mouseForceStrength = 100.0f;
     [Range(0.0f, 100.0f)] [SerializeField] float targetDensity = 10.0f;
-    [Range(0.05f, 100.0f)] [SerializeField] float pressureMultiplier = 1.0f;
+    [Range(0.05f, 500.0f)] [SerializeField] float pressureMultiplier = 1.0f;
     [SerializeField] Gradient particleSpeedGradient;
-    [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 1.0f;
+    [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 0.0f;
     [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
 
     private static SimulationParameters Ins;
