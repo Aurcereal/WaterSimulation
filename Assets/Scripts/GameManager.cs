@@ -17,8 +17,18 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        Ins = this;
-        ResetSimulation();
+        SpatialHash.ParticleEntry[] entries = new SpatialHash.ParticleEntry[] { new(1, 4), new(2, 2), new(3, 1), new(4, 5), new(5, 7), new(6, 1), new(7, 3), new(8, -4) };
+        ComputeBuffer particleEntries = ComputeHelper.CreateBuffer(entries);
+        BitonicSortManager bitonicSorter = new(particleEntries, 8);
+        bitonicSorter.SortParticleEntries();
+        particleEntries.GetData(entries);
+        Debug.Log("Final Arr");
+        for (int i = 0; i < entries.Length; i++)
+        {
+            Debug.Log($"Key: {entries[i].cellKey}, Particle Index: {entries[i].particleIndex}");
+        }
+        // Ins = this;
+        // ResetSimulation();
     }
 
     void ResetSimulation()
@@ -34,21 +44,16 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        inputManager.Update();
+        // inputManager.Update();
 
-        if (Input.GetKeyDown(KeyCode.R))
-            ResetSimulation();
+        // if (inputManager.KeyDownR)
+        //     ResetSimulation();
 
-        particleSimulator.Update(Time.deltaTime);
+        // particleSimulator.Update(Time.deltaTime);
 
-        // Color[] colors = new Color[SimulationParameters.ParticleCount];
-        // for (int i = 0; i < colors.Length; i++) colors[i] = Color.white;
-        // spatialHash.ForEachParticleWithinSmoothingRadius(WorldMousePosition, i => colors[i] = Color.red);
-        // computeManager.UpdateColorBuffer(colors);
-
-        computeManager.UpdatePositionBuffer(particleSimulator.positions);
-        drawer.UpdateParticleColors();
-        drawer.DrawParticles();
-        drawer.DrawContainer();
+        // computeManager.UpdatePositionBuffer(particleSimulator.positions);
+        // drawer.UpdateParticleColors();
+        // drawer.DrawParticles();
+        // drawer.DrawContainer();
     }
 }

@@ -30,11 +30,18 @@ public class SpatialHash
         return (int2)floor(pos / GridSize);
     }
 
-    int2[] partIDCellKeyPairs;
+    public struct ParticleEntry
+    {
+        public int particleIndex;
+        public int cellKey;
+        public ParticleEntry(int i, int k) { particleIndex = i; cellKey = k; }
+    }
+
+    ParticleEntry[] partIDCellKeyPairs;
     int[] keyToStartCoord;
     public SpatialHash()
     {
-        partIDCellKeyPairs = new int2[ParticleCount];
+        partIDCellKeyPairs = new ParticleEntry[ParticleCount];
         particleTempColors = new Color[ParticleCount];
         keyToStartCoord = new int[SpatialLookupSize];
     }
@@ -49,18 +56,18 @@ public class SpatialHash
         {
             int2 cell = posToCell(positions[i]);
             int key = hash21(cell);
-            partIDCellKeyPairs[i] = int2(i, key);
+            partIDCellKeyPairs[i] = new(i, key);
         }
 
         // Sort so particles of same key are grouped => particles of same cell are grouped
-        Array.Sort(partIDCellKeyPairs, (kIdPair1, kIdPair2) => kIdPair1.y - kIdPair2.y);
+        Array.Sort(partIDCellKeyPairs, (kIdPair1, kIdPair2) => kIdPair1.cellKey - kIdPair2.cellKey);
 
         // Update spatial lookup table
         for (int i = 0; i < keyToStartCoord.Length; i++) keyToStartCoord[i] = -1;
         int prevKey = -1;
         for (int i = 0; i < partIDCellKeyPairs.Length; i++)
         {
-            int currKey = partIDCellKeyPairs[i].y;
+            int currKey = partIDCellKeyPairs[i].cellKey;
             if (currKey != prevKey)
             {
                 keyToStartCoord[currKey] = i;
@@ -86,11 +93,10 @@ public class SpatialHash
                 int currIndex = keyToStartCoord[key];
                 if (currIndex != -1)
                 {
-                    while (currIndex < partIDCellKeyPairs.Length && partIDCellKeyPairs[currIndex].y == key)
+                    while (currIndex < partIDCellKeyPairs.Length && partIDCellKeyPairs[currIndex].cellKey == key)
                     {
                         // Debug.Log($"Found {partIDCellKeyPairs[currIndex]}");
-                        int particleIndex = partIDCellKeyPairs[currIndex].x;
-                        callback(particleIndex);
+                        callback(partIDCellKeyPairs[currIndex].particleIndex);
                         currIndex++;
                     }
                 }

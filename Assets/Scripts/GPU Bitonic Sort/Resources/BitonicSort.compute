@@ -1,0 +1,44 @@
+#pragma kernel SortPass
+
+struct ParticleEntry {
+    int particleIndex;
+    int key;
+};
+
+RWStructuredBuffer<ParticleEntry> ParticleEntries;
+const int EntryCount;
+const int GroupSize;
+const int AlternatorGroupSize; // We alternate direction of compare every AlternatorGroupSize indices
+
+// TODO: DONT USE INTEGER MODULOS cuz they're slow... idk if i can do float modulo or smth as replace lol
+[numthreads(64,1,1)]
+void SortPass (uint3 id : SV_DispatchThreadID)
+{
+    // We only need EntryCount/2 compares total
+    if(id.x >= EntryCount/2) return;
+
+    //
+    int halfGroupSize = GroupSize*0.5;
+
+    // We need GroupSize/2 compares per group
+    int group = id.x / halfGroupSize;
+    int indexInGroup = id.x % halfGroupSize;
+    //int dir = -((group % 2)*2-1);
+
+    //
+    int thisIndex = GroupSize * group + indexInGroup;
+    int otherIndex = thisIndex + halfGroupSize;
+
+    int dir = -(((thisIndex/AlternatorGroupSize) % 2)*2-1);
+
+    ParticleEntry thisEntry = ParticleEntries[thisIndex];
+    ParticleEntry otherEntry = ParticleEntries[otherIndex];
+
+    if(dir*thisEntry.key > dir*otherEntry.key) {
+        // Swap
+        //thisIndex = thisIndex % 8; otherIndex = otherIndex % 8;
+        ParticleEntries[thisIndex] = otherEntry;
+        ParticleEntries[otherIndex] = thisEntry;
+    }
+
+}
