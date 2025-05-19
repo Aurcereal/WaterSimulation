@@ -12,6 +12,9 @@ const int GroupSize;
 const int AlternatorGroupSize; // We alternate direction of compare every AlternatorGroupSize indices
 
 // TODO: DONT USE INTEGER MODULOS cuz they're slow... idk if i can do float modulo or smth as replace lol
+/// This is the normal bitonic sort, but we only sort forward.  
+/// Every sequence S that should've been sorted backwards is accessed differently like: S.get(i) = S[S.length - 1 - i]
+/// We use the 'lastAlternatorSize' to determine whether a subsequence should've been sorted forward or backwards
 [numthreads(64,1,1)]
 void SortPass (uint3 id : SV_DispatchThreadID)
 {
@@ -29,13 +32,18 @@ void SortPass (uint3 id : SV_DispatchThreadID)
     int thisIndex = GroupSize * group + indexInGroup;
     int otherIndex = thisIndex + halfGroupSize;
 
-    int dir = -(((thisIndex/AlternatorGroupSize) % 2)*2-1);
+    int lastAlternatorSize = AlternatorGroupSize/2;
+    if(thisIndex/lastAlternatorSize % 2 == 1) thisIndex = GroupSize * group + halfGroupSize-1-indexInGroup;
+    if(otherIndex/lastAlternatorSize % 2 == 1) otherIndex = GroupSize * group + halfGroupSize-1-indexInGroup + halfGroupSize;;
+
+    if(otherIndex >= EntryCount) return;
 
     ParticleEntry thisEntry = ParticleEntries[thisIndex];
     ParticleEntry otherEntry = ParticleEntries[otherIndex];
 
-    if(dir*thisEntry.key > dir*otherEntry.key) {
+    if(thisEntry.key > otherEntry.key) {
         // Swap
+        //thisIndex = thisIndex % 8; otherIndex = otherIndex % 8;
         ParticleEntries[thisIndex] = otherEntry;
         ParticleEntries[otherIndex] = thisEntry;
     }

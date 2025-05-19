@@ -17,9 +17,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        SpatialHash.ParticleEntry[] entries = new SpatialHash.ParticleEntry[] { new(1, 4), new(2, 2), new(3, 1), new(4, 5), new(5, 7), new(6, 1), new(7, 3), new(8, -4) };
+        SpatialHash.ParticleEntry[] entries = new SpatialHash.ParticleEntry[] { new(1, 4), new(2, 2), new(3, 1), new(4, 5), new(14, 100), new(5, -10), new(6, 1), new(7, 3), new(8, -4) };
         ComputeBuffer particleEntries = ComputeHelper.CreateBuffer(entries);
-        BitonicSortManager bitonicSorter = new(particleEntries, 8);
+        BitonicSortManager bitonicSorter = new(particleEntries, entries.Length);
         bitonicSorter.SortParticleEntries();
         particleEntries.GetData(entries);
         Debug.Log("Final Arr");

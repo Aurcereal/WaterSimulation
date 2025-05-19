@@ -7,27 +7,31 @@ public class BitonicSortManager
 
     ComputeShader bitonicSortShader;
     int entryCount;
+    int nextPowerOf2EntryCount;
     ComputeBuffer tempParticleEntries;
 
     public BitonicSortManager(ComputeBuffer particleEntries, int entryCount)
     {
         // start with power of 2 entries but make it support arb later
-        bitonicSortShader = ComputeHelper.FindInResourceFolder("BitonicSort");
+        bitonicSortShader = ComputeHelper.FindInResourceFolder("BitonicSortForward");
+
+        this.tempParticleEntries = particleEntries;
+        this.entryCount = entryCount;
+        this.nextPowerOf2EntryCount = 1 <<  ((int) ceil(log2(entryCount)));
 
         bitonicSortShader.SetBuffer(0, "ParticleEntries", particleEntries);
         bitonicSortShader.SetInt("EntryCount", entryCount);
-
-        this.entryCount = entryCount;
-        this.tempParticleEntries = particleEntries;
+        bitonicSortShader.SetInt("NextPowerOf2EntryCount", nextPowerOf2EntryCount);
+        
     }
 
     public void SortParticleEntries()
     {
-        SpatialHash.ParticleEntry[] entries = new SpatialHash.ParticleEntry[8];
+        //SpatialHash.ParticleEntry[] entries = new SpatialHash.ParticleEntry[7];
         // Bitonic Sort Resources:
         //  https://developer.nvidia.com/gpugems/gpugems2/part-vi-simulation-and-numerical-algorithms/chapter-46-improved-gpu-sorting
         //  https://www.geeksforgeeks.org/bitonic-sort/
-        int stageCount = (int)log2(entryCount);
+        int stageCount = (int)log2(nextPowerOf2EntryCount);
         Debug.Log($"Expected: 3, Stage Count: {stageCount}");
         for (int stage = 0; stage < stageCount; stage++)
         {
@@ -45,14 +49,14 @@ public class BitonicSortManager
                 bitonicSortShader.SetInt("GroupSize", groupSize);
 
                 // Dispatch
-                ComputeHelper.Dispatch(bitonicSortShader, entryCount / 2, 1, 1, 0);
+                ComputeHelper.Dispatch(bitonicSortShader, nextPowerOf2EntryCount / 2, 1, 1, 0);
 
-                tempParticleEntries.GetData(entries);
-                Debug.Log($"After Pass {pass} on stage {stage}");
-                for (int i = 0; i < entries.Length; i++)
-                {
-                    Debug.Log($"Key: {entries[i].cellKey}, Particle Index: {entries[i].particleIndex}");
-                }
+                // tempParticleEntries.GetData(entries);
+                // Debug.Log($"After Pass {pass} on stage {stage}");
+                // for (int i = 0; i < entries.Length; i++)
+                // {
+                //     Debug.Log($"Key: {entries[i].cellKey}, Particle Index: {entries[i].particleIndex}");
+                // }
             }
         }
     }
