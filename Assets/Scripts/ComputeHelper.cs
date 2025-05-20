@@ -51,11 +51,19 @@ public static class ComputeHelper
             buf.Dispose();
     }
 
-    public static void SetBuffers(this ComputeShader shader, string name, ComputeBuffer buffer, params string[] kernelNames)
+    public static void SetBuffer(this ComputeShader shader, string name, ComputeBuffer buffer, params string[] kernelNames)
     {
         foreach (string kernelName in kernelNames)
         {
             shader.SetBuffer(shader.FindKernel(kernelName), name, buffer);
+        }
+    }
+
+    public static void SetBuffers(this ComputeShader shader, (string, ComputeBuffer)[] nameBufferPairs, string[] kernelNames)
+    {
+        foreach (var nbp in nameBufferPairs)
+        {
+            shader.SetBuffer(nbp.Item1, nbp.Item2, kernelNames);
         }
     }
 }

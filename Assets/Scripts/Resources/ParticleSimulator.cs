@@ -18,7 +18,8 @@ public class ParticleSimulator
     {
         particleSimulatorShader = ComputeHelper.FindInResourceFolder("ParticleSimulator");
 
-        particleSimulatorShader.SetBuffers("positions", GameManager.Ins.computeManager.positionBuffer,
+        // ill give all kernels all buffers through ComputeHelper.setbuffers for now
+        particleSimulatorShader.SetBuffer("positions", GameManager.Ins.computeManager.positionBuffer,
             "CalculatePredictedPositions", "UpdateSpatialHashEntries", "ResetSpatialHashOffsets", "UpdateSpatialHashOffsets", "CalculateDensities", "UpdateParticles");
 
         // set buffers
