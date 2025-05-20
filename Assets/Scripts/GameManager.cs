@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Ins {get; private set;}
 
     public InputManager inputManager;
-    public ComputeManager computeManager;
+    public ComputeBufferManager computeManager;
     public Drawer drawer;
     public ParticleSimulator particleSimulator;
     public SpatialHash spatialHash;

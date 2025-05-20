@@ -4,7 +4,7 @@ using UnityEngine;
 
 using static Unity.Mathematics.math;
 
-public class ComputeHelper
+public static class ComputeHelper
 {
     public static void Dispatch(ComputeShader computeShader, int itersX, int itersY, int itersZ, int kernelIndex = 0)
     {
@@ -40,7 +40,22 @@ public class ComputeHelper
         return buffer;
     }
 
-    public static ComputeBuffer CreateBuffer<T>(int elemCount) {
+    public static ComputeBuffer CreateBuffer<T>(int elemCount)
+    {
         return new ComputeBuffer(elemCount, SizeOf<T>());
+    }
+
+    public static void DisposeBuffers(params ComputeBuffer[] buffers)
+    {
+        foreach (var buf in buffers)
+            buf.Dispose();
+    }
+
+    public static void SetBuffers(this ComputeShader shader, string name, ComputeBuffer buffer, params string[] kernelNames)
+    {
+        foreach (string kernelName in kernelNames)
+        {
+            shader.SetBuffer(shader.FindKernel(kernelName), name, buffer);
+        }
     }
 }
