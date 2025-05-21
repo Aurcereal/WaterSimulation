@@ -17,6 +17,8 @@ RWStructuredBuffer<float> masses;
 RWStructuredBuffer<float> densities;
 RWStructuredBuffer<float> nearDensities;
 
+RWStructuredBuffer<float4> colors;
+
 // Simulation Params
 const int ParticleCount;
 const float2 BoxDimensions;
@@ -33,9 +35,11 @@ const float PressureMultiplier;
 const float ViscosityStrength;
 
 //
-const float DeltaTime;
-const float SpatialLookupSize;
 const float GridSize;
+const int SpatialLookupSize;
+
+//
+const float DeltaTime;
 
 //
 #include "./ParticleMath.hlsl"
@@ -49,38 +53,6 @@ void CalculatePredictedPositions (uint3 id : SV_DispatchThreadID)
     if(i >= ParticleCount) return;
 
     predictedPositions[i] = positions[i] + velocities[i] * (1.0/60.0);
-}
-
-[numthreads(64, 1,1)]
-void CalculateDensities (uint3 id : SV_DispatchThreadID)
-{
-    int i = id.x;
-    if(i >= ParticleCount) return;
-
-    float totalDensity = 0.0;
-    float totalNearDensity = 0.0;
-
-    float2 pos = predictedPositions[i];
-    int2 centerCellPos = posToCell(pos);
-    int2 currCell;
-    for(int x=-1; x<=1; x++) {
-        for(int y=-1; y<=1; y++) {
-            currCell = centerCellPos + int2(x, y);
-
-            int key = getCellKey(currCell);
-            int currIndex = getStartIndex(key);
-
-            if(currIndex != -1) {
-                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
-
-                    totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, length(predictedPositions[i] - pos));
-                    totalNearDensity += masses[i] * SmoothingKernelPow3(SmoothingRadius, length(predictedPositions[i] - pos));
-
-                    currIndex++;
-                }
-            }
-        }
-    }
 }
 
 [numthreads(64, 1,1)]
@@ -128,6 +100,44 @@ void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
 }
 
 [numthreads(64, 1,1)]
+void CalculateDensities (uint3 id : SV_DispatchThreadID)
+{
+    int i = id.x;
+    if(i >= ParticleCount) return;
+
+    float totalDensity = 0.0;
+    float totalNearDensity = 0.0;
+
+    float2 pos = predictedPositions[i];
+    int2 centerCellPos = posToCell(pos);
+    int2 currCell;
+    int particleIndex;
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            currCell = centerCellPos + int2(x, y);
+
+            int key = getCellKey(currCell);
+            int currIndex = getStartIndex(key);
+
+            if(currIndex != -1) {
+                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                    particleIndex = particleCellKeyEntries[currIndex].particleIndex;
+
+                    totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, length(predictedPositions[particleIndex] - pos));
+                    totalNearDensity += masses[particleIndex] * SmoothingKernelPow3(SmoothingRadius, length(predictedPositions[particleIndex] - pos));
+
+                    currIndex++;
+                }
+            }
+        }
+    }
+
+    densities[i] = totalDensity;
+    nearDensities[i] = totalNearDensity;
+}
+
+[numthreads(64, 1,1)]
 void UpdateParticles (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
@@ -160,5 +170,6 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     }
 
     positions[i] = pos;
+    colors[i] = lerp(float4(0.4, 0.4, 0.4, 1.0), float4(1.0, 0.0, 0.0, 1.0), smoothstep(0.0, 50.0, densities[i]));
     velocities[i] = vel;
 }

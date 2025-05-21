@@ -2,27 +2,26 @@ using UnityEngine;
 
 using static Unity.Mathematics.math;
 
+using static SimulationParameters;
+
 public class BitonicSortManager
 {
 
     ComputeShader bitonicSortShader;
     int entryCount;
     int nextPowerOf2EntryCount;
-    ComputeBuffer tempParticleEntries;
 
-    public BitonicSortManager(ComputeBuffer particleEntries, int entryCount)
+    public BitonicSortManager()
     {
-        // start with power of 2 entries but make it support arb later
+        //
         bitonicSortShader = ComputeHelper.FindInResourceFolder("BitonicSortForward");
 
-        this.tempParticleEntries = particleEntries;
-        this.entryCount = entryCount;
-        this.nextPowerOf2EntryCount = 1 <<  ((int) ceil(log2(entryCount)));
+        this.entryCount = ParticleCount;
+        this.nextPowerOf2EntryCount = 1 << ((int)ceil(log2(entryCount)));
 
-        bitonicSortShader.SetBuffer(0, "ParticleEntries", particleEntries);
+        bitonicSortShader.SetBuffer(0, "ParticleEntries", GameManager.Ins.computeManager.particleCellKeyEntryBuffer);
         bitonicSortShader.SetInt("EntryCount", entryCount);
         bitonicSortShader.SetInt("NextPowerOf2EntryCount", nextPowerOf2EntryCount);
-        
     }
 
     public void SortParticleEntries()

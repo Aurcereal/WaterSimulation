@@ -14,6 +14,11 @@ public static class ComputeHelper
         computeShader.Dispatch(kernelIndex, groupCount.x, groupCount.y, groupCount.z);
     }
 
+    public static void Dispatch(ComputeShader computeShader, int itersX, int itersY, int itersZ, string kernelName)
+    {
+        Dispatch(computeShader, itersX, itersY, itersZ, computeShader.FindKernel(kernelName));
+    }
+
     public static uint3 GetGroupSize(ComputeShader computeShader, int kernelIndex = 0)
     {
         uint3 groupSize;

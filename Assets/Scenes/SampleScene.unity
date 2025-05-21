@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 679
+  particleCount: 8
   boxWidth: 10
   boxHeight: 10.7
   spawnWidth: 5

@@ -6,8 +6,8 @@ struct ParticleEntry {
 RWStructuredBuffer<ParticleEntry> particleCellKeyEntries;
 RWStructuredBuffer<int> cellKeyToStartCoord;
 
-// is this weird uint stuff ok?
-static uint imod(int i, uint m)
+// uint try
+int imod(int i, int m)
 {
     if (i >= 0) return i % m;
     else return m - 1 - ((-i) % m);

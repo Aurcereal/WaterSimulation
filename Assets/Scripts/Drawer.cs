@@ -30,15 +30,15 @@ public class Drawer
         DrawUtils.DrawOutlineBox(float2(0.0f), 0.0f, SimulationParameters.BoxDimensions, 0.1f, Color.white);
     }
 
-    public void UpdateParticleColors()
-    {
-        Parallel.For(0, ParticleCount,
-            i => colors[i] = ParticleSpeedGradient.Evaluate(
-                smoothstep(ParticleColorSpeedRange.x, ParticleColorSpeedRange.y, length(GameManager.Ins.particleSimulator.velocities[i]))
-                )
-            );
-        GameManager.Ins.computeManager.UpdateColorBuffer(colors);
-    }
+    // public void UpdateParticleColors()
+    // {
+    //     Parallel.For(0, ParticleCount,
+    //         i => colors[i] = ParticleSpeedGradient.Evaluate(
+    //             smoothstep(ParticleColorSpeedRange.x, ParticleColorSpeedRange.y, length(GameManager.Ins.simUpdater.velocities[i]))
+    //             )
+    //         );
+    //     GameManager.Ins.computeManager.UpdateColorBuffer(colors);
+    // }
 
     public void DrawParticles()
     {
