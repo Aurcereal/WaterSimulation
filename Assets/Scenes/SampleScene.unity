@@ -191,7 +191,7 @@ MonoBehaviour:
   smoothingRadius: 0.4
   mouseForceRadius: 2.31
   mouseForceStrength: 826
-  targetDensity: 26.9
+  targetDensity: 31.4
   nearDensityPressureMultiplier: 12
   pressureMultiplier: 215
   viscosityStrength: 54.9

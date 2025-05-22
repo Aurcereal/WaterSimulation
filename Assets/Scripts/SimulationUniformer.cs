@@ -50,6 +50,7 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("NearDensityPressureMultiplier", NearDensityPressureMultiplier);
         particleSimulatorShader.SetFloat("PressureMultiplier", PressureMultiplier);
         particleSimulatorShader.SetFloat("ViscosityStrength", ViscosityStrength);
+        particleSimulatorShader.SetFloat("SurfaceTensionMultiplier", SurfaceTensionMultiplier);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);

@@ -5,6 +5,6 @@ http://www.ligum.umontreal.ca/Clavet-2005-PVFS/pvfs.pdf
 Seb Lague Vid
 
 - Surface Tension from one of those papers
-- Rectangle w/ Arb transform Collision
+- Rectangle w/ Arb transform Collision (or just sdfs lol)
 - 3D
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
