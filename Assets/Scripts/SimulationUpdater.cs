@@ -9,19 +9,26 @@ using static SimulationParameters;
 using static ParticlePhysics;
 using System.Threading.Tasks;
 
-public class SimUpdater
+public class SimulationUpdater
 {
 
     ComputeShader particleSimulator;
 
-    public SimUpdater()
+    public SimulationUpdater()
     {
         particleSimulator = GameManager.Ins.computeManager.particleSimulatorShader;
     }
 
     public void Update(float dt)
     {
+        if (dt > 1.0f / 60.0f)
+        {
+            Debug.Log("Timestep is too large for an accurate simulation, slowing down time accordingly...");
+            dt = 1.0f / 60.0f;
+        }
+
         GameManager.Ins.simUniformer.UniformDeltaTime(dt);
+        GameManager.Ins.simUniformer.UniformMouseInputData();
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculatePredictedPositions");
 
@@ -34,6 +41,21 @@ public class SimUpdater
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
         //testspatialhash();
+        testdensities();
+    }
+
+    void testdensities()
+    {
+        var densities = new float[ParticleCount];
+        GameManager.Ins.computeManager.densityBuffer.GetData(densities);
+        for (int i = 0; i < densities.Length; i++)
+        {
+            if (densities[i] <= 0.0001f)
+            {
+                Debug.Log("Very low density");
+                break;
+            }
+        }
     }
 
     void testspatialhash()

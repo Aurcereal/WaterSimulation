@@ -12,9 +12,9 @@ public class GameManager : MonoBehaviour
     public InputManager inputManager;
 
     public ComputeManager computeManager;
-    public SimUniformer simUniformer;
-    public SimInitializer simInitializer;
-    public SimUpdater simUpdater;
+    public SimulationUniformer simUniformer;
+    public SimulationInitializer simInitializer;
+    public SimulationUpdater simUpdater;
 
     public BitonicSortManager bitonicSorter;
     public Drawer drawer;

@@ -42,6 +42,10 @@ const int SpatialLookupSize;
 const float DeltaTime;
 
 //
+const float MouseForceSign;
+const float2 MousePosition;
+
+//
 #include "./ParticleMath.hlsl"
 #include "./SpatialHash.hlsl"
 
@@ -61,7 +65,7 @@ void UpdateSpatialHashEntries (uint3 id : SV_DispatchThreadID)
     int i = id.x;
     if(i >= ParticleCount) return;
 
-    int2 cell = posToCell(positions[i]);
+    int2 cell = posToCell(predictedPositions[i]);
     int key = getCellKey(cell);
 
     ParticleEntry e;
@@ -137,6 +141,116 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
     nearDensities[i] = totalNearDensity;
 }
 
+float DensityToPressure(float density)
+{
+    // TargetDensity kind of offsets pressure to determine what happens with empty space: 
+    // if the result is high, our gradient will go from empty to wherever this is, 
+    // if our result is low, our gradient will go from wherever this is to empty
+    return PressureMultiplier * (density - TargetDensity);
+}
+
+float NearDensityToPressure(float nearDensity)
+{
+    // It's always a repelling force we 'want' the near density to be 0
+    return NearDensityPressureMultiplier * nearDensity;
+}
+
+// Pressure force is -PressureGradient since we'll flow from high pressure to low pressure
+float2 CalculatePressureForce(int i)
+{
+    float2 totalForce = 0.;
+
+    float2 pos = predictedPositions[i];
+    int2 centerCellPos = posToCell(pos);
+    int2 currCell;
+    int otherParticleIndex;
+
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            currCell = centerCellPos + int2(x, y);
+
+            int key = getCellKey(currCell);
+            int currIndex = getStartIndex(key);
+
+            if(currIndex != -1) {
+                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                    otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
+
+                    if (i != otherParticleIndex)
+                    {
+                        totalForce +=
+                            //masses[otherParticleIndex] * too many buffers..
+                            (DensityToPressure(densities[i]) + DensityToPressure(densities[otherParticleIndex])) * 0.5f *
+                            (-SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
+                            / densities[i];
+                        totalForce +=
+                            //masses[otherParticleIndex] *
+                            (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[otherParticleIndex])) * 0.5f *
+                            (-SmoothingKernelPow3Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
+                            / densities[i];
+                    }
+
+                    currIndex++;
+                }
+            }
+        }
+    }
+
+    return totalForce;
+}
+
+// Applies force to make velocity more similar to close particles
+float2 CalculateViscosityForce(int i)
+{
+    float2 pos = predictedPositions[i];
+    float2 vel = velocities[i];
+
+    float2 totalForce = 0.;
+    
+    int2 centerCellPos = posToCell(pos);
+    int2 currCell;
+    int otherParticleIndex;
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            currCell = centerCellPos + int2(x, y);
+
+            int key = getCellKey(currCell);
+            int currIndex = getStartIndex(key);
+
+            if(currIndex != -1) {
+                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                    otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
+
+                    if (i != otherParticleIndex)
+                    {
+                        totalForce +=
+                            //masses[otherParticleIndex] *
+                            (velocities[otherParticleIndex] - vel) *
+                            SmoothingKernelSmoothTop(SmoothingRadius, length(predictedPositions[otherParticleIndex] - pos));
+                    }
+
+                    currIndex++;
+                }
+            }
+        }
+    }
+    return totalForce * ViscosityStrength;
+}
+
+float2 CalculateMouseForce(int particleIndex)
+{
+    float2 toParticle = predictedPositions[particleIndex] - MousePosition;//GameManager.Ins.inputManager.WorldMousePosition;
+
+    float dist = length(toParticle);
+    float2 dir = normalize(toParticle);
+
+    if (MouseForceSign == 0. || dist >= MouseForceRadius) return 0.;
+    float2 force = MouseForceStrength * MouseForceSign * dir; //* SmoothingKernelSmoothTop(MouseForceRadius, length(toParticle));
+    return force;
+}
+
 [numthreads(64, 1,1)]
 void UpdateParticles (uint3 id : SV_DispatchThreadID)
 {
@@ -148,10 +262,10 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float2 vel = velocities[i];
 
     // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
-    float2 pressureAcceleration = 0.0;//CalculatePressureForce(index) / densities[index];
-    float2 mouseAcceleration = 0.0;//CalculateMouseForce(index) / densities[index];
-    float2 viscosityAcceleration = 0.0;//CalculateViscosityForce(index) / densities[index];
-    float2 a = Gravity;//pressureAcceleration + mouseAcceleration + viscosityAcceleration + Gravity;
+    float2 pressureAcceleration = CalculatePressureForce(i) / densities[i];
+    float2 mouseAcceleration = CalculateMouseForce(i) / densities[i];
+    float2 viscosityAcceleration = CalculateViscosityForce(i) / densities[i];
+    float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + Gravity;
 
     vel += a * dt;
     pos += vel * dt;
@@ -170,6 +284,6 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     }
 
     positions[i] = pos;
-    colors[i] = lerp(float4(0.4, 0.4, 0.4, 1.0), float4(1.0, 0.0, 0.0, 1.0), smoothstep(0.0, 50.0, densities[i]));
+    colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0.0, 7.5, length(velocities[i])));
     velocities[i] = vel;
 }

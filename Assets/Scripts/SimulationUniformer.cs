@@ -4,10 +4,11 @@ using UnityEngine;
 
 using static SimulationParameters;
 
-public class SimUniformer
+public class SimulationUniformer
 {
 
-    public void UniformAllBuffers() {
+    public void UniformAllBuffers()
+    {
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
         var computeManager = GameManager.Ins.computeManager;
 
@@ -33,7 +34,8 @@ public class SimUniformer
                 });
     }
 
-    public void UniformAllParameters() {
+    public void UniformAllParameters()
+    {
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
 
         particleSimulatorShader.SetInt("ParticleCount", ParticleCount);
@@ -54,7 +56,17 @@ public class SimUniformer
         particleSimulatorShader.SetInt("SpatialLookupSize", SpatialLookupSize);
     }
 
-    public void UniformDeltaTime(float dt) {
+    public void UniformDeltaTime(float dt)
+    {
         GameManager.Ins.computeManager.particleSimulatorShader.SetFloat("DeltaTime", dt);
+    }
+
+    public void UniformMouseInputData()
+    {
+        GameManager.Ins.computeManager.particleSimulatorShader.SetFloat("MouseForceSign",
+            (GameManager.Ins.inputManager.RightMouseButton ? 1 : 0) +
+            (GameManager.Ins.inputManager.LeftMouseButton ? -1 : 0)
+            );
+        GameManager.Ins.computeManager.particleSimulatorShader.SetVector("MousePosition", (Vector2)GameManager.Ins.inputManager.WorldMousePosition);
     }
 }

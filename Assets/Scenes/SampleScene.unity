@@ -180,17 +180,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 8
-  boxWidth: 10
-  boxHeight: 10.7
+  particleCount: 2000
+  boxWidth: 20
+  boxHeight: 10
   spawnWidth: 5
-  spawnHeight: 5.3
+  spawnHeight: 5
   gravity:
     x: 0
     y: -10
   smoothingRadius: 0.4
-  mouseForceRadius: 2
-  mouseForceStrength: 670
+  mouseForceRadius: 2.31
+  mouseForceStrength: 826
   targetDensity: 26.9
   nearDensityPressureMultiplier: 12
   pressureMultiplier: 215

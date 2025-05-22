@@ -58,7 +58,8 @@ public class ComputeManager
             densityBuffer,
             nearDensityBuffer,
             particleCellKeyEntryBuffer,
-            cellKeyToStartCoordBuffer
+            cellKeyToStartCoordBuffer,
+            colorBuffer
         );
     }
 }

@@ -14,11 +14,11 @@ public struct ParticleEntry
     public ParticleEntry(int i, int k) { particleIndex = i; cellKey = k; }
 }
 
-public class SimInitializer
+public class SimulationInitializer
 {
 
     ComputeShader particleSimulatorShader;
-    public SimInitializer()
+    public SimulationInitializer()
     {
         particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
     }
