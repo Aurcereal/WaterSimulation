@@ -23,7 +23,6 @@ public static class ComputeHelper
     {
         uint3 groupSize;
         computeShader.GetKernelThreadGroupSizes(kernelIndex, out groupSize.x, out groupSize.y, out groupSize.z);
-        //Debug.Log($"Delete this later but GroupSize: {groupSize}");
         return groupSize;
     }
 
