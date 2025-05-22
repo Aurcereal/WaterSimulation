@@ -181,12 +181,12 @@ float2 CalculatePressureForce(int i)
                     if (i != otherParticleIndex)
                     {
                         totalForce +=
-                            //masses[otherParticleIndex] * too many buffers..
+                            masses[otherParticleIndex] *
                             (DensityToPressure(densities[i]) + DensityToPressure(densities[otherParticleIndex])) * 0.5f *
                             (-SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
                             / densities[i];
                         totalForce +=
-                            //masses[otherParticleIndex] *
+                            masses[otherParticleIndex] *
                             (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[otherParticleIndex])) * 0.5f *
                             (-SmoothingKernelPow3Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
                             / densities[i];
@@ -227,7 +227,7 @@ float2 CalculateViscosityForce(int i)
                     if (i != otherParticleIndex)
                     {
                         totalForce +=
-                            //masses[otherParticleIndex] *
+                            masses[otherParticleIndex] *
                             (velocities[otherParticleIndex] - vel) *
                             SmoothingKernelSmoothTop(SmoothingRadius, length(predictedPositions[otherParticleIndex] - pos));
                     }
@@ -273,7 +273,7 @@ float2 EvaluateExistenceGradient(float2 pos) {
                     otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
 
                     totalGrad +=
-                        //masses[otherParticleIndex] * too many buffers..
+                        masses[otherParticleIndex] * 
                         (SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
                         / densities[otherParticleIndex];
 
