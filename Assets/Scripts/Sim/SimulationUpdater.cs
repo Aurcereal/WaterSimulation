@@ -6,7 +6,6 @@ using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
 using static SimulationParameters;
-using static ParticlePhysics;
 using System.Threading.Tasks;
 
 public class SimulationUpdater

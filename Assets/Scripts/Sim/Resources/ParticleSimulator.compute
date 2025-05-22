@@ -326,7 +326,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float2 pressureAcceleration = CalculatePressureForce(i) / densities[i];
     float2 mouseAcceleration = CalculateMouseForce(i) / densities[i];
     float2 viscosityAcceleration = CalculateViscosityForce(i) / densities[i];
-    float2 surfaceTensionAcceleration = 0.;//CalculateSurfaceTensionForce(i) / densities[i];
+    float2 surfaceTensionAcceleration = CalculateSurfaceTensionForce(i) / densities[i];
     float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + surfaceTensionAcceleration + Gravity;
 
     vel += a * dt;

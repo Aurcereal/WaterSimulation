@@ -195,6 +195,7 @@ MonoBehaviour:
   nearDensityPressureMultiplier: 12
   pressureMultiplier: 215
   viscosityStrength: 54.9
+  surfaceTensionMultiplier: 0
   particleRadius: 0.05
   boxThickness: 0.1
   particleSpeedGradient:
