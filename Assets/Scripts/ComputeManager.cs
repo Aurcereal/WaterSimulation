@@ -23,6 +23,9 @@ public class ComputeManager
 
     public ComputeBuffer densityBuffer;
     public ComputeBuffer nearDensityBuffer;
+
+    public ComputeBuffer springRestLengthBuffer;
+
     public ComputeBuffer colorBuffer;
 
     // Spatial Hashing
@@ -41,6 +44,8 @@ public class ComputeManager
 
         densityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         nearDensityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
+
+        springRestLengthBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount * ParticleCount);
 
         colorBuffer = ComputeHelper.CreateBuffer<Color>(ParticleCount);
 

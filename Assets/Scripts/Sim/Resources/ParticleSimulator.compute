@@ -17,6 +17,8 @@ RWStructuredBuffer<float> masses;
 RWStructuredBuffer<float> densities;
 RWStructuredBuffer<float> nearDensities;
 
+RWStructuredBuffer<float> springRestLengths;
+
 RWStructuredBuffer<float4> colors;
 
 // Simulation Params
@@ -104,11 +106,16 @@ void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
     }
 }
 
+void UpdateSprings(int particleIndex, float dt);
+
 [numthreads(64, 1,1)]
 void CalculateDensities (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
     if(i >= ParticleCount) return;
+
+    // also update springs here lol
+    UpdateSprings(i, DeltaTime); // TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP TEMP TE MPT EMPT EMTP EMTPET MP
 
     float totalDensity = 0.0;
     float totalNearDensity = 0.0;
@@ -253,7 +260,7 @@ float2 CalculateMouseForce(int particleIndex)
 }
 
 // https://matthias-research.github.io/pages/publications/sca03.pdf 3.3
-float2 EvaluateExistenceGradient(float2 pos) {
+float2 EvaluateExistenceGradient(float2 pos, int particleIndex) {
     int2 centerCellPos = posToCell(pos);
     int2 currCell;
     int otherParticleIndex;
@@ -272,10 +279,14 @@ float2 EvaluateExistenceGradient(float2 pos) {
 
                     otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
 
-                    totalGrad +=
-                        masses[otherParticleIndex] * 
-                        (SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
-                        / densities[otherParticleIndex];
+                    if(otherParticleIndex != particleIndex) {
+
+                        totalGrad +=
+                            masses[otherParticleIndex] * 
+                            (SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
+                            / densities[otherParticleIndex];
+
+                    }
 
                     currIndex++;
                 }
@@ -286,15 +297,15 @@ float2 EvaluateExistenceGradient(float2 pos) {
     return totalGrad;
 }
 
-float EvaluateExistenceGradientDivergence(float2 pos) {
+float EvaluateExistenceGradientDivergence(float2 pos, int particleIndex) {
     // Using 4 samples of EvaluateExistenceGradient (will be 8 for 3D if wanna be accurate, or could approx with 4)
     // Curvature is Divergence of Unit Normal Vector or Divergence of Normal Vector div by Length of Normal Vec
     // Probably some way to use less samples
     
     float2 e = float2(0.1,0.);
     
-    float dGradxdx = (EvaluateExistenceGradient(pos+e.xy).x - EvaluateExistenceGradient(pos-e.xy).x)/(2.0*e.x);
-    float dGradydy = (EvaluateExistenceGradient(pos+e.yx).y - EvaluateExistenceGradient(pos-e.yx).y)/(2.0*e.x);
+    float dGradxdx = (EvaluateExistenceGradient(pos+e.xy, particleIndex).x - EvaluateExistenceGradient(pos-e.xy, particleIndex).x)/(2.0*e.x);
+    float dGradydy = (EvaluateExistenceGradient(pos+e.yx, particleIndex).y - EvaluateExistenceGradient(pos-e.yx, particleIndex).y)/(2.0*e.x);
 
     float div = dGradxdx + dGradydy;
     return div;
@@ -303,13 +314,114 @@ float EvaluateExistenceGradientDivergence(float2 pos) {
 float2 CalculateSurfaceTensionForce(int particleIndex) {
     float2 pos = positions[particleIndex];
 
-    float2 grad = EvaluateExistenceGradient(pos);
+    float2 grad = EvaluateExistenceGradient(pos, particleIndex);
     if(length(grad) <= 0.001) return 0.;
 
     float2 norm = normalize(grad);
-    float div = EvaluateExistenceGradientDivergence(pos);
+    float div = EvaluateExistenceGradientDivergence(pos, particleIndex);
 
-    return - SurfaceTensionMultiplier * norm * div;
+    return SurfaceTensionMultiplier * norm * div;
+}
+
+float getSpringLength(int i1, int i2) {
+    return springRestLengths[i1 * ParticleCount + i2];
+}
+
+void setSpringLength(int i1, int i2, float val) {
+    springRestLengths[i1 * ParticleCount + i2] = val;
+}
+
+void UpdateSprings(int particleIndex, float dt) {
+
+    float2 pos = predictedPositions[particleIndex];
+    int2 centerCellPos = posToCell(pos);
+    int2 currCell;
+    int otherParticleIndex;
+
+    // could cut down spring adjustments by half since order doesn't matter
+
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            currCell = centerCellPos + int2(x, y);
+
+            int key = getCellKey(currCell);
+            int currIndex = getStartIndex(key);
+
+            if(currIndex != -1) {
+                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                    otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
+
+                    if(otherParticleIndex != particleIndex) {
+                        float r = length(predictedPositions[otherParticleIndex]-pos);
+                        if(r <= SmoothingRadius) {
+                            // Add spring if there's none already
+                            if(getSpringLength(particleIndex, otherParticleIndex) < 0.)
+                                setSpringLength(particleIndex, otherParticleIndex, SmoothingRadius*0.5);
+
+                            float restLen = getSpringLength(particleIndex, otherParticleIndex);
+
+                            float yieldRatio = 0.1; // make const later
+                            float plasticity = 0.;
+                            float tolerableDeformation = yieldRatio * restLen;
+
+                            if(r > restLen + tolerableDeformation)
+                                restLen += dt * plasticity * (r - (restLen+tolerableDeformation));
+                            else if(r < restLen - tolerableDeformation)
+                                restLen += dt * plasticity * (r - (restLen-tolerableDeformation));
+
+                            setSpringLength(particleIndex, otherParticleIndex, restLen);
+                        } else {
+                            // Remove spring, too far
+                            setSpringLength(particleIndex, otherParticleIndex, -1.0);
+                        }
+                    }
+
+                    currIndex++;
+                }
+            }
+        }
+    }
+}
+
+float2 CalculateSpringForce(int particleIndex) {
+
+    float2 pos = predictedPositions[particleIndex];
+    int2 centerCellPos = posToCell(pos);
+    int2 currCell;
+    int otherParticleIndex;
+
+    float2 totalForce = 0.;
+
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            currCell = centerCellPos + int2(x, y);
+
+            int key = getCellKey(currCell);
+            int currIndex = getStartIndex(key);
+
+            if(currIndex != -1) {
+                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                    otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
+
+                    if(otherParticleIndex != particleIndex) {
+                        float r = length(predictedPositions[otherParticleIndex]-pos);
+                        if(r <= SmoothingRadius) {
+                            float restLen = getSpringLength(particleIndex, otherParticleIndex);
+
+                            float forceMult = 50000. * (1. - r/SmoothingRadius) * (restLen - r);
+                            totalForce += forceMult * normalize(pos - predictedPositions[otherParticleIndex]);
+                        }
+                    }
+
+                    currIndex++;
+                }
+            }
+        }
+    }
+
+    return totalForce;
 }
 
 [numthreads(64, 1,1)]
@@ -327,7 +439,8 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float2 mouseAcceleration = CalculateMouseForce(i) / densities[i];
     float2 viscosityAcceleration = CalculateViscosityForce(i) / densities[i];
     float2 surfaceTensionAcceleration = CalculateSurfaceTensionForce(i) / densities[i];
-    float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + surfaceTensionAcceleration + Gravity;
+    float2 springAcceleration = CalculateSpringForce(i) / densities[i];
+    float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + surfaceTensionAcceleration + springAcceleration + Gravity;
 
     vel += a * dt;
     pos += vel * dt;
@@ -346,6 +459,6 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     }
 
     positions[i] = pos;
-    colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0.0, 1.5, length(EvaluateExistenceGradient(positions[i]))));//length(velocities[i])));
+    colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0.5, 1.5, length(EvaluateExistenceGradient(positions[i], -1))));//length(velocities[i])));
     velocities[i] = vel;
 }

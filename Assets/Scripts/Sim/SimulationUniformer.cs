@@ -22,7 +22,8 @@ public class SimulationUniformer
                 ("nearDensities", computeManager.nearDensityBuffer),
                 ("particleCellKeyEntries", computeManager.particleCellKeyEntryBuffer),
                 ("cellKeyToStartCoord", computeManager.cellKeyToStartCoordBuffer),
-                ("colors", computeManager.colorBuffer)
+                ("colors", computeManager.colorBuffer),
+                ("springRestLengths", computeManager.springRestLengthBuffer)
                 },
             new string[] {
                 "CalculatePredictedPositions",

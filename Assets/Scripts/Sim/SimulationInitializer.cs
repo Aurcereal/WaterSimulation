@@ -34,6 +34,9 @@ public class SimulationInitializer
         var densities = new float[ParticleCount];
         var nearDensities = new float[ParticleCount];
 
+        var springRests = new float[ParticleCount * ParticleCount];
+        for (int i = 0; i < springRests.Length; i++) springRests[i] = -1.0f;
+
         var colors = new Color[ParticleCount];
 
         for (int i = 0; i < positions.Length; i++)
@@ -59,10 +62,13 @@ public class SimulationInitializer
         GameManager.Ins.computeManager.densityBuffer.SetData(densities);
         GameManager.Ins.computeManager.nearDensityBuffer.SetData(nearDensities);
 
+        GameManager.Ins.computeManager.springRestLengthBuffer.SetData(springRests);
+
+        GameManager.Ins.computeManager.colorBuffer.SetData(colors);
+
         GameManager.Ins.computeManager.particleCellKeyEntryBuffer.SetData(partIDCellKeyPairs);
         GameManager.Ins.computeManager.cellKeyToStartCoordBuffer.SetData(keyToStartCoord);
 
-        GameManager.Ins.computeManager.colorBuffer.SetData(colors);
     }
 
 }
