@@ -181,10 +181,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particleCount: 2000
-  boxWidth: 20
-  boxHeight: 10
   spawnWidth: 5
   spawnHeight: 5
+  enableParticleSprings: 0
+  boxWidth: 20
+  boxHeight: 10
   gravity:
     x: 0
     y: -10
@@ -196,6 +197,9 @@ MonoBehaviour:
   pressureMultiplier: 215
   viscosityStrength: 54.9
   surfaceTensionMultiplier: 0
+  springForceMultiplier: 50000
+  plasticity: 10
+  springYieldRatio: 0
   particleRadius: 0.05
   boxThickness: 0.1
   particleSpeedGradient:

@@ -12,8 +12,10 @@ public class SimulationUniformer
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
         var computeManager = GameManager.Ins.computeManager;
 
-        particleSimulatorShader.SetBuffers(
-            new (string, ComputeBuffer)[] {
+        if (EnableParticleSprings)
+        {
+            particleSimulatorShader.SetBuffers(
+                new (string, ComputeBuffer)[] {
                 ("positions", computeManager.positionBuffer),
                 ("predictedPositions", computeManager.predictedPositionBuffer),
                 ("velocities", computeManager.velocityBuffer),
@@ -24,15 +26,41 @@ public class SimulationUniformer
                 ("cellKeyToStartCoord", computeManager.cellKeyToStartCoordBuffer),
                 ("colors", computeManager.colorBuffer),
                 ("springRestLengths", computeManager.springRestLengthBuffer)
-                },
-            new string[] {
+                    },
+                new string[] {
+                "CalculatePredictedPositions",
+                "UpdateSpatialHashEntries",
+                "ResetSpatialHashOffsets",
+                "UpdateSpatialHashOffsets",
+                "CalculateDensities",
+                "UpdateSpringLengths",
+                "UpdateParticles"
+                    });
+        }
+        else
+        {
+            particleSimulatorShader.SetBuffers(
+                new (string, ComputeBuffer)[] {
+                ("positions", computeManager.positionBuffer),
+                ("predictedPositions", computeManager.predictedPositionBuffer),
+                ("velocities", computeManager.velocityBuffer),
+                ("masses", computeManager.massBuffer),
+                ("densities", computeManager.densityBuffer),
+                ("nearDensities", computeManager.nearDensityBuffer),
+                ("particleCellKeyEntries", computeManager.particleCellKeyEntryBuffer),
+                ("cellKeyToStartCoord", computeManager.cellKeyToStartCoordBuffer),
+                ("colors", computeManager.colorBuffer),
+                ("springRestLengths", new ComputeBuffer(1, 1)) // Need this since compiler of ParticleSimulator.compute will get scared it doesn't have the buffer (even tho it doesnt use it)
+                    },
+                new string[] {
                 "CalculatePredictedPositions",
                 "UpdateSpatialHashEntries",
                 "ResetSpatialHashOffsets",
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
                 "UpdateParticles"
-                });
+                    });
+        }
     }
 
     public void UniformAllParameters()
@@ -52,6 +80,10 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("PressureMultiplier", PressureMultiplier);
         particleSimulatorShader.SetFloat("ViscosityStrength", ViscosityStrength);
         particleSimulatorShader.SetFloat("SurfaceTensionMultiplier", SurfaceTensionMultiplier);
+        particleSimulatorShader.SetFloat("SpringForceMultiplier", SpringForceMultiplier);
+        particleSimulatorShader.SetFloat("Plasticity", Plasticity);
+        particleSimulatorShader.SetFloat("SpringYieldRatio", SpringYieldRatio);
+        particleSimulatorShader.SetBool("EnableParticleSprings", EnableParticleSprings);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);

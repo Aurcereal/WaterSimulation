@@ -24,25 +24,35 @@ public class SimulationParameters : MonoBehaviour
     public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
     public static float ViscosityStrength => Ins.viscosityStrength;
     public static float SurfaceTensionMultiplier => Ins.surfaceTensionMultiplier;
+    public static bool EnableParticleSprings => Ins.enableParticleSprings;
+    public static float SpringForceMultiplier => Ins.springForceMultiplier;
+    public static float Plasticity => Ins.plasticity;
+    public static float SpringYieldRatio => Ins.springYieldRatio;
     
     public const int SpatialLookupSize = 512;
     public static float GridSize => SmoothingRadius;
 
-    [Header("Physics Parameters")]
+    [Header("Initialization Parameters")]
     [Range(1, 40000)][SerializeField] int particleCount = 10;
-    [Range(2, 200)][SerializeField] float boxWidth = 50.0f;
-    [Range(2, 100)][SerializeField] float boxHeight = 40.0f;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
     [Range(0.05f, 100)][SerializeField] float spawnHeight = 40.0f;
+    [SerializeField] bool enableParticleSprings = false;
+
+    [Header("Physics Parameters")]
+    [Range(2, 200)][SerializeField] float boxWidth = 50.0f;
+    [Range(2, 100)][SerializeField] float boxHeight = 40.0f;
     [SerializeField] float2 gravity = new float2(0.0f, -9.8f);
     [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
     [Range(0.005f, 10.0f)][SerializeField] float mouseForceRadius = 4.0f;
-    [Range(0.0f, 1000.0f)][SerializeField] float mouseForceStrength = 100.0f;
+    [Range(0.0f, 5000.0f)][SerializeField] float mouseForceStrength = 100.0f;
     [Range(0.0f, 100.0f)][SerializeField] float targetDensity = 10.0f;
     [Range(0.0f, 500.0f)][SerializeField] float nearDensityPressureMultiplier = 1.0f;
     [Range(0.05f, 500.0f)][SerializeField] float pressureMultiplier = 1.0f;
     [Range(0.0f, 500.0f)][SerializeField] float viscosityStrength = 4.0f;
     [Range(0.0f, 500.0f)][SerializeField] float surfaceTensionMultiplier = 5.0f;
+    [Range(0.0f, 200000.0f)][SerializeField] float springForceMultiplier = 50000f;
+    [Range(0.0f, 10.0f)][SerializeField] float plasticity = 0f;
+    [Range(0.0f, 10.0f)][SerializeField] float springYieldRatio = 0.1f;
 
     [Header("Mostly Visual")]
     [Range(0.025f, 1.0f)][SerializeField] float particleRadius = 0.05f;

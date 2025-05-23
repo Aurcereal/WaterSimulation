@@ -45,7 +45,7 @@ public class ComputeManager
         densityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         nearDensityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
 
-        springRestLengthBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount * ParticleCount);
+        if(EnableParticleSprings) springRestLengthBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount * ParticleCount);
 
         colorBuffer = ComputeHelper.CreateBuffer<Color>(ParticleCount);
 

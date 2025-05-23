@@ -37,6 +37,7 @@ public class SimulationUpdater
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculateDensities");
+        if(EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths");
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
         //testspatialhash();

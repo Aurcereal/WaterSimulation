@@ -4,6 +4,7 @@
 #pragma kernel ResetSpatialHashOffsets
 #pragma kernel UpdateSpatialHashOffsets // Must be sorted at this point
 
+#pragma kernel UpdateSpringLengths
 #pragma kernel CalculateDensities
 #pragma kernel UpdateParticles
 
@@ -36,6 +37,10 @@ const float PressureMultiplier;
 // how to do gradients? seb lag idk what they did or i could just do gradient texture.. grad to tex?
 const float ViscosityStrength;
 const float SurfaceTensionMultiplier;
+const float SpringForceMultiplier;
+const float Plasticity;
+const float SpringYieldRatio;
+const bool EnableParticleSprings;
 
 //
 const float GridSize;
@@ -106,16 +111,11 @@ void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
     }
 }
 
-void UpdateSprings(int particleIndex, float dt);
-
 [numthreads(64, 1,1)]
 void CalculateDensities (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
     if(i >= ParticleCount) return;
-
-    // also update springs here lol
-    UpdateSprings(i, DeltaTime); // TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP TEMP TE MPT EMPT EMTP EMTPET MP
 
     float totalDensity = 0.0;
     float totalNearDensity = 0.0;
@@ -147,6 +147,18 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
 
     densities[i] = totalDensity;
     nearDensities[i] = totalNearDensity;
+}
+
+void UpdateSprings(int particleIndex, float dt);
+
+[numthreads(64, 1,1)]
+void UpdateSpringLengths (uint3 id : SV_DispatchThreadID)
+{
+    int i = id.x;
+    if(i >= ParticleCount) return;
+
+    // also update springs here lol
+    UpdateSprings(i, DeltaTime);
 }
 
 float DensityToPressure(float density)
@@ -361,14 +373,12 @@ void UpdateSprings(int particleIndex, float dt) {
 
                             float restLen = getSpringLength(particleIndex, otherParticleIndex);
 
-                            float yieldRatio = 0.1; // make const later
-                            float plasticity = 0.;
-                            float tolerableDeformation = yieldRatio * restLen;
+                            float tolerableDeformation = SpringYieldRatio * restLen;
 
                             if(r > restLen + tolerableDeformation)
-                                restLen += dt * plasticity * (r - (restLen+tolerableDeformation));
+                                restLen += dt * Plasticity * (r - (restLen+tolerableDeformation));
                             else if(r < restLen - tolerableDeformation)
-                                restLen += dt * plasticity * (r - (restLen-tolerableDeformation));
+                                restLen += dt * Plasticity * (r - (restLen-tolerableDeformation));
 
                             setSpringLength(particleIndex, otherParticleIndex, restLen);
                         } else {
@@ -410,7 +420,7 @@ float2 CalculateSpringForce(int particleIndex) {
                         if(r <= SmoothingRadius) {
                             float restLen = getSpringLength(particleIndex, otherParticleIndex);
 
-                            float forceMult = 50000. * (1. - r/SmoothingRadius) * (restLen - r);
+                            float forceMult = SpringForceMultiplier * (1. - r/SmoothingRadius) * (restLen - r);
                             totalForce += forceMult * normalize(pos - predictedPositions[otherParticleIndex]);
                         }
                     }
@@ -438,8 +448,8 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float2 pressureAcceleration = CalculatePressureForce(i) / densities[i];
     float2 mouseAcceleration = CalculateMouseForce(i) / densities[i];
     float2 viscosityAcceleration = CalculateViscosityForce(i) / densities[i];
-    float2 surfaceTensionAcceleration = CalculateSurfaceTensionForce(i) / densities[i];
-    float2 springAcceleration = CalculateSpringForce(i) / densities[i];
+    float2 surfaceTensionAcceleration = SurfaceTensionMultiplier > 0.0001 ? CalculateSurfaceTensionForce(i) / densities[i] : 0.;
+    float2 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / densities[i] : 0.;
     float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + surfaceTensionAcceleration + springAcceleration + Gravity;
 
     vel += a * dt;

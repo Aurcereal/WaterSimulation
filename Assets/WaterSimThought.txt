@@ -4,7 +4,13 @@ http://www.ligum.umontreal.ca/Clavet-2005-PVFS/pvfs.pdf
 
 Seb Lague Vid
 
-- Surface Tension from one of those papers
 - Rectangle w/ Arb transform Collision (or just sdfs lol)
 - 3D
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
+
+-=Ignore/Done for now=-
+
+- Surface Tension from one of those papers (didn't turn out well for now..)
+- Springs are a big nxn matrix currently, that can get massive so can cut down to an 'adjacency list' which will just be stored as like an nx200 matrix where row i stores particles that are within smoothing distance of particle i (since it won't be much).  Can store length for each row.
+- Elasticity from ligum paper section 5 (implemented)
+- Sim Parameters has 'Initialization' header section with particle count, spawn zone... etc... and whether to use springs (so we can avoid creating big buffer sometimes)
