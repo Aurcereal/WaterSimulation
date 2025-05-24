@@ -4,7 +4,7 @@ http://www.ligum.umontreal.ca/Clavet-2005-PVFS/pvfs.pdf
 
 Seb Lague Vid
 
-- Rectangle w/ Arb transform Collision (or just sdfs lol)
+- Try SDF stickiness (Clavet 6.2 maybe can ignore fact that my collision resolution is very simpler just add sticky force)
 - 3D
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 
@@ -14,3 +14,4 @@ Seb Lague Vid
 - Springs are a big nxn matrix currently, that can get massive so can cut down to an 'adjacency list' which will just be stored as like an nx200 matrix where row i stores particles that are within smoothing distance of particle i (since it won't be much).  Can store length for each row.
 - Elasticity from ligum paper section 5 (implemented)
 - Sim Parameters has 'Initialization' header section with particle count, spawn zone... etc... and whether to use springs (so we can avoid creating big buffer sometimes)
+- Rectangle w/ Arb transform Collision (or just sdfs lol)

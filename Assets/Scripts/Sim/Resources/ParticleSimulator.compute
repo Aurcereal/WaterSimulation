@@ -39,6 +39,8 @@ const float SpringForceMultiplier;
 const float Plasticity;
 const float SpringYieldRatio;
 const bool EnableParticleSprings;
+const float MaxStickDistance;
+const float StickForceMultiplier;
 
 const float2 BoxDimensions;
 const float BoxThickness;
@@ -47,6 +49,7 @@ const float BoxThickness;
 const float2 ObstacleDimensions;
 const float2 ObstaclePosition;
 const float ObstacleRotation;
+const bool IsObstacleBox;
 
 //
 const float GridSize;
@@ -442,9 +445,20 @@ float2 CalculateSpringForce(int particleIndex) {
     return totalForce;
 }
 
+float2 CalculateStickinessForce(int particleIndex) {
+    float2 pos = predictedPositions[particleIndex];
+    float d = sdScene(pos);
+
+    float forceMag = max(0., StickForceMultiplier * d * (1.0 - d/MaxStickDistance));
+    float2 norm = normal(pos);
+    return -norm * forceMag;
+}
+
 float sdScene(float2 p) {
     float dBox = -sdBox(p, BoxDimensions-BoxThickness*2.0);
-    float dObstacle = sdBox(rot(p - ObstaclePosition, ObstacleRotation), ObstacleDimensions);
+    float dObstacle = IsObstacleBox ? 
+        sdBox(rot(p - ObstaclePosition, ObstacleRotation), ObstacleDimensions) :
+        sdCircle(p - ObstaclePosition, ObstacleDimensions.x);
     return min(dBox, dObstacle);
 }
 
@@ -464,7 +478,8 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float2 viscosityAcceleration = CalculateViscosityForce(i) / densities[i];
     float2 surfaceTensionAcceleration = SurfaceTensionMultiplier > 0.0001 ? CalculateSurfaceTensionForce(i) / densities[i] : 0.;
     float2 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / densities[i] : 0.;
-    float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + surfaceTensionAcceleration + springAcceleration + Gravity;
+    float2 stickinessAcceleration = CalculateStickinessForce(i) / densities[i];
+    float2 a = pressureAcceleration + mouseAcceleration + viscosityAcceleration + surfaceTensionAcceleration + springAcceleration + stickinessAcceleration + Gravity;
 
     vel += a * dt;
     pos += vel * dt;

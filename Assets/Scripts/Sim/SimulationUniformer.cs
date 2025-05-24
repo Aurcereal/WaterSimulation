@@ -84,10 +84,13 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("Plasticity", Plasticity);
         particleSimulatorShader.SetFloat("SpringYieldRatio", SpringYieldRatio);
         particleSimulatorShader.SetBool("EnableParticleSprings", EnableParticleSprings);
+        particleSimulatorShader.SetFloat("MaxStickDistance", MaxStickDistance);
+        particleSimulatorShader.SetFloat("StickForceMultiplier", StickForceMultiplier);
 
         particleSimulatorShader.SetVector("ObstacleDimensions", (Vector2) ObstacleDimensions);
         particleSimulatorShader.SetVector("ObstaclePosition", (Vector2) ObstaclePosition);
         particleSimulatorShader.SetFloat("ObstacleRotation", ObstacleRotation);
+        particleSimulatorShader.SetBool("IsObstacleBox", IsObstacleBox);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);

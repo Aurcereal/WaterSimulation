@@ -183,13 +183,14 @@ MonoBehaviour:
   particleCount: 2000
   spawnWidth: 5
   spawnHeight: 5
-  enableParticleSprings: 0
+  smoothingRadius: 0.4
   boxWidth: 20
   boxHeight: 10
+  obstacleTransform: {fileID: 1857617105}
+  obstacleType: 0
   gravity:
     x: 0
     y: -10
-  smoothingRadius: 0.4
   mouseForceRadius: 2.31
   mouseForceStrength: 826
   targetDensity: 31.4
@@ -197,10 +198,12 @@ MonoBehaviour:
   pressureMultiplier: 215
   viscosityStrength: 54.9
   surfaceTensionMultiplier: 0
+  enableParticleSprings: 0
   springForceMultiplier: 50000
   plasticity: 10
   springYieldRatio: 0
-  obstacleTransform: {fileID: 1857617105}
+  maxStickDistance: 0.25
+  stickForceMultiplier: 8250
   particleRadius: 0.05
   boxThickness: 0.1
   particleSpeedGradient:

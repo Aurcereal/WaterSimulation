@@ -1,6 +1,6 @@
 #define NORMEPS 0.0005
 
-float sdSphere(float2 p, float r) {
+float sdCircle(float2 p, float r) {
     return length(p) - r;
 }
 

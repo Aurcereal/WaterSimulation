@@ -26,9 +26,12 @@ public class Drawer
         particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius);
     }
 
-    public void DrawBoxAndObstacle() {
-        DrawUtils.DrawOutlineBox(ObstaclePosition, ObstacleRotation, ObstacleDimensions, 0.1f, Color.white);
-        DrawUtils.DrawOutlineBox(float2(0.0f), 0.0f, BoxDimensions, 0.1f, Color.white);
+    public void DrawBoxAndObstacle()
+    {
+        if (IsObstacleBox) DrawUtils.DrawOutlineBox(ObstaclePosition, ObstacleRotation, ObstacleDimensions, BoxThickness, Color.white);
+        else DrawUtils.DrawOutlineCircle(ObstaclePosition, ObstacleDimensions.x, BoxThickness, Color.white);
+
+        DrawUtils.DrawOutlineBox(float2(0.0f), 0.0f, BoxDimensions, BoxThickness, Color.white);
     }
 
     public void DrawParticles()
