@@ -66,7 +66,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.05f, 500.0f)][SerializeField] float pressureMultiplier = 1.0f;
 
     [Header("Viscosity Force")]
-    [Range(0.0f, 500.0f)][SerializeField] float viscosityStrength = 4.0f;
+    [Range(0.0f, 750.0f)][SerializeField] float viscosityStrength = 4.0f;
 
     [Header("Surface Tension Force")]
     [Range(0.0f, 500.0f)][SerializeField] float surfaceTensionMultiplier = 5.0f;

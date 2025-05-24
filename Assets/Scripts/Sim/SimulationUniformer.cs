@@ -50,7 +50,7 @@ public class SimulationUniformer
                 ("particleCellKeyEntries", computeManager.particleCellKeyEntryBuffer),
                 ("cellKeyToStartCoord", computeManager.cellKeyToStartCoordBuffer),
                 ("colors", computeManager.colorBuffer),
-                ("springRestLengths", new ComputeBuffer(1, 1)) // Need this since compiler of ParticleSimulator.compute will get scared it doesn't have the buffer (even tho it doesnt use it)
+                ("springRestLengths", computeManager.colorBuffer) // Need this since compiler of ParticleSimulator.compute will get scared it doesn't have the buffer (even tho it doesnt use it) so I give it a random buffer
                     },
                 new string[] {
                 "CalculatePredictedPositions",
