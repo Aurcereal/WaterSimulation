@@ -9,8 +9,8 @@ RWStructuredBuffer<int> cellKeyToStartCoord;
 // uint try
 int imod(int i, int m)
 {
-    if (i >= 0) return i % m;
-    else return m - 1 - ((-i) % m);
+    if (i >= 0) return uint(i) % uint(m);
+    else return m - 1 - (uint(-i) % uint(m));
 }
 
 int hash21(int2 coord)

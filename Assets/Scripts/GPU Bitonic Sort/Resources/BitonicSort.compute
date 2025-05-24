@@ -11,7 +11,7 @@ const int NextPowerOf2EntryCount;
 const int GroupSize;
 const int AlternatorGroupSize; // We alternate direction of compare every AlternatorGroupSize indices
 
-// TODO: DONT USE INTEGER MODULOS cuz they're slow... idk if i can do float modulo or smth as replace lol
+// TODO: DONT USE INTEGER MODULOS cuz they're slow... idk if i can do float modulo or smth as replace lol (we use uint mod in Forward bitonic)
 [numthreads(64,1,1)]
 void SortPass (uint3 id : SV_DispatchThreadID)
 {

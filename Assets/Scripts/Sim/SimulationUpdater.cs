@@ -41,7 +41,7 @@ public class SimulationUpdater
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
         //testspatialhash();
-        testdensities();
+        //testdensities();
     }
 
     void testdensities()
@@ -70,8 +70,8 @@ public class SimulationUpdater
 
         int imod(int i, int m)
         {
-            if (i >= 0) return i % m;
-            else return m - 1 - ((-i) % m);
+            if (i >= 0) return (int) (((uint)i) % ((uint)m));
+            else return m - 1 - (int)(((uint)(-i) % (uint)m));
         }
 
         int hash21(int2 coord)
@@ -96,7 +96,7 @@ public class SimulationUpdater
 
         Color[] colors = new Color[ParticleCount];
         GameManager.Ins.computeManager.colorBuffer.GetData(colors);
-        //for (int i = 0; i < ParticleCount; i++) colors[i] = Color.white;
+        for (int i = 0; i < ParticleCount; i++) colors[i] = Color.white;
 
         for (int i = 0; i < particleEntries.Length; i++)
         {

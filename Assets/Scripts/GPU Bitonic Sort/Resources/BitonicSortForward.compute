@@ -6,12 +6,11 @@ struct ParticleEntry {
 };
 
 RWStructuredBuffer<ParticleEntry> ParticleEntries;
-const int EntryCount;
-const int NextPowerOf2EntryCount;
-const int GroupSize;
-const int AlternatorGroupSize; // We alternate direction of compare every AlternatorGroupSize indices
+const uint EntryCount;
+const uint NextPowerOf2EntryCount;
+const uint GroupSize;
+const uint AlternatorGroupSize; // We alternate direction of compare every AlternatorGroupSize indices
 
-// TODO: DONT USE INTEGER MODULOS cuz they're slow... idk if i can do float modulo or smth as replace lol
 /// This is the normal bitonic sort, but we only sort forward.  
 /// Every sequence S that should've been sorted backwards is accessed differently like: S.get(i) = S[S.length - 1 - i]
 /// We use the 'lastAlternatorSize' to determine whether a subsequence should've been sorted forward or backwards
@@ -19,20 +18,21 @@ const int AlternatorGroupSize; // We alternate direction of compare every Altern
 void SortPass (uint3 id : SV_DispatchThreadID)
 {
     // We only need at most NextPowerOf2EntryCount/2 compares total
-    if(id.x >= NextPowerOf2EntryCount/2) return;
+    uint i = uint(id.x);
+    if(i >= NextPowerOf2EntryCount/2) return;
 
     //
-    int halfGroupSize = GroupSize*0.5;
+    uint halfGroupSize = GroupSize*0.5;
 
     // We need GroupSize/2 compares per group
-    int group = id.x / halfGroupSize;
-    int indexInGroup = id.x % halfGroupSize;
+    uint group = i / halfGroupSize;
+    uint indexInGroup = i % halfGroupSize;
 
     //
-    int thisIndex = GroupSize * group + indexInGroup;
-    int otherIndex = thisIndex + halfGroupSize;
+    uint thisIndex = GroupSize * group + indexInGroup;
+    uint otherIndex = thisIndex + halfGroupSize;
 
-    int lastAlternatorSize = AlternatorGroupSize/2;
+    uint lastAlternatorSize = AlternatorGroupSize/2;
     if(thisIndex/lastAlternatorSize % 2 == 1) thisIndex = GroupSize * group + halfGroupSize-1-indexInGroup;
     if(otherIndex/lastAlternatorSize % 2 == 1) otherIndex = GroupSize * group + halfGroupSize-1-indexInGroup + halfGroupSize;;
 
@@ -43,7 +43,6 @@ void SortPass (uint3 id : SV_DispatchThreadID)
 
     if(thisEntry.key > otherEntry.key) {
         // Swap
-        //thisIndex = thisIndex % 8; otherIndex = otherIndex % 8;
         ParticleEntries[thisIndex] = otherEntry;
         ParticleEntries[otherIndex] = thisEntry;
     }

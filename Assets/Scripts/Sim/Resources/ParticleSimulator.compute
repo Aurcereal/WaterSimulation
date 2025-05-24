@@ -485,17 +485,6 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     pos += vel * dt;
 
     // Collision
-    // float2 dist = (BoxDimensions * 0.5 - BoxThickness) - abs(pos) - ParticleRadius;
-    // if (dist.x <= 0.0)
-    // {
-    //     pos.x = sign(pos.x) * (BoxDimensions.x * 0.5 - BoxThickness - ParticleRadius);
-    //     vel.x *= -0.9;
-    // }
-    // else if (dist.y <= 0.0)
-    // {
-    //     pos.y = sign(pos.y) * (BoxDimensions.y * 0.5 - BoxThickness - ParticleRadius);
-    //     vel.y *= -0.9;
-    // }
     float dScene = sdScene(pos) - ParticleRadius;
     if(dScene < 0.) {
         float2 norm = normal(pos);
@@ -504,6 +493,6 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     }
 
     positions[i] = pos;
-    colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0.5, 1.5, length(EvaluateExistenceGradient(positions[i], -1))));//length(velocities[i])));
+    colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0., 7.5, length(velocities[i])));//smoothstep(0.5, 1.5, length(EvaluateExistenceGradient(positions[i], -1))));//length(velocities[i])));
     velocities[i] = vel;
 }
