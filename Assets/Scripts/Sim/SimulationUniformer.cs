@@ -85,6 +85,10 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("SpringYieldRatio", SpringYieldRatio);
         particleSimulatorShader.SetBool("EnableParticleSprings", EnableParticleSprings);
 
+        particleSimulatorShader.SetVector("ObstacleDimensions", (Vector2) ObstacleDimensions);
+        particleSimulatorShader.SetVector("ObstaclePosition", (Vector2) ObstaclePosition);
+        particleSimulatorShader.SetFloat("ObstacleRotation", ObstacleRotation);
+
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);
         particleSimulatorShader.SetInt("SpatialLookupSize", SpatialLookupSize);

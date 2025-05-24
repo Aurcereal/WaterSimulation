@@ -5,3 +5,7 @@ float3x3 rot2D(float o) {
         float3(0.,0.,1.)
     );
 }
+
+float2 rot(float2 v, float o) {
+    return mul(float2x2(cos(o), sin(o), -sin(o), cos(o)), v);
+}

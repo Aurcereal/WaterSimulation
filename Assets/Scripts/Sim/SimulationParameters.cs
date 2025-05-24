@@ -28,7 +28,10 @@ public class SimulationParameters : MonoBehaviour
     public static float SpringForceMultiplier => Ins.springForceMultiplier;
     public static float Plasticity => Ins.plasticity;
     public static float SpringYieldRatio => Ins.springYieldRatio;
-    
+    public static float2 ObstacleDimensions => float2(Ins.obstacleTransform.localScale.x, Ins.obstacleTransform.localScale.y);
+    public static float2 ObstaclePosition => float2(Ins.obstacleTransform.position.x, Ins.obstacleTransform.position.y);
+    public static float ObstacleRotation => radians(Ins.obstacleTransform.localRotation.eulerAngles.z);
+
     public const int SpatialLookupSize = 512;
     public static float GridSize => SmoothingRadius;
 
@@ -53,6 +56,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.0f, 200000.0f)][SerializeField] float springForceMultiplier = 50000f;
     [Range(0.0f, 10.0f)][SerializeField] float plasticity = 0f;
     [Range(0.0f, 10.0f)][SerializeField] float springYieldRatio = 0.1f;
+    [SerializeField] Transform obstacleTransform;
 
     [Header("Mostly Visual")]
     [Range(0.025f, 1.0f)][SerializeField] float particleRadius = 0.05f;
@@ -65,5 +69,20 @@ public class SimulationParameters : MonoBehaviour
     void Awake()
     {
         Ins = this;
+    }
+
+    void OnValidate()
+    {
+        // This Monobehavior func is called when a value changes
+        GameManager.Ins?.simUniformer.UniformAllParameters();
+    }
+
+    void Update()
+    {
+        if (obstacleTransform.hasChanged)
+        {
+            obstacleTransform.hasChanged = false;
+            GameManager.Ins?.simUniformer.UniformAllParameters();
+        }
     }
 }

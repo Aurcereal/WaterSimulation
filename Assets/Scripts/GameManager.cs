@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
         simUniformer.UniformAllParameters();
 
         simInitializer = new();
-        simInitializer.InitializeSimulation(); 
+        simInitializer.InitializeSimulation();
 
         simUpdater = new();
 
@@ -57,11 +57,12 @@ public class GameManager : MonoBehaviour
         simUpdater.Update(Time.deltaTime);
 
         drawer.DrawParticles();
-        drawer.DrawContainer();
+        drawer.DrawBoxAndObstacle();
     }
 
     void OnDisable()
     {
         computeManager?.Destructor();
     }
+
 }

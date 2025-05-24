@@ -24,8 +24,6 @@ RWStructuredBuffer<float4> colors;
 
 // Simulation Params
 const int ParticleCount;
-const float2 BoxDimensions;
-const float BoxThickness;
 const float2 Gravity;
 const float ParticleRadius;
 const float SmoothingRadius;
@@ -34,13 +32,21 @@ const float MouseForceStrength;
 const float TargetDensity;
 const float NearDensityPressureMultiplier;
 const float PressureMultiplier;
-// how to do gradients? seb lag idk what they did or i could just do gradient texture.. grad to tex?
+// how to do color gradients? seb lag idk what they did or i could just do gradient texture.. grad to tex?
 const float ViscosityStrength;
 const float SurfaceTensionMultiplier;
 const float SpringForceMultiplier;
 const float Plasticity;
 const float SpringYieldRatio;
 const bool EnableParticleSprings;
+
+const float2 BoxDimensions;
+const float BoxThickness;
+
+// In 3D maybe have a scale vec, but then a rot tra matrix
+const float2 ObstacleDimensions;
+const float2 ObstaclePosition;
+const float ObstacleRotation;
 
 //
 const float GridSize;
@@ -56,6 +62,8 @@ const float2 MousePosition;
 //
 #include "./ParticleMath.hlsl"
 #include "./SpatialHash.hlsl"
+#include "./MathHelper.hlsl"
+#include "./SDFMath2D.hlsl"
 
 ///
 [numthreads(64, 1,1)]
@@ -434,6 +442,12 @@ float2 CalculateSpringForce(int particleIndex) {
     return totalForce;
 }
 
+float sdScene(float2 p) {
+    float dBox = -sdBox(p, BoxDimensions-BoxThickness*2.0);
+    float dObstacle = sdBox(rot(p - ObstaclePosition, ObstacleRotation), ObstacleDimensions);
+    return min(dBox, dObstacle);
+}
+
 [numthreads(64, 1,1)]
 void UpdateParticles (uint3 id : SV_DispatchThreadID)
 {
@@ -456,16 +470,22 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     pos += vel * dt;
 
     // Collision
-    float2 dist = (BoxDimensions * 0.5 - BoxThickness) - abs(pos) - ParticleRadius;
-    if (dist.x <= 0.0)
-    {
-        pos.x = sign(pos.x) * (BoxDimensions.x * 0.5 - BoxThickness - ParticleRadius);
-        vel.x *= -0.9;
-    }
-    else if (dist.y <= 0.0)
-    {
-        pos.y = sign(pos.y) * (BoxDimensions.y * 0.5 - BoxThickness - ParticleRadius);
-        vel.y *= -0.9;
+    // float2 dist = (BoxDimensions * 0.5 - BoxThickness) - abs(pos) - ParticleRadius;
+    // if (dist.x <= 0.0)
+    // {
+    //     pos.x = sign(pos.x) * (BoxDimensions.x * 0.5 - BoxThickness - ParticleRadius);
+    //     vel.x *= -0.9;
+    // }
+    // else if (dist.y <= 0.0)
+    // {
+    //     pos.y = sign(pos.y) * (BoxDimensions.y * 0.5 - BoxThickness - ParticleRadius);
+    //     vel.y *= -0.9;
+    // }
+    float dScene = sdScene(pos) - ParticleRadius;
+    if(dScene < 0.) {
+        float2 norm = normal(pos);
+        vel -= 2. * norm * dot(norm, vel);
+        pos -= norm * dScene;
     }
 
     positions[i] = pos;
