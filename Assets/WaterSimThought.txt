@@ -4,7 +4,6 @@ http://www.ligum.umontreal.ca/Clavet-2005-PVFS/pvfs.pdf
 
 Seb Lague Vid
 
-- modulating integers (it says try uints instead?) is super slow in the shader i do that in bitonic and hashing i think
 - 3D
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 
