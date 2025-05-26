@@ -41,7 +41,7 @@ public class SimulationUpdater
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
         //testspatialhash();
-        testdensities();
+        //testdensities();
     }
 
     void testdensities()
