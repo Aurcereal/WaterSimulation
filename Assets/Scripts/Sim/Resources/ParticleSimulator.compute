@@ -496,7 +496,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     //float2 surfaceTensionAcceleration = SurfaceTensionMultiplier > 0.0001 ? CalculateSurfaceTensionForce(i) / densities[i] : 0.;
     float3 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / densities[i] : 0.;
     float3 stickinessAcceleration = CalculateStickinessForce(i) / densities[i];
-    float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + Gravity;
+    float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + springAcceleration + Gravity;
 
     vel += a * dt;
     pos += vel * dt;
