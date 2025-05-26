@@ -10,10 +10,10 @@ public class SimulationParameters : MonoBehaviour
 {
 
     public static int ParticleCount => Ins.particleCount;
-    public static float2 BoxDimensions => new(Ins.boxWidth, Ins.boxHeight);
-    public static float2 SpawnDimensions => new(Ins.spawnWidth, Ins.spawnHeight);
+    public static float3 BoxDimensions => new(Ins.boxWidth, Ins.boxHeight, Ins.boxDepth);
+    public static float3 SpawnDimensions => new(Ins.spawnWidth, Ins.spawnHeight, Ins.spawnDepth);
     public static float BoxThickness => Ins.boxThickness;
-    public static float2 Gravity => Ins.gravity;
+    public static float3 Gravity => Ins.gravity;
     public static float ParticleRadius => Ins.particleRadius;
     public static float SmoothingRadius => Ins.smoothingRadius;
     public static float MouseForceRadius => Ins.mouseForceRadius;
@@ -23,6 +23,7 @@ public class SimulationParameters : MonoBehaviour
     public static float PressureMultiplier => Ins.pressureMultiplier;
     public static Gradient ParticleSpeedGradient => Ins.particleSpeedGradient;
     public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
+    public static Mesh ParticleMesh => Ins.particleMesh;
     public static float ViscosityStrength => Ins.viscosityStrength;
     public static float SurfaceTensionMultiplier => Ins.surfaceTensionMultiplier;
     public static bool EnableParticleSprings => Ins.enableParticleSprings;
@@ -31,10 +32,10 @@ public class SimulationParameters : MonoBehaviour
     public static float SpringYieldRatio => Ins.springYieldRatio;
     public static float MaxStickDistance => Ins.maxStickDistance;
     public static float StickForceMultiplier => Ins.stickForceMultiplier;
-    public static float2 ObstacleDimensions => float2(Ins.obstacleTransform.localScale.x, Ins.obstacleTransform.localScale.y);
-    public static float2 ObstaclePosition => float2(Ins.obstacleTransform.position.x, Ins.obstacleTransform.position.y);
-    public static float ObstacleRotation => radians(Ins.obstacleTransform.localRotation.eulerAngles.z);
-    public static bool IsObstacleBox => Ins.obstacleType;
+    // public static float2 ObstacleDimensions => float2(Ins.obstacleTransform.localScale.x, Ins.obstacleTransform.localScale.y);
+    // public static float2 ObstaclePosition => float2(Ins.obstacleTransform.position.x, Ins.obstacleTransform.position.y);
+    // public static float ObstacleRotation => radians(Ins.obstacleTransform.localRotation.eulerAngles.z);
+    // public static bool IsObstacleBox => Ins.obstacleType;
 
     public const int SpatialLookupSize = 512;
     public static float GridSize => SmoothingRadius;
@@ -43,6 +44,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(1, 40000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
     [Range(0.05f, 100)][SerializeField] float spawnHeight = 40.0f;
+    [Range(0.05f, 100)][SerializeField] float spawnDepth = 40.0f;
 
     [Header("Misc Parameters")]
     [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
@@ -50,11 +52,12 @@ public class SimulationParameters : MonoBehaviour
     [Header("Box/Obstacle Parameters")]
     [Range(2, 200)][SerializeField] float boxWidth = 50.0f;
     [Range(2, 100)][SerializeField] float boxHeight = 40.0f;
+    [Range(2, 100)][SerializeField] float boxDepth = 40.0f;
     [SerializeField] Transform obstacleTransform;
     [SerializeField] bool obstacleType;
 
     [Header("Gravity Force")]
-    [SerializeField] float2 gravity = new float2(0.0f, -9.8f);
+    [SerializeField] float3 gravity = new float3(0.0f, -9.8f, 0.0f);
 
     [Header("Mouse Force")]
     [Range(0.005f, 10.0f)][SerializeField] float mouseForceRadius = 4.0f;
@@ -87,6 +90,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] Gradient particleSpeedGradient;
     [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 0.0f;
     [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
+    [SerializeField] Mesh particleMesh;
 
     private static SimulationParameters Ins;
     void Awake()

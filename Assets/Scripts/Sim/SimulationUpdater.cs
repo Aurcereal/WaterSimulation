@@ -41,7 +41,7 @@ public class SimulationUpdater
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
         //testspatialhash();
-        //testdensities();
+        testdensities();
     }
 
     void testdensities()
@@ -60,11 +60,13 @@ public class SimulationUpdater
 
     void testspatialhash()
     {
-        var positions = new float2[ParticleCount];
+        var positions = new float3[ParticleCount];
+        var predictedPositions = new float3[ParticleCount];
         var particleEntries = new ParticleEntry[ParticleCount];
         var spatialOffsets = new int[SpatialLookupSize];
 
         GameManager.Ins.computeManager.positionBuffer.GetData(positions);
+        GameManager.Ins.computeManager.predictedPositionBuffer.GetData(predictedPositions);
         GameManager.Ins.computeManager.particleCellKeyEntryBuffer.GetData(particleEntries);
         GameManager.Ins.computeManager.cellKeyToStartCoordBuffer.GetData(spatialOffsets);
 
@@ -79,19 +81,24 @@ public class SimulationUpdater
             return imod(949937 + 119227 * coord.x + 370673 * coord.y, SpatialLookupSize);
         }
 
+        int hash31(int3 coord)
+        {
+            return imod(949937 + 119227 * coord.x + 370673 * coord.y + 440537 * coord.z, SpatialLookupSize);
+        }
+
         int getStartIndex(int key)
         {
             return spatialOffsets[key];
         }
 
-        int getCellKey(int2 cellPos)
+        int getCellKey(int3 cellPos)
         {
-            return hash21(cellPos);
+            return hash31(cellPos);
         }
 
-        int2 posToCell(float2 pos)
+        int3 posToCell(float3 pos)
         {
-            return int2(floor(pos / GridSize));
+            return int3(floor(pos / GridSize));
         }
 
         Color[] colors = new Color[ParticleCount];
@@ -105,33 +112,44 @@ public class SimulationUpdater
             Debug.Log($"{i} Key: {particleEntries[i].cellKey}, Particle Index: {particleIndex}, Position: {positions[particleIndex]}, Cell Position: {posToCell(positions[particleIndex])}");
         }
 
-        float2 pos = GameManager.Ins.inputManager.WorldMousePosition;
-        int2 centerCellPos = posToCell(pos);
-        int2 currCell;
-        for (int x = 0; x <= 0; x++)
+        for (int i = 0; i < ParticleCount; i++)
         {
-            for (int y = 0; y <= 0; y++)
+            float3 pos = predictedPositions[i];
+            int3 cell = posToCell(pos);
+            int3 currCell;
+
+            bool sw = false;
+            for (int x = 0; x <= 0; x++)
             {
-                currCell = centerCellPos + int2(x, y);
-
-                int key = getCellKey(currCell);
-                int currIndex = getStartIndex(key);
-
-                Debug.Log($"Cell {currCell}, Key {key}, Start Index: {currIndex}");
-
-                if (currIndex != -1)
+                for (int y = 0; y <= 0; y++)
                 {
-                    while (currIndex < ParticleCount && particleEntries[currIndex].cellKey == key)
+                    for (int z = 0; z <= 0; z++)
                     {
+                        currCell = cell + int3(x, y, z);
 
-                        int particleIndex = particleEntries[currIndex].particleIndex;
-                        colors[particleIndex] = Color.red;
+                        int key = getCellKey(currCell);
+                        int currIndex = getStartIndex(key);
 
-                        currIndex++;
+                        //Debug.Log($"Cell {currCell}, Key {key}, Start Index: {currIndex}");
+
+                        if (currIndex != -1)
+                        {
+                            while (currIndex < ParticleCount && particleEntries[currIndex].cellKey == key)
+                            {
+
+                                int particleIndex = particleEntries[currIndex].particleIndex;
+                                colors[particleIndex] = Color.red;
+                                sw = true;
+
+                                currIndex++;
+                            }
+                        }
                     }
                 }
             }
+            if (!sw) Debug.Log("WHAT");
         }
+        
 
         GameManager.Ins.computeManager.colorBuffer.SetData(colors);
 

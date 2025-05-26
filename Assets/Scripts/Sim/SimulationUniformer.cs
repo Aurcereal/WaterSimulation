@@ -68,9 +68,9 @@ public class SimulationUniformer
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
 
         particleSimulatorShader.SetInt("ParticleCount", ParticleCount);
-        particleSimulatorShader.SetVector("BoxDimensions", (Vector2)BoxDimensions);
+        particleSimulatorShader.SetVector("BoxDimensions", (Vector3)BoxDimensions);
         particleSimulatorShader.SetFloat("BoxThickness", BoxThickness);
-        particleSimulatorShader.SetVector("Gravity", (Vector2)Gravity);
+        particleSimulatorShader.SetVector("Gravity", (Vector3)Gravity);
         particleSimulatorShader.SetFloat("ParticleRadius", ParticleRadius);
         particleSimulatorShader.SetFloat("SmoothingRadius", SmoothingRadius);
         particleSimulatorShader.SetFloat("MouseForceRadius", MouseForceRadius);
@@ -87,10 +87,10 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("MaxStickDistance", MaxStickDistance);
         particleSimulatorShader.SetFloat("StickForceMultiplier", StickForceMultiplier);
 
-        particleSimulatorShader.SetVector("ObstacleDimensions", (Vector2) ObstacleDimensions);
-        particleSimulatorShader.SetVector("ObstaclePosition", (Vector2) ObstaclePosition);
-        particleSimulatorShader.SetFloat("ObstacleRotation", ObstacleRotation);
-        particleSimulatorShader.SetBool("IsObstacleBox", IsObstacleBox);
+        // particleSimulatorShader.SetVector("ObstacleDimensions", (Vector2) ObstacleDimensions);
+        // particleSimulatorShader.SetVector("ObstaclePosition", (Vector2) ObstaclePosition);
+        // particleSimulatorShader.SetFloat("ObstacleRotation", ObstacleRotation);
+        // particleSimulatorShader.SetBool("IsObstacleBox", IsObstacleBox);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);

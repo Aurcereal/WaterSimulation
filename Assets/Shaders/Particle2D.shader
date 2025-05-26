@@ -1,5 +1,5 @@
 
-Shader "Unlit/InstancedParticle"
+Shader "Unlit/InstancedParticle2D"
 {
     Properties
     {

@@ -180,17 +180,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 2000
+  particleCount: 5300
   spawnWidth: 5
   spawnHeight: 5
+  spawnDepth: 2
   smoothingRadius: 0.4
-  boxWidth: 20
+  boxWidth: 10
   boxHeight: 10
+  boxDepth: 3
   obstacleTransform: {fileID: 1857617105}
   obstacleType: 0
   gravity:
     x: 0
     y: -10
+    z: 0
   mouseForceRadius: 2.31
   mouseForceStrength: 826
   targetDensity: 31.4
@@ -204,7 +207,7 @@ MonoBehaviour:
   springYieldRatio: 0
   maxStickDistance: 0.25
   stickForceMultiplier: 8250
-  particleRadius: 0.05
+  particleRadius: 0.208
   boxThickness: 0.1
   particleSpeedGradient:
     serializedVersion: 2
@@ -237,6 +240,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   particleLowColorSpeed: 1
   particleHighColorSpeed: 7.5
+  particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

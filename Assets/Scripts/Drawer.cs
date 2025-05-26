@@ -16,7 +16,7 @@ public class Drawer
 
     public Drawer()
     {
-        particleMaterial = new Material(Shader.Find("Unlit/InstancedParticle"));
+        particleMaterial = new Material(Shader.Find("Unlit/InstancedParticle3D"));
         particleMaterial.enableInstancing = true;
 
         colors = new Color[SimulationParameters.ParticleCount];
@@ -28,16 +28,16 @@ public class Drawer
 
     public void DrawBoxAndObstacle()
     {
-        if (IsObstacleBox) DrawUtils.DrawOutlineBox(ObstaclePosition, ObstacleRotation, ObstacleDimensions, BoxThickness, Color.white);
-        else DrawUtils.DrawOutlineCircle(ObstaclePosition, ObstacleDimensions.x, BoxThickness, Color.white);
+        // if (IsObstacleBox) DrawUtils.DrawOutlineBox(ObstaclePosition, ObstacleRotation, ObstacleDimensions, BoxThickness, Color.white);
+        // else DrawUtils.DrawOutlineCircle(ObstaclePosition, ObstacleDimensions.x, BoxThickness, Color.white);
 
-        DrawUtils.DrawOutlineBox(float2(0.0f), 0.0f, BoxDimensions, BoxThickness, Color.white);
+        // DrawUtils.DrawOutlineBox(float2(0.0f), 0.0f, BoxDimensions, BoxThickness, Color.white);
     }
 
     public void DrawParticles()
     {
         particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius); // TODO: take out in update I put it in so it changes as user updates
         Bounds bounds = new Bounds(Vector3.zero, Vector3.one * 100f);
-        Graphics.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleMaterial, bounds, SimulationParameters.ParticleCount);
+        Graphics.DrawMeshInstancedProcedural(ParticleMesh, 0, particleMaterial, bounds, SimulationParameters.ParticleCount);
     }
 }

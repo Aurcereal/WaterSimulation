@@ -26,11 +26,11 @@ public class SimulationInitializer
     // Could make this run on compute shader later if you want
     public void InitializeSimulation()
     {
-        var positions = new float2[ParticleCount];
-        var predictedPositions = new float2[ParticleCount];
-        var velocities = new float2[ParticleCount];
-        var masses = new float[ParticleCount];
+        var positions = new float3[ParticleCount];
+        var predictedPositions = new float3[ParticleCount];
+        var velocities = new float3[ParticleCount];
 
+        var masses = new float[ParticleCount];
         var densities = new float[ParticleCount];
         var nearDensities = new float[ParticleCount];
         
@@ -39,13 +39,14 @@ public class SimulationInitializer
         for (int i = 0; i < positions.Length; i++)
         {
             float t = (i * 1.0f + 0.5f) / positions.Length;
-            positions[i] = float2(
+            positions[i] = float3(
                 UnityEngine.Random.Range(-SpawnDimensions.x * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.x * 0.5f - BoxThickness - ParticleRadius),
-                UnityEngine.Random.Range(-SpawnDimensions.y * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.y * 0.5f - BoxThickness - ParticleRadius)
+                UnityEngine.Random.Range(-SpawnDimensions.y * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.y * 0.5f - BoxThickness - ParticleRadius),
+                UnityEngine.Random.Range(-SpawnDimensions.z * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.z * 0.5f - BoxThickness - ParticleRadius)
                 );
-            velocities[i] = float2(0.0f);
-            masses[i] = 1.0f;
-            colors[i] = Color.white;
+            velocities[i] = float3(0.0f);
+            masses[i] = 1.0f; //i > positions.Length/2 ? 4.0f : 1.0f;
+            colors[i] = Color.white; //i > positions.Length/2 ? Color.red : Color.white;
         }
 
         var partIDCellKeyPairs = new ParticleEntry[ParticleCount];

@@ -37,11 +37,11 @@ public class ComputeManager
         particleSimulatorShader = ComputeHelper.FindInResourceFolder("ParticleSimulator");
         bitonicSortForwardShader = ComputeHelper.FindInResourceFolder("BitonicSortForward");
 
-        positionBuffer = ComputeHelper.CreateBuffer<float2>(ParticleCount);
-        predictedPositionBuffer = ComputeHelper.CreateBuffer<float2>(ParticleCount);
-        velocityBuffer = ComputeHelper.CreateBuffer<float2>(ParticleCount);
+        positionBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
+        predictedPositionBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
+        velocityBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
+        
         massBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
-
         densityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         nearDensityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
 
