@@ -59,7 +59,7 @@ Shader "Unlit/InstancedParticle3D"
                 float diffuse = max(0., dot(normalize(i.normal), float3(1.,1.,1.)/sqrt(3.)));
                 float3 diffuseContribution = i.color * diffuse * 1.5;
 
-                return float4(ambient + diffuseContribution, 1.);
+                return float4(i.color,1.);//float4(ambient + diffuseContribution, 1.);
             }
             ENDCG
         }
