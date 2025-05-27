@@ -4,7 +4,8 @@ http://www.ligum.umontreal.ca/Clavet-2005-PVFS/pvfs.pdf
 
 Seb Lague Vid
 
-- 3D
+- Visuals
+- Implement linked list method for springs (detailed below)
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 
 -=Ignore/Done for now=-

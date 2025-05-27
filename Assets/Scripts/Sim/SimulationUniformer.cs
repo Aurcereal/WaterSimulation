@@ -73,6 +73,8 @@ public class SimulationUniformer
         particleSimulatorShader.SetVector("Gravity", (Vector3)Gravity);
         particleSimulatorShader.SetFloat("ParticleRadius", ParticleRadius);
         particleSimulatorShader.SetFloat("SmoothingRadius", SmoothingRadius);
+        particleSimulatorShader.SetFloat("SqrSmoothingRadius", SmoothingRadius*SmoothingRadius);
+        particleSimulatorShader.SetFloat("InvSmoothingRadius", 1.0f/SmoothingRadius);
         particleSimulatorShader.SetFloat("MouseForceRadius", MouseForceRadius);
         particleSimulatorShader.SetFloat("MouseForceStrength", MouseForceStrength);
         particleSimulatorShader.SetFloat("TargetDensity", TargetDensity);

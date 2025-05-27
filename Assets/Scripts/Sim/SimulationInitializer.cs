@@ -26,6 +26,8 @@ public class SimulationInitializer
     // Could make this run on compute shader later if you want
     public void InitializeSimulation()
     {
+        Debug.Log($"Spatial Lookup Size: {SpatialLookupSize}");
+
         var positions = new float3[ParticleCount];
         var predictedPositions = new float3[ParticleCount];
         var velocities = new float3[ParticleCount];

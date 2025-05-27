@@ -180,12 +180,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 15000
+  particleCount: 40000
   spawnWidth: 5
-  spawnHeight: 5
+  spawnHeight: 5.1
   spawnDepth: 2
   smoothingRadius: 0.4
-  boxWidth: 20
+  boxWidth: 59
   boxHeight: 10
   boxDepth: 4
   obstacleTransform: {fileID: 1857617105}

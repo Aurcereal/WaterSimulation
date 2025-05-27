@@ -37,11 +37,11 @@ public class SimulationParameters : MonoBehaviour
     // public static float ObstacleRotation => radians(Ins.obstacleTransform.localRotation.eulerAngles.z);
     // public static bool IsObstacleBox => Ins.obstacleType;
 
-    public const int SpatialLookupSize = 512;
+    public const int SpatialLookupSize = 1048576;
     public static float GridSize => SmoothingRadius;
 
     [Header("Initialization Parameters")]
-    [Range(1, 40000)][SerializeField] int particleCount = 10;
+    [Range(1, 200000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
     [Range(0.05f, 100)][SerializeField] float spawnHeight = 40.0f;
     [Range(0.05f, 100)][SerializeField] float spawnDepth = 40.0f;

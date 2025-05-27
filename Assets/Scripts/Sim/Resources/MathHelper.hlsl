@@ -11,9 +11,20 @@ float2 rot(float2 v, float o) {
 }
 
 float3 normalizesafe(float3 v) {
-    if(length(v) < 0.00001) {
+    float sqrDist = dot(v, v);
+    if(sqrDist < 0.0000001) {
         return float3(1.0,0.0,0.0);
     } else {
-        return normalize(v);
+        return v / sqrt(sqrDist);
+    }
+}
+
+float4 normalizesafegetmag(float3 v) {
+    float sqrDist = dot(v, v);
+    if(sqrDist < 0.0000001) {
+        return float4(1.0,0.0,0.0, 0.);
+    } else {
+        float len = sqrt(sqrDist);
+        return float4(v / len, len);
     }
 }

@@ -1,3 +1,5 @@
+#define THREADGROUPSIZE 256
+
 #pragma kernel CalculatePredictedPositions
 
 #pragma kernel UpdateSpatialHashEntries
@@ -58,6 +60,10 @@ const int SpatialLookupSize;
 const float DeltaTime;
 
 //
+const float SqrSmoothingRadius;
+const float InvSmoothingRadius;
+
+//
 const float MouseForceSign;
 const float2 MousePosition;
 
@@ -68,7 +74,7 @@ const float2 MousePosition;
 #include "./SDFMath3D.hlsl"
 
 ///
-[numthreads(64, 1,1)]
+[numthreads(THREADGROUPSIZE, 1,1)]
 void CalculatePredictedPositions (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
@@ -77,7 +83,7 @@ void CalculatePredictedPositions (uint3 id : SV_DispatchThreadID)
     predictedPositions[i] = positions[i] + velocities[i] * (1.0/60.0);
 }
 
-[numthreads(64, 1,1)]
+[numthreads(THREADGROUPSIZE, 1,1)]
 void UpdateSpatialHashEntries (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
@@ -93,7 +99,7 @@ void UpdateSpatialHashEntries (uint3 id : SV_DispatchThreadID)
     particleCellKeyEntries[i] = e;
 }
 
-[numthreads(64, 1, 1)]
+[numthreads(THREADGROUPSIZE, 1, 1)]
 void ResetSpatialHashOffsets(uint3 id : SV_DispatchThreadID) {
     int i = id.x;
     if(i >= SpatialLookupSize) return;
@@ -101,7 +107,7 @@ void ResetSpatialHashOffsets(uint3 id : SV_DispatchThreadID) {
     cellKeyToStartCoord[i] = -1;
 }
 
-[numthreads(64, 1,1)]
+[numthreads(THREADGROUPSIZE, 1,1)]
 void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
@@ -121,7 +127,7 @@ void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
     }
 }
 
-[numthreads(64, 1,1)]
+[numthreads(THREADGROUPSIZE, 1,1)]
 void CalculateDensities (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
@@ -129,8 +135,6 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
 
     float totalDensity = 0.0;
     float totalNearDensity = 0.0;
-    //totalDensity += masses[i] * SmoothingKernelPow2(SmoothingRadius, 0.);
-    //totalNearDensity += masses[i] * SmoothingKernelPow3(SmoothingRadius, 0.);
 
     float3 pos = predictedPositions[i];
     int3 centerCellPos = posToCell(pos);
@@ -149,14 +153,12 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
                     while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
 
                         particleIndex = particleCellKeyEntries[currIndex].particleIndex;
-                        // if(particleIndex == i) {
-                        //     currIndex++;
-                        //     continue;
-                        // }
-
-                        float dd = masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, length(predictedPositions[particleIndex] - pos));
-                        totalDensity += max(0.1, dd);
-                        totalNearDensity += masses[particleIndex] * SmoothingKernelPow3(SmoothingRadius, length(predictedPositions[particleIndex] - pos));
+                        
+                        float sqrDist = dot(predictedPositions[particleIndex] - pos, predictedPositions[particleIndex] - pos);
+                        if(sqrDist <= SmoothingRadius*SmoothingRadius) {
+                            totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
+                            totalNearDensity += masses[particleIndex] * SmoothingKernelPow3(SmoothingRadius, sqrt(sqrDist));
+                        }
 
                         currIndex++;
                     }
@@ -171,7 +173,7 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
 
 void UpdateSprings(int particleIndex, float dt);
 
-[numthreads(64, 1,1)]
+[numthreads(THREADGROUPSIZE, 1,1)]
 void UpdateSpringLengths (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
@@ -267,10 +269,13 @@ float3 CalculateViscosityForce(int i)
 
                         if (i != otherParticleIndex)
                         {
-                            totalForce +=
-                                masses[otherParticleIndex] *
-                                (velocities[otherParticleIndex] - vel) *
-                                SmoothingKernelSmoothTop(SmoothingRadius, length(predictedPositions[otherParticleIndex] - pos));
+                            float sqrDist = dot(predictedPositions[otherParticleIndex] - pos, predictedPositions[otherParticleIndex] - pos);
+                            if(sqrDist <= SqrSmoothingRadius) {
+                                totalForce +=
+                                    masses[otherParticleIndex] *
+                                    (velocities[otherParticleIndex] - vel) *
+                                    SmoothingKernelSmoothTop(SmoothingRadius, sqrt(sqrDist));
+                            }
                         }
 
                         currIndex++;
@@ -366,6 +371,7 @@ void setSpringLength(int i1, int i2, float val) {
     springRestLengths[i1 * ParticleCount + i2] = val;
 }
 
+// Optimize length
 void UpdateSprings(int particleIndex, float dt) {
 
     float3 pos = predictedPositions[particleIndex];
@@ -443,11 +449,12 @@ float3 CalculateSpringForce(int particleIndex) {
                         otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
 
                         if(otherParticleIndex != particleIndex) {
-                            float r = length(predictedPositions[otherParticleIndex]-pos);
-                            if(r <= SmoothingRadius) {
+                            float sqrDist = dot(predictedPositions[otherParticleIndex]-pos, predictedPositions[otherParticleIndex]-pos);
+                            if(sqrDist <= SqrSmoothingRadius) {
+                                float r = sqrt(sqrDist);
                                 float restLen = getSpringLength(particleIndex, otherParticleIndex);
 
-                                float forceMult = SpringForceMultiplier * (1. - r/SmoothingRadius) * (restLen - r);
+                                float forceMult = SpringForceMultiplier * (1. - r*InvSmoothingRadius) * (restLen - r);
                                 totalForce += forceMult * normalize(pos - predictedPositions[otherParticleIndex]);
                             }
                         }
@@ -479,7 +486,7 @@ float sdScene(float3 p) {
     return dBox;//min(dBox, dObstacle);
 }
 
-[numthreads(64, 1,1)]
+[numthreads(THREADGROUPSIZE, 1,1)]
 void UpdateParticles (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
