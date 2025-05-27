@@ -287,82 +287,6 @@ float3 CalculateViscosityForce(int i)
     return totalForce * ViscosityStrength;
 }
 
-// float2 CalculateMouseForce(int particleIndex)
-// {
-//     float2 toParticle = predictedPositions[particleIndex] - MousePosition;//GameManager.Ins.inputManager.WorldMousePosition;
-
-//     float dist = length(toParticle);
-//     float2 dir = normalize(toParticle);
-
-//     if (MouseForceSign == 0. || dist >= MouseForceRadius) return 0.;
-//     float2 force = MouseForceStrength * MouseForceSign * dir; //* SmoothingKernelSmoothTop(MouseForceRadius, length(toParticle));
-//     return force;
-// }
-
-// https://matthias-research.github.io/pages/publications/sca03.pdf 3.3
-// float2 EvaluateExistenceGradient(float2 pos, int particleIndex) {
-//     int2 centerCellPos = posToCell(pos);
-//     int2 currCell;
-//     int otherParticleIndex;
-
-//     float2 totalGrad = 0.;
-
-//     for(int x=-1; x<=1; x++) {
-//         for(int y=-1; y<=1; y++) {
-//             currCell = centerCellPos + int2(x, y);
-
-//             int key = getCellKey(currCell);
-//             int currIndex = getStartIndex(key);
-
-//             if(currIndex != -1) {
-//                 while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
-
-//                     otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
-
-//                     if(otherParticleIndex != particleIndex) {
-
-//                         totalGrad +=
-//                             masses[otherParticleIndex] * 
-//                             (SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
-//                             / densities[otherParticleIndex];
-
-//                     }
-
-//                     currIndex++;
-//                 }
-//             }
-//         }
-//     }
-
-//     return totalGrad;
-// }
-
-// float EvaluateExistenceGradientDivergence(float2 pos, int particleIndex) {
-//     // Using 4 samples of EvaluateExistenceGradient (will be 8 for 3D if wanna be accurate, or could approx with 4)
-//     // Curvature is Divergence of Unit Normal Vector or Divergence of Normal Vector div by Length of Normal Vec
-//     // Probably some way to use less samples
-    
-//     float2 e = float2(0.1,0.);
-    
-//     float dGradxdx = (EvaluateExistenceGradient(pos+e.xy, particleIndex).x - EvaluateExistenceGradient(pos-e.xy, particleIndex).x)/(2.0*e.x);
-//     float dGradydy = (EvaluateExistenceGradient(pos+e.yx, particleIndex).y - EvaluateExistenceGradient(pos-e.yx, particleIndex).y)/(2.0*e.x);
-
-//     float div = dGradxdx + dGradydy;
-//     return div;
-// }
-
-// float2 CalculateSurfaceTensionForce(int particleIndex) {
-//     float2 pos = positions[particleIndex];
-
-//     float2 grad = EvaluateExistenceGradient(pos, particleIndex);
-//     if(length(grad) <= 0.001) return 0.;
-
-//     float2 norm = normalize(grad);
-//     float div = EvaluateExistenceGradientDivergence(pos, particleIndex);
-
-//     return SurfaceTensionMultiplier * norm * div;
-// }
-
 float getSpringLength(int i1, int i2) {
     return springRestLengths[i1 * ParticleCount + i2];
 }
@@ -498,9 +422,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
 
     // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
     float3 pressureAcceleration = CalculatePressureForce(i) / densities[i];
-    //float2 mouseAcceleration = CalculateMouseForce(i) / densities[i];
     float3 viscosityAcceleration = CalculateViscosityForce(i) / densities[i];
-    //float2 surfaceTensionAcceleration = SurfaceTensionMultiplier > 0.0001 ? CalculateSurfaceTensionForce(i) / densities[i] : 0.;
     float3 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / densities[i] : 0.;
     float3 stickinessAcceleration = CalculateStickinessForce(i) / densities[i];
     float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + springAcceleration + Gravity;
