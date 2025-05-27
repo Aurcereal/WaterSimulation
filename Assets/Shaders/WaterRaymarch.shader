@@ -20,9 +20,20 @@ Shader "Unlit/WaterRaymarch"
 			#pragma fragment frag
 			//#pragma target 4.5
 
-            //StructuredBuffer<float3> positionBuffer;
-            //StructuredBuffer<float4> colorBuffer;
+            StructuredBuffer<float3> positions;
+            RWStructuredBuffer<float> masses;
+            RWStructuredBuffer<float> densities;
+            //StructuredBuffer<float4> colors;
             sampler2D _MainTex;
+
+            const int ParticleCount;
+            const float SmoothingRadius;
+            const float SqrSmoothingRadius;
+            const float InvSmoothingRadius;
+
+            #include "../Scripts/Sim/Resources/MathHelper.hlsl"
+            #include "../Scripts/Sim/Resources/ParticleMath3D.hlsl"
+            #include "../Scripts/Sim/Resources/SpatialHash3D.hlsl"
 
             struct vIn
             {
@@ -44,6 +55,41 @@ Shader "Unlit/WaterRaymarch"
                 o.uv = v.uv;
                 
                 return o;
+            }
+
+            float CalculateDensity(float3 pos) {
+                float totalDensity = 0.;
+
+                int3 centerCellPos = posToCell(pos);
+                int3 currCell;
+                int particleIndex;
+
+                for(int x=-1; x<=1; x++) {
+                    for(int y=-1; y<=1; y++) {
+                        for(int z=-1; z<=1; z++) {
+                            currCell = centerCellPos + int3(x, y, z);
+
+                            int key = getCellKey(currCell);
+                            int currIndex = getStartIndex(key);
+
+                            if(currIndex != -1) {
+                                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                                    particleIndex = particleCellKeyEntries[currIndex].particleIndex;
+                                    
+                                    float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
+                                    if(sqrDist <= SmoothingRadius*SmoothingRadius) {
+                                        totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
+                                    }
+
+                                    currIndex++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return totalDensity;
             }
 
             fixed4 frag(vOut i) : SV_Target

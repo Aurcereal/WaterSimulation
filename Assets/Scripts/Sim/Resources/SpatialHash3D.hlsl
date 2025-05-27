@@ -6,7 +6,9 @@ struct ParticleEntry {
 RWStructuredBuffer<ParticleEntry> particleCellKeyEntries;
 RWStructuredBuffer<int> cellKeyToStartCoord;
 
-// uint try
+const int SpatialLookupSize;
+const float GridSize;
+
 int imod(int i, int m)
 {
     if (i >= 0) return uint(i) % uint(m);

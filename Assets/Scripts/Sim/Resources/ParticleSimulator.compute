@@ -53,10 +53,6 @@ const float BoxThickness;
 //const bool IsObstacleBox;
 
 //
-const float GridSize;
-const int SpatialLookupSize;
-
-//
 const float DeltaTime;
 
 //
