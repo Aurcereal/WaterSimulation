@@ -8,31 +8,44 @@ using static Unity.Mathematics.math;
 
 public class SimulationParameters : MonoBehaviour
 {
-
+    // TODO: remove box thickness and use only container transform (and a float3 box dimensions for accurate sdf) for sdf and particle simulator
+    // sdf: inverse transform to unit box, transform the box dimensions, use sdf of box with box dimensions
     public static int ParticleCount => Ins.particleCount;
-    public static float3 BoxDimensions => new(Ins.boxWidth, Ins.boxHeight, Ins.boxDepth);
     public static float3 SpawnDimensions => new(Ins.spawnWidth, Ins.spawnHeight, Ins.spawnDepth);
-    public static float BoxThickness => Ins.boxThickness;
-    public static float3 Gravity => Ins.gravity;
-    public static float ParticleRadius => Ins.particleRadius;
+
     public static float SmoothingRadius => Ins.smoothingRadius;
+
+    public static Matrix4x4 ContainerTransform => Ins.containerTransform.transform.localToWorldMatrix;
+    public static Matrix4x4 ContainerInverseTransform => Ins.containerTransform.transform.worldToLocalMatrix;
+    public static float3 ContainerScale => Ins.containerTransform.transform.localScale;
+
+    public static float3 Gravity => Ins.gravity;
+
     public static float MouseForceRadius => Ins.mouseForceRadius;
     public static float MouseForceStrength => Ins.mouseForceStrength;
+
     public static float TargetDensity => Ins.targetDensity;
     public static float NearDensityPressureMultiplier => Ins.nearDensityPressureMultiplier;
     public static float PressureMultiplier => Ins.pressureMultiplier;
-    public static Gradient ParticleSpeedGradient => Ins.particleSpeedGradient;
-    public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
-    public static Mesh ParticleMesh => Ins.particleMesh;
+
     public static float ViscosityStrength => Ins.viscosityStrength;
+
     public static float SurfaceTensionMultiplier => Ins.surfaceTensionMultiplier;
+
     public static bool EnableParticleSprings => Ins.enableParticleSprings;
     public static float SpringForceMultiplier => Ins.springForceMultiplier;
     public static float Plasticity => Ins.plasticity;
     public static float SpringYieldRatio => Ins.springYieldRatio;
+
     public static float MaxStickDistance => Ins.maxStickDistance;
     public static float StickForceMultiplier => Ins.stickForceMultiplier;
+
+    public static float ParticleRadius => Ins.particleRadius;
+    public static Gradient ParticleSpeedGradient => Ins.particleSpeedGradient;
+    public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
+    public static Mesh ParticleMesh => Ins.particleMesh;
     public static Camera MainCamera => Ins.mainCamera;
+    
     // public static float2 ObstacleDimensions => float2(Ins.obstacleTransform.localScale.x, Ins.obstacleTransform.localScale.y);
     // public static float2 ObstaclePosition => float2(Ins.obstacleTransform.position.x, Ins.obstacleTransform.position.y);
     // public static float ObstacleRotation => radians(Ins.obstacleTransform.localRotation.eulerAngles.z);
@@ -51,11 +64,9 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
 
     [Header("Box/Obstacle Parameters")]
-    [Range(2, 200)][SerializeField] float boxWidth = 50.0f;
-    [Range(2, 100)][SerializeField] float boxHeight = 40.0f;
-    [Range(2, 100)][SerializeField] float boxDepth = 40.0f;
     [SerializeField] Transform obstacleTransform;
     [SerializeField] bool obstacleType;
+    [SerializeField] Transform containerTransform;
 
     [Header("Gravity Force")]
     [SerializeField] float3 gravity = new float3(0.0f, -9.8f, 0.0f);
@@ -108,9 +119,9 @@ public class SimulationParameters : MonoBehaviour
 
     void Update()
     {
-        if (obstacleTransform.hasChanged)
+        if (obstacleTransform.hasChanged || containerTransform.hasChanged)
         {
-            obstacleTransform.hasChanged = false;
+            obstacleTransform.hasChanged = false; containerTransform.hasChanged = false;
             GameManager.Ins?.simUniformer.UniformAllParameters();
         }
     }

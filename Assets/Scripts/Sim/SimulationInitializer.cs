@@ -42,9 +42,9 @@ public class SimulationInitializer
         {
             float t = (i * 1.0f + 0.5f) / positions.Length;
             positions[i] = float3(
-                UnityEngine.Random.Range(-SpawnDimensions.x * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.x * 0.5f - BoxThickness - ParticleRadius),
-                UnityEngine.Random.Range(-SpawnDimensions.y * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.y * 0.5f - BoxThickness - ParticleRadius),
-                UnityEngine.Random.Range(-SpawnDimensions.z * 0.5f + BoxThickness + ParticleRadius, SpawnDimensions.z * 0.5f - BoxThickness - ParticleRadius)
+                UnityEngine.Random.Range(-SpawnDimensions.x * 0.5f, SpawnDimensions.x * 0.5f),
+                UnityEngine.Random.Range(-SpawnDimensions.y * 0.5f, SpawnDimensions.y * 0.5f),
+                UnityEngine.Random.Range(-SpawnDimensions.z * 0.5f, SpawnDimensions.z * 0.5f)
                 );
             velocities[i] = float3(0.0f);
             masses[i] = 1.0f; //i > positions.Length/2 ? 4.0f : 1.0f;

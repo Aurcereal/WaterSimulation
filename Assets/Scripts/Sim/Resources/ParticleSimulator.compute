@@ -43,8 +43,8 @@ const bool EnableParticleSprings;
 const float MaxStickDistance;
 const float StickForceMultiplier;
 
-const float3 BoxDimensions;
-const float BoxThickness;
+const float4x4 ContainerInverseTransform;
+const float3 ContainerScale;
 
 // In 3D maybe have a scale vec, but then a rot tra matrix
 //const float3 ObstacleDimensions;
@@ -399,11 +399,8 @@ float3 CalculateStickinessForce(int particleIndex) {
 }
 
 float sdScene(float3 p) {
-    float dBox = -sdBox(p, BoxDimensions-BoxThickness*2.0);
-    // float dObstacle = IsObstacleBox ? 
-    //     sdBox(rot(p - ObstaclePosition, ObstacleRotation), ObstacleDimensions) :
-    //     sdCircle(p - ObstaclePosition, ObstacleDimensions.x);
-    return dBox;//min(dBox, dObstacle);
+    float dBox = -sdBox(ContainerScale * mul(ContainerInverseTransform, float4(p, 1.)).xyz, ContainerScale);
+    return dBox;
 }
 
 [numthreads(THREADGROUPSIZE, 1,1)]
