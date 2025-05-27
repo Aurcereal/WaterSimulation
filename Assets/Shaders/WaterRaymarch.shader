@@ -6,7 +6,7 @@ Shader "Unlit/WaterRaymarch"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _MainTex ("Texture", 2D) = "white" {} 
     }
     SubShader
     {
@@ -24,6 +24,7 @@ Shader "Unlit/WaterRaymarch"
             RWStructuredBuffer<float> masses;
             RWStructuredBuffer<float> densities;
             //StructuredBuffer<float4> colors;
+
             sampler2D _MainTex;
 
             const int ParticleCount;
@@ -34,6 +35,8 @@ Shader "Unlit/WaterRaymarch"
             #include "../Scripts/Sim/Resources/MathHelper.hlsl"
             #include "../Scripts/Sim/Resources/ParticleMath3D.hlsl"
             #include "../Scripts/Sim/Resources/SpatialHash3D.hlsl"
+
+            #define PI 3.141592
 
             struct vIn
             {
@@ -92,8 +95,31 @@ Shader "Unlit/WaterRaymarch"
                 return totalDensity;
             }
 
+            //
+            const float FovY;
+            const float Aspect;
+
+            const float3 CamRi;
+            const float3 CamUp;
+            const float3 CamFo;
+
+            const float3 CamPos;
+
+            float3 Raycast(float2 uv) {
+                float2 p = uv*2.0-1.0;
+
+                float3 rd = normalize(float3(tan(FovY*0.5) * (p * float2(Aspect, 1.0)), 1.0));
+                return mul(float3x3(CamRi, CamUp, CamFo), rd);
+            }
+
+            //
+            // TOOD: put box data (just inv transform 4x4) in here and do a ray box intersection
+
             fixed4 frag(vOut i) : SV_Target
             {
+                float3 rd = Raycast(i.uv);
+                //return float4(rd, 1.0);
+
                 return tex2D(_MainTex, i.uv) * float4(1.0, 0.2, 0.2, 1.0);
             }
             ENDCG

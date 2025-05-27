@@ -32,6 +32,7 @@ public class SimulationParameters : MonoBehaviour
     public static float SpringYieldRatio => Ins.springYieldRatio;
     public static float MaxStickDistance => Ins.maxStickDistance;
     public static float StickForceMultiplier => Ins.stickForceMultiplier;
+    public static Camera MainCamera => Ins.mainCamera;
     // public static float2 ObstacleDimensions => float2(Ins.obstacleTransform.localScale.x, Ins.obstacleTransform.localScale.y);
     // public static float2 ObstaclePosition => float2(Ins.obstacleTransform.position.x, Ins.obstacleTransform.position.y);
     // public static float ObstacleRotation => radians(Ins.obstacleTransform.localRotation.eulerAngles.z);
@@ -91,6 +92,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 0.0f;
     [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
     [SerializeField] Mesh particleMesh;
+    [SerializeField] Camera mainCamera;
 
     private static SimulationParameters Ins;
     void Awake()

@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using static SimulationParameters;
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 public class PostProcessManager : MonoBehaviour
 {
+    public static PostProcessManager Ins { get; private set; }
     Material waterRaymarchMat;
     void Awake()
     {
+        Ins = this;
         waterRaymarchMat = new(Shader.Find("Unlit/WaterRaymarch"));
     }
 
-    void Start()
+    public void SetupShaderParameters()
     {
         waterRaymarchMat.SetBuffer("positions", GameManager.Ins.computeManager.positionBuffer);
         waterRaymarchMat.SetBuffer("densities", GameManager.Ins.computeManager.densityBuffer);
@@ -25,8 +29,22 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetInt("SpatialLookupSize", SpatialLookupSize);
         waterRaymarchMat.SetFloat("GridSize", GridSize);
         waterRaymarchMat.SetFloat("SmoothingRadius", SmoothingRadius);
-        waterRaymarchMat.SetFloat("SqrSmoothingRadius", SmoothingRadius*SmoothingRadius);
-        waterRaymarchMat.SetFloat("InvSmoothingRadius", 1.0f/SmoothingRadius);
+        waterRaymarchMat.SetFloat("SqrSmoothingRadius", SmoothingRadius * SmoothingRadius);
+        waterRaymarchMat.SetFloat("InvSmoothingRadius", 1.0f / SmoothingRadius);
+
+        ///
+        waterRaymarchMat.SetFloat("FovY", radians(MainCamera.fieldOfView));
+        waterRaymarchMat.SetFloat("Aspect", MainCamera.aspect);
+
+    }
+
+    public void UpdateCameraData()
+    {
+        waterRaymarchMat.SetVector("CamRi", MainCamera.transform.right);
+        waterRaymarchMat.SetVector("CamUp", MainCamera.transform.up);
+        waterRaymarchMat.SetVector("CamFo", MainCamera.transform.forward);
+
+        waterRaymarchMat.SetVector("CamPos", MainCamera.transform.position);
     }
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)

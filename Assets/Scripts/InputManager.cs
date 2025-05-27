@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Mathematics;
 
 using static Unity.Mathematics.math;
+using static SimulationParameters;
 
 public class InputManager
 {
@@ -19,7 +20,7 @@ public class InputManager
 
         KeyDownR = Input.GetKeyDown(KeyCode.R);
 
-        WorldMousePosition = (Vector2)Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
+        WorldMousePosition = (Vector2)MainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, MainCamera.nearClipPlane));
     }
     
 }
