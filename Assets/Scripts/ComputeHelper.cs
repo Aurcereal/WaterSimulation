@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Unity.Mathematics;
 using UnityEngine;
-
+using UnityEngine.Experimental.Rendering;
 using static Unity.Mathematics.math;
 
 public static class ComputeHelper
@@ -68,6 +68,46 @@ public static class ComputeHelper
         foreach (var nbp in nameBufferPairs)
         {
             shader.SetBuffer(nbp.Item1, nbp.Item2, kernelNames);
+        }
+    }
+
+    public static void SetTexture(this ComputeShader shader, string name, Texture tex, params string[] kernelNames)
+    {
+        foreach (string kernelName in kernelNames)
+        {
+            shader.SetTexture(shader.FindKernel(kernelName), name, tex);
+        }
+    }
+
+    public static RenderTexture CreateRenderTexture3D(int3 size, GraphicsFormat format, TextureWrapMode wrapMode = TextureWrapMode.Repeat, string name = "Untitled", bool useMipmaps = false)
+    {
+        var texture = new RenderTexture(size.x, size.y, 0);
+        texture.graphicsFormat = format;
+        texture.volumeDepth = size.z;
+        texture.enableRandomWrite = true;
+        texture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        texture.useMipMap = useMipmaps;
+        texture.autoGenerateMips = false;
+        texture.wrapMode = wrapMode;
+        texture.name = name;
+        texture.Create();
+
+        return texture;
+    }
+
+    /// <summary>
+    /// Same as CreateRenderTexture but may not need to create a render texture if oldTexture has params satisfied.
+    /// </summary>
+    public static RenderTexture UpdateRenderTexture3D(RenderTexture oldTexture, int3 size, GraphicsFormat format, TextureWrapMode wrapMode = TextureWrapMode.Repeat, string name = "Untitled", bool useMipmaps = false)
+    {
+        if (oldTexture == null || !oldTexture.IsCreated() || oldTexture.width != size.x || oldTexture.height != size.y || oldTexture.volumeDepth != size.z || oldTexture.graphicsFormat != format || oldTexture.wrapMode != wrapMode || oldTexture.name != name || oldTexture.useMipMap != useMipmaps)
+        {
+            if (oldTexture != null) oldTexture.Release();
+            return CreateRenderTexture3D(size, format, wrapMode, name, useMipmaps);
+        }
+        else
+        {
+            return oldTexture;
         }
     }
 }

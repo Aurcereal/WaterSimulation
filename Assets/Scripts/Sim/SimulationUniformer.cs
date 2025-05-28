@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 using static SimulationParameters;
@@ -34,7 +35,8 @@ public class SimulationUniformer
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
                 "UpdateSpringLengths",
-                "UpdateParticles"
+                "UpdateParticles",
+                "CacheDensities"
                     });
         }
         else
@@ -58,7 +60,8 @@ public class SimulationUniformer
                 "ResetSpatialHashOffsets",
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
-                "UpdateParticles"
+                "UpdateParticles",
+                "CacheDensities"
                     });
         }
     }
@@ -68,13 +71,14 @@ public class SimulationUniformer
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
 
         particleSimulatorShader.SetInt("ParticleCount", ParticleCount);
+        particleSimulatorShader.SetMatrix("ContainerTransform", ContainerTransform);
         particleSimulatorShader.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
-        particleSimulatorShader.SetVector("ContainerScale", (Vector3) ContainerScale);
+        particleSimulatorShader.SetVector("ContainerScale", (Vector3)ContainerScale);
         particleSimulatorShader.SetVector("Gravity", (Vector3)Gravity);
         particleSimulatorShader.SetFloat("ParticleRadius", ParticleRadius);
         particleSimulatorShader.SetFloat("SmoothingRadius", SmoothingRadius);
-        particleSimulatorShader.SetFloat("SqrSmoothingRadius", SmoothingRadius*SmoothingRadius);
-        particleSimulatorShader.SetFloat("InvSmoothingRadius", 1.0f/SmoothingRadius);
+        particleSimulatorShader.SetFloat("SqrSmoothingRadius", SmoothingRadius * SmoothingRadius);
+        particleSimulatorShader.SetFloat("InvSmoothingRadius", 1.0f / SmoothingRadius);
         particleSimulatorShader.SetFloat("MouseForceRadius", MouseForceRadius);
         particleSimulatorShader.SetFloat("MouseForceStrength", MouseForceStrength);
         particleSimulatorShader.SetFloat("TargetDensity", TargetDensity);
@@ -97,6 +101,7 @@ public class SimulationUniformer
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);
         particleSimulatorShader.SetInt("SpatialLookupSize", SpatialLookupSize);
+
     }
 
     public void UniformDeltaTime(float dt)
@@ -111,5 +116,11 @@ public class SimulationUniformer
             (GameManager.Ins.inputManager.LeftMouseButton ? -1 : 0)
             );
         GameManager.Ins.computeManager.particleSimulatorShader.SetVector("MousePosition", (Vector2)GameManager.Ins.inputManager.WorldMousePosition);
+    }
+
+    public void UniformDensityTexture(RenderTexture tex, int3 size)
+    {
+        ComputeHelper.SetTexture(GameManager.Ins.computeManager.particleSimulatorShader, "DensityTexture", tex, "CacheDensities");
+        GameManager.Ins.computeManager.particleSimulatorShader.SetVector("DensityTextureSize", (Vector3) (float3) size);
     }
 }

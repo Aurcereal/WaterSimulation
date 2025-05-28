@@ -1,4 +1,5 @@
 #define THREADGROUPSIZE 256
+#define CUBETHREADGROUPSIZE 8
 
 #pragma kernel CalculatePredictedPositions
 
@@ -9,6 +10,8 @@
 #pragma kernel UpdateSpringLengths
 #pragma kernel CalculateDensities
 #pragma kernel UpdateParticles
+
+#pragma kernel CacheDensities
 
 //
 RWStructuredBuffer<float3> positions;
@@ -33,7 +36,7 @@ const float MouseForceStrength;
 const float TargetDensity;
 const float NearDensityPressureMultiplier;
 const float PressureMultiplier;
-// how to do color gradients? seb lag idk what they did or i could just do gradient texture.. grad to tex?
+
 const float ViscosityStrength;
 const float SurfaceTensionMultiplier;
 const float SpringForceMultiplier;
@@ -44,13 +47,11 @@ const float MaxStickDistance;
 const float StickForceMultiplier;
 
 const float4x4 ContainerInverseTransform;
+const float4x4 ContainerTransform;
 const float3 ContainerScale;
 
-// In 3D maybe have a scale vec, but then a rot tra matrix
-//const float3 ObstacleDimensions;
-//const float3 ObstaclePosition;
-//const float ObstacleRotation;
-//const bool IsObstacleBox;
+RWTexture3D<float> DensityTexture;
+float3 DensityTextureSize;
 
 //
 const float DeltaTime;
@@ -434,4 +435,52 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     positions[i] = pos;
     colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0., 7.5, length(velocities[i])));//smoothstep(0.5, 1.5, length(EvaluateExistenceGradient(positions[i], -1))));//length(velocities[i])));
     velocities[i] = vel;
+}
+
+// Doesn't use predicted positions
+float CalculateDensity(float3 pos) {
+    float totalDensity = 0.0;
+
+    int3 centerCellPos = posToCell(pos);
+    int3 currCell;
+    int particleIndex;
+
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            for(int z=-1; z<=1; z++) {
+                currCell = centerCellPos + int3(x, y, z);
+
+                int key = getCellKey(currCell);
+                int currIndex = getStartIndex(key);
+
+                if(currIndex != -1) {
+                    while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                        particleIndex = particleCellKeyEntries[currIndex].particleIndex;
+                        
+                        float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
+
+                        if(sqrDist <= SmoothingRadius*SmoothingRadius) {
+                            totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
+                        }
+
+                        currIndex++;
+                    }
+                }
+            }
+        }
+    }
+
+    return totalDensity;
+}
+
+[numthreads(CUBETHREADGROUPSIZE, CUBETHREADGROUPSIZE, CUBETHREADGROUPSIZE)]
+void CacheDensities(uint3 id : SV_DispatchThreadID) {
+    float3 uv = (1.0*id)/(1.0*(DensityTextureSize-1.0));
+    if(max(max(uv.x, uv.y), uv.z) > 1.) return;
+
+    float3 untransformedP = uv-0.5;
+    float3 worldPos = mul(ContainerTransform, float4(untransformedP, 1.0)).xyz;
+
+    DensityTexture[id] = CalculateDensity(worldPos);
 }

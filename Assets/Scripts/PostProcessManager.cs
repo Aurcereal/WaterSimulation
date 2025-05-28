@@ -10,6 +10,7 @@ public class PostProcessManager : MonoBehaviour
 {
     public static PostProcessManager Ins { get; private set; }
     Material waterRaymarchMat;
+    RenderTexture densityTexture;
     void Awake()
     {
         Ins = this;
@@ -49,12 +50,25 @@ public class PostProcessManager : MonoBehaviour
 
     public void UpdateContainerData()
     {
+        waterRaymarchMat.SetMatrix("ContainerTransform", ContainerTransform);
         waterRaymarchMat.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
     }
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         Graphics.Blit(src, dest, waterRaymarchMat);
+    }
+
+    public void CacheDensities()
+    {
+        int3 densitySampleCount = (int3)ceil(ContainerScale / DensityCacheStepSize);
+        densityTexture = ComputeHelper.UpdateRenderTexture3D(densityTexture, densitySampleCount, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+
+        GameManager.Ins.simUniformer.UniformDensityTexture(densityTexture, densitySampleCount);
+
+        ComputeHelper.Dispatch(GameManager.Ins.computeManager.particleSimulatorShader, densitySampleCount.x, densitySampleCount.y, densitySampleCount.z, "CacheDensities");
+
+        waterRaymarchMat.SetTexture("DensityTexture", densityTexture);
     }
 
     void Update()

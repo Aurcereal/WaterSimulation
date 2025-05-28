@@ -109,6 +109,11 @@ Shader "Unlit/WaterRaymarch"
 
             //
             const float4x4 ContainerInverseTransform;
+            const float4x4 ContainerTransform;
+
+            //
+            Texture3D<float4> DensityTexture;
+            SamplerState _LinearClamp;
 
             float3 Raycast(float2 uv) {
                 float2 p = uv*2.0-1.0;
@@ -121,8 +126,19 @@ Shader "Unlit/WaterRaymarch"
                 return float3(1., 0., 0.);
             }
 
+            // maybe should march in local space or smth.. or at least local rotation and position, maybe not scale (cuz transforming takes a lot of time)
+            float SampleDensity(float3 p) {
+                float3 lp = mul(ContainerInverseTransform, float4(p, 1.0));
+                
+                float3 alp = abs(lp);
+                if(max(alp.x, max(alp.y, alp.z)) > .5) return 0.;
+                
+                float3 uv = lp+0.5;
+                return DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;//DensityTexture[uv*float3(30.,20.,10.)];
+            }
+
             #define STEPSIZE 0.1
-            #define BIGSTEPSIZE 4.0
+            #define BIGSTEPSIZE 0.5
 
             float CalculateDensityAlongRay(float3 ro, float3 rd) {
                 // Bounding Box Intersection
@@ -140,11 +156,11 @@ Shader "Unlit/WaterRaymarch"
 
                 while(tCurr <= tEnd) {
                     float3 pos = ro + rd * tCurr;
-                    accumDensity += BIGSTEPSIZE * CalculateDensity(pos);
+                    accumDensity += BIGSTEPSIZE * SampleDensity(pos);
                     tCurr += BIGSTEPSIZE;
                 }
 
-                return 0.05*accumDensity;
+                return 0.5*accumDensity;
             }
 
             float3 AccumLightAlongRay(float3 ro, float3 rd) {
@@ -168,7 +184,7 @@ Shader "Unlit/WaterRaymarch"
                 while(tCurr <= tEnd) {
                     float3 pos = ro + rd * tCurr;
 
-                    float density = CalculateDensity(pos);
+                    float density = SampleDensity(pos);
                     transmittance *= exp(-STEPSIZE * density);
                     accumLight += 0.5* STEPSIZE * density * float3(1., 1., 1.) * float3(0.2, 0.4, 1.0) * exp(-CalculateDensityAlongRay(pos, -lightDir));
 

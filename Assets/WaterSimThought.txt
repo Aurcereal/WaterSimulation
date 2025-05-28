@@ -4,7 +4,7 @@ http://www.ligum.umontreal.ca/Clavet-2005-PVFS/pvfs.pdf
 
 Seb Lague Vid
 
-- Visuals
+- Maybe higher smoothing radius just for density texture or blur it in some way
 - Implement linked list method for springs (detailed below)
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 

@@ -54,6 +54,8 @@ public class SimulationParameters : MonoBehaviour
     public const int SpatialLookupSize = 1048576;
     public static float GridSize => SmoothingRadius;
 
+    public static float DensityCacheStepSize => Ins.densityCacheStepSize;
+
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
@@ -104,6 +106,10 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
     [SerializeField] Mesh particleMesh;
     [SerializeField] Camera mainCamera;
+
+    [Header("Raymarched Rendering")]
+    [SerializeField] float densityCacheStepSize = 0.05f;
+    // other rendering params for the shader
 
     private static SimulationParameters Ins;
     void Awake()

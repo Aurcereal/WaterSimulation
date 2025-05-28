@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 15000
+  particleCount: 40000
   spawnWidth: 5
   spawnHeight: 5.1
   spawnDepth: 2
@@ -240,6 +240,7 @@ MonoBehaviour:
   particleHighColorSpeed: 7.5
   particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   mainCamera: {fileID: 963194227}
+  densityCacheStepSize: 0.1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
