@@ -123,6 +123,7 @@ public class SimulationParameters : MonoBehaviour
         {
             obstacleTransform.hasChanged = false; containerTransform.hasChanged = false;
             GameManager.Ins?.simUniformer.UniformAllParameters();
+            PostProcessManager.Ins.UpdateContainerData();
         }
     }
 }

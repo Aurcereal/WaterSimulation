@@ -22,7 +22,7 @@ public class SimulationUpdater
     {
         if (dt > 1.0f / 60.0f)
         {
-            Debug.Log("Timestep is too large for an accurate simulation, slowing down time accordingly...");
+            // Debug.Log("Timestep is too large for an accurate simulation, slowing down time accordingly...");
             dt = 1.0f / 60.0f;
         }
 

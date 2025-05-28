@@ -18,11 +18,11 @@ Shader "Unlit/WaterRaymarch"
             CGPROGRAM
             #pragma vertex vert
 			#pragma fragment frag
-			//#pragma target 4.5
+			#pragma target 4.5
 
             StructuredBuffer<float3> positions;
-            RWStructuredBuffer<float> masses;
-            RWStructuredBuffer<float> densities;
+            StructuredBuffer<float> masses;
+            StructuredBuffer<float> densities;
             //StructuredBuffer<float4> colors;
 
             sampler2D _MainTex;
@@ -33,8 +33,9 @@ Shader "Unlit/WaterRaymarch"
             const float InvSmoothingRadius;
 
             #include "../Scripts/Sim/Resources/MathHelper.hlsl"
+            #include "../Scripts/Sim/Resources/RaytraceMath.hlsl"
             #include "../Scripts/Sim/Resources/ParticleMath3D.hlsl"
-            #include "../Scripts/Sim/Resources/SpatialHash3D.hlsl"
+            #include "../Scripts/Sim/Resources/SpatialHash3DWater.hlsl"
 
             #define PI 3.141592
 
@@ -61,7 +62,7 @@ Shader "Unlit/WaterRaymarch"
             }
 
             float CalculateDensity(float3 pos) {
-                float totalDensity = 0.;
+                float totalDensity = 0.0;
 
                 int3 centerCellPos = posToCell(pos);
                 int3 currCell;
@@ -81,6 +82,7 @@ Shader "Unlit/WaterRaymarch"
                                     particleIndex = particleCellKeyEntries[currIndex].particleIndex;
                                     
                                     float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
+
                                     if(sqrDist <= SmoothingRadius*SmoothingRadius) {
                                         totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
                                     }
@@ -105,22 +107,54 @@ Shader "Unlit/WaterRaymarch"
 
             const float3 CamPos;
 
-            float3 Raycast(float2 uv) {
+            //
+            const float4x4 ContainerInverseTransform;
+
+            float3 raycast(float2 uv) {
                 float2 p = uv*2.0-1.0;
 
                 float3 rd = normalize(float3(tan(FovY*0.5) * (p * float2(Aspect, 1.0)), 1.0));
-                return mul(float3x3(CamRi, CamUp, CamFo), rd);
+                return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
             }
 
-            //
-            // TOOD: put box data (just inv transform 4x4) in here and do a ray box intersection
+            float3 sampleSkybox(float3 rd) {
+                return float3(1., 0., 0.);
+            }
+
+            #define STEPSIZE 0.1
+
+            float calculateDensityAlongRay(float3 ro, float3 rd) {
+                // Bounding Box Intersection
+                float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
+                float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
+
+                float2 boxTs = rayBoxIntersect(lro, lrd);
+                if(boxTs.x > boxTs.y) return 0.;
+
+                //
+                float tCurr = max(0., boxTs.x);
+                float tEnd = boxTs.y;
+
+                float accumDensity = 0.;
+
+                while(tCurr <= tEnd) {
+                    float3 pos = ro + rd * tCurr;
+                    accumDensity += STEPSIZE * CalculateDensity(pos);
+                    tCurr += STEPSIZE;
+                }
+
+                return 0.005*accumDensity;
+            }
 
             fixed4 frag(vOut i) : SV_Target
             {
-                float3 rd = Raycast(i.uv);
-                //return float4(rd, 1.0);
+                float3 ro = CamPos;
+                float3 rd = raycast(i.uv);
+                
+                //
+                float temp = calculateDensityAlongRay(ro, rd);
 
-                return tex2D(_MainTex, i.uv) * float4(1.0, 0.2, 0.2, 1.0);
+                return float4(0., temp, 0., 1.);//tex2D(_MainTex, i.uv) * float4(1.0, 0.2, 0.2, 1.0);
             }
             ENDCG
         }

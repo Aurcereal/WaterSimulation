@@ -44,7 +44,9 @@ public class GameManager : MonoBehaviour
         bitonicSorter = new();
         drawer = new();
 
-        PostProcessManager.Ins.SetupShaderParameters();
+        PostProcessManager.Ins.SetupShaderUniforms();
+        PostProcessManager.Ins.UpdateCameraData();
+        PostProcessManager.Ins.UpdateContainerData();
     }
 
     void Update()
@@ -58,8 +60,6 @@ public class GameManager : MonoBehaviour
 
         drawer.DrawParticles();
         drawer.DrawBoxAndObstacle();
-
-        PostProcessManager.Ins.UpdateCameraData();
     }
 
     void OnDisable()
