@@ -110,20 +110,21 @@ Shader "Unlit/WaterRaymarch"
             //
             const float4x4 ContainerInverseTransform;
 
-            float3 raycast(float2 uv) {
+            float3 Raycast(float2 uv) {
                 float2 p = uv*2.0-1.0;
 
                 float3 rd = normalize(float3(tan(FovY*0.5) * (p * float2(Aspect, 1.0)), 1.0));
                 return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
             }
 
-            float3 sampleSkybox(float3 rd) {
+            float3 SampleSkybox(float3 rd) {
                 return float3(1., 0., 0.);
             }
 
             #define STEPSIZE 0.1
+            #define BIGSTEPSIZE 4.0
 
-            float calculateDensityAlongRay(float3 ro, float3 rd) {
+            float CalculateDensityAlongRay(float3 ro, float3 rd) {
                 // Bounding Box Intersection
                 float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
                 float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
@@ -139,22 +140,54 @@ Shader "Unlit/WaterRaymarch"
 
                 while(tCurr <= tEnd) {
                     float3 pos = ro + rd * tCurr;
-                    accumDensity += STEPSIZE * CalculateDensity(pos);
+                    accumDensity += BIGSTEPSIZE * CalculateDensity(pos);
+                    tCurr += BIGSTEPSIZE;
+                }
+
+                return 0.05*accumDensity;
+            }
+
+            float3 AccumLightAlongRay(float3 ro, float3 rd) {
+                // temp
+                float3 lightDir = float3(0.,-1.,0.);//1./sqrt(3.);
+                
+                // Bounding Box Intersection
+                float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
+                float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
+
+                float2 boxTs = rayBoxIntersect(lro, lrd);
+                if(boxTs.x > boxTs.y) return 0.;
+
+                //
+                float tCurr = max(0., boxTs.x);
+                float tEnd = boxTs.y;
+
+                float3 accumLight = 0.;
+                float transmittance = 1.;
+
+                while(tCurr <= tEnd) {
+                    float3 pos = ro + rd * tCurr;
+
+                    float density = CalculateDensity(pos);
+                    transmittance *= exp(-STEPSIZE * density);
+                    accumLight += 0.5* STEPSIZE * density * float3(1., 1., 1.) * float3(0.2, 0.4, 1.0) * exp(-CalculateDensityAlongRay(pos, -lightDir));
+
                     tCurr += STEPSIZE;
                 }
 
-                return 0.005*accumDensity;
+                return accumLight;
             }
 
             fixed4 frag(vOut i) : SV_Target
             {
                 float3 ro = CamPos;
-                float3 rd = raycast(i.uv);
+                float3 rd = Raycast(i.uv);
                 
                 //
-                float temp = calculateDensityAlongRay(ro, rd);
+                float3 accumLight = AccumLightAlongRay(ro, rd);
+                // gamma reinhards?
 
-                return float4(0., temp, 0., 1.);//tex2D(_MainTex, i.uv) * float4(1.0, 0.2, 0.2, 1.0);
+                return float4(accumLight, 1.);//tex2D(_MainTex, i.uv) * float4(1.0, 0.2, 0.2, 1.0);
             }
             ENDCG
         }
