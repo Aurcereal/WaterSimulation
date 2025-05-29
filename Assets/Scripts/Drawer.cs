@@ -38,6 +38,6 @@ public class Drawer
     {
         particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius); // TODO: take out in update I put it in so it changes as user updates
         Bounds bounds = new Bounds(Vector3.zero, Vector3.one * 100f);
-        //Graphics.DrawMeshInstancedProcedural(ParticleMesh, 0, particleMaterial, bounds, SimulationParameters.ParticleCount);
+        Graphics.DrawMeshInstancedProcedural(ParticleMesh, 0, particleMaterial, bounds, SimulationParameters.ParticleCount);
     }
 }

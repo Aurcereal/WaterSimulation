@@ -45,16 +45,15 @@ public class SimulationParameters : MonoBehaviour
     public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
     public static Mesh ParticleMesh => Ins.particleMesh;
     public static Camera MainCamera => Ins.mainCamera;
-    
-    // public static float2 ObstacleDimensions => float2(Ins.obstacleTransform.localScale.x, Ins.obstacleTransform.localScale.y);
-    // public static float2 ObstaclePosition => float2(Ins.obstacleTransform.position.x, Ins.obstacleTransform.position.y);
-    // public static float ObstacleRotation => radians(Ins.obstacleTransform.localRotation.eulerAngles.z);
-    // public static bool IsObstacleBox => Ins.obstacleType;
 
     public const int SpatialLookupSize = 1048576;
     public static float GridSize => SmoothingRadius;
 
     public static float DensityCacheStepSize => Ins.densityCacheStepSize;
+    public static float DensityMultiplier => Ins.densityMultiplier;
+    public static float LightMultiplier => Ins.lightMultiplier;
+    public static float ExtinctionMultiplier => Ins.extinctionMultiplier;
+    public static float LightExtinctionMultiplier => Ins.lightExtinctionMultiplier;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -109,7 +108,10 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Raymarched Rendering")]
     [SerializeField] float densityCacheStepSize = 0.05f;
-    // other rendering params for the shader
+    [Range(0.005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
+    [Range(0.005f, 10.0f)] [SerializeField] float lightMultiplier = 0.5f;
+    [Range(0.005f, 10.0f)] [SerializeField] float extinctionMultiplier = 1.0f;
+    [Range(0.005f, 10.0f)] [SerializeField] float lightExtinctionMultiplier = 0.5f;
 
     private static SimulationParameters Ins;
     void Awake()
@@ -121,6 +123,7 @@ public class SimulationParameters : MonoBehaviour
     {
         // This Monobehavior func is called when a value changes
         GameManager.Ins?.simUniformer.UniformAllParameters();
+        PostProcessManager.Ins?.SetupShaderUniforms();
     }
 
     void Update()

@@ -445,6 +445,9 @@ float CalculateDensity(float3 pos) {
     int3 currCell;
     int particleIndex;
 
+    // TODO: TEMP cuz the gridsize won't even conform
+    float h = SmoothingRadius;
+
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
             for(int z=-1; z<=1; z++) {
@@ -460,8 +463,8 @@ float CalculateDensity(float3 pos) {
                         
                         float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
 
-                        if(sqrDist <= SmoothingRadius*SmoothingRadius) {
-                            totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
+                        if(sqrDist <= h*h) {
+                            totalDensity += masses[particleIndex] * SmoothingKernelPow2(h, sqrt(sqrDist));
                         }
 
                         currIndex++;

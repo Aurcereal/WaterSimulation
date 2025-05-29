@@ -37,6 +37,12 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetFloat("FovY", radians(MainCamera.fieldOfView));
         waterRaymarchMat.SetFloat("Aspect", MainCamera.aspect);
 
+        //
+        waterRaymarchMat.SetFloat("DensityMultiplier", DensityMultiplier);
+        waterRaymarchMat.SetFloat("LightMultiplier", LightMultiplier);
+        waterRaymarchMat.SetFloat("ExtinctionMultiplier", ExtinctionMultiplier);
+        waterRaymarchMat.SetFloat("LightExtinctionMultiplier", LightExtinctionMultiplier);
+
     }
 
     public void UpdateCameraData()
@@ -54,10 +60,10 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
     }
 
-    void OnRenderImage(RenderTexture src, RenderTexture dest)
-    {
-        Graphics.Blit(src, dest, waterRaymarchMat);
-    }
+    // void OnRenderImage(RenderTexture src, RenderTexture dest)
+    // {
+    //     Graphics.Blit(src, dest, waterRaymarchMat);
+    // }
 
     public void CacheDensities()
     {

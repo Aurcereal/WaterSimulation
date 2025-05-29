@@ -112,8 +112,14 @@ Shader "Unlit/WaterRaymarch"
             const float4x4 ContainerTransform;
 
             //
-            Texture3D<float4> DensityTexture;
+            Texture3D<float> DensityTexture;
             SamplerState _LinearClamp;
+
+            //
+            const float DensityMultiplier;
+            const float LightMultiplier;
+            const float ExtinctionMultiplier;
+            const float LightExtinctionMultiplier;
 
             float3 Raycast(float2 uv) {
                 float2 p = uv*2.0-1.0;
@@ -134,10 +140,10 @@ Shader "Unlit/WaterRaymarch"
                 if(max(alp.x, max(alp.y, alp.z)) > .5) return 0.;
                 
                 float3 uv = lp+0.5;
-                return DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;//DensityTexture[uv*float3(30.,20.,10.)];
+                return DensityMultiplier * DensityMultiplier*DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;//DensityTexture[uv*float3(30.,20.,10.)];
             }
 
-            #define STEPSIZE 0.1
+            #define STEPSIZE 0.01
             #define BIGSTEPSIZE 0.5
 
             float CalculateDensityAlongRay(float3 ro, float3 rd) {
@@ -147,6 +153,8 @@ Shader "Unlit/WaterRaymarch"
 
                 float2 boxTs = rayBoxIntersect(lro, lrd);
                 if(boxTs.x > boxTs.y) return 0.;
+                // boxTs.x += 0.0001;
+                // boxTs.y -= 0.0001;
 
                 //
                 float tCurr = max(0., boxTs.x);
@@ -160,12 +168,12 @@ Shader "Unlit/WaterRaymarch"
                     tCurr += BIGSTEPSIZE;
                 }
 
-                return 0.5*accumDensity;
+                return accumDensity;
             }
 
             float3 AccumLightAlongRay(float3 ro, float3 rd) {
                 // temp
-                float3 lightDir = float3(0.,-1.,0.);//1./sqrt(3.);
+                float3 lightDir = float3(1.,-1.,1.)/sqrt(3.);
                 
                 // Bounding Box Intersection
                 float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
@@ -173,6 +181,8 @@ Shader "Unlit/WaterRaymarch"
 
                 float2 boxTs = rayBoxIntersect(lro, lrd);
                 if(boxTs.x > boxTs.y) return 0.;
+                // boxTs.x += 0.0001;
+                // boxTs.y -= 0.0001;
 
                 //
                 float tCurr = max(0., boxTs.x);
@@ -185,8 +195,8 @@ Shader "Unlit/WaterRaymarch"
                     float3 pos = ro + rd * tCurr;
 
                     float density = SampleDensity(pos);
-                    transmittance *= exp(-STEPSIZE * density);
-                    accumLight += 0.5* STEPSIZE * density * float3(1., 1., 1.) * float3(0.2, 0.4, 1.0) * exp(-CalculateDensityAlongRay(pos, -lightDir));
+                    transmittance *= exp(-STEPSIZE * ExtinctionMultiplier * density);
+                    accumLight += STEPSIZE * transmittance * LightMultiplier * density * float3(1., 1., 1.) * float3(0.2, 0.4, 1.0) * exp(- LightExtinctionMultiplier * CalculateDensityAlongRay(pos, -lightDir));
 
                     tCurr += STEPSIZE;
                 }
