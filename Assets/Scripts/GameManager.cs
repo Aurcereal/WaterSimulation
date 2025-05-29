@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
             ResetSimulation();
 
         simUpdater.Update(Time.deltaTime);
-        //PostProcessManager.Ins.CacheDensities(); // Takes up ton of time . .
+        PostProcessManager.Ins.CacheDensities(); // Takes up ton of time . .
 
         drawer.DrawParticles();
         drawer.DrawBoxAndObstacle();

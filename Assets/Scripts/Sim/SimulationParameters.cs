@@ -47,12 +47,12 @@ public class SimulationParameters : MonoBehaviour
     public static Camera MainCamera => Ins.mainCamera;
 
     public const int SpatialLookupSize = 1048576;
-    public static float GridSize => SmoothingRadius;
+    public static float GridSize => SmoothingRadius/sqrt(2);
 
     public static float DensityCacheStepSize => Ins.densityCacheStepSize;
     public static float DensityMultiplier => Ins.densityMultiplier;
     public static float LightMultiplier => Ins.lightMultiplier;
-    public static float ExtinctionMultiplier => Ins.extinctionMultiplier;
+    public static float3 ExtinctionCoefficients => Ins.extinctionCoefficients;
     public static float LightExtinctionMultiplier => Ins.lightExtinctionMultiplier;
 
     [Header("Initialization Parameters")]
@@ -110,7 +110,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float densityCacheStepSize = 0.05f;
     [Range(0.005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
     [Range(0.005f, 10.0f)] [SerializeField] float lightMultiplier = 0.5f;
-    [Range(0.005f, 10.0f)] [SerializeField] float extinctionMultiplier = 1.0f;
+    [SerializeField] float3 extinctionCoefficients = 1.0f;
     [Range(0.005f, 10.0f)] [SerializeField] float lightExtinctionMultiplier = 0.5f;
 
     private static SimulationParameters Ins;

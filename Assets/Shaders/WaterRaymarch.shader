@@ -20,22 +20,8 @@ Shader "Unlit/WaterRaymarch"
 			#pragma fragment frag
 			#pragma target 4.5
 
-            StructuredBuffer<float3> positions;
-            StructuredBuffer<float> masses;
-            StructuredBuffer<float> densities;
-            //StructuredBuffer<float4> colors;
-
-            sampler2D _MainTex;
-
-            const int ParticleCount;
-            const float SmoothingRadius;
-            const float SqrSmoothingRadius;
-            const float InvSmoothingRadius;
-
             #include "../Scripts/Sim/Resources/MathHelper.hlsl"
             #include "../Scripts/Sim/Resources/RaytraceMath.hlsl"
-            #include "../Scripts/Sim/Resources/ParticleMath3D.hlsl"
-            #include "../Scripts/Sim/Resources/SpatialHash3DWater.hlsl"
 
             #define PI 3.141592
 
@@ -61,42 +47,6 @@ Shader "Unlit/WaterRaymarch"
                 return o;
             }
 
-            float CalculateDensity(float3 pos) {
-                float totalDensity = 0.0;
-
-                int3 centerCellPos = posToCell(pos);
-                int3 currCell;
-                int particleIndex;
-
-                for(int x=-1; x<=1; x++) {
-                    for(int y=-1; y<=1; y++) {
-                        for(int z=-1; z<=1; z++) {
-                            currCell = centerCellPos + int3(x, y, z);
-
-                            int key = getCellKey(currCell);
-                            int currIndex = getStartIndex(key);
-
-                            if(currIndex != -1) {
-                                while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
-
-                                    particleIndex = particleCellKeyEntries[currIndex].particleIndex;
-                                    
-                                    float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
-
-                                    if(sqrDist <= SmoothingRadius*SmoothingRadius) {
-                                        totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
-                                    }
-
-                                    currIndex++;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return totalDensity;
-            }
-
             //
             const float FovY;
             const float Aspect;
@@ -118,7 +68,7 @@ Shader "Unlit/WaterRaymarch"
             //
             const float DensityMultiplier;
             const float LightMultiplier;
-            const float ExtinctionMultiplier;
+            const float3 ExtinctionCoefficients;
             const float LightExtinctionMultiplier;
 
             float3 Raycast(float2 uv) {
@@ -140,7 +90,7 @@ Shader "Unlit/WaterRaymarch"
                 if(max(alp.x, max(alp.y, alp.z)) > .5) return 0.;
                 
                 float3 uv = lp+0.5;
-                return DensityMultiplier * DensityMultiplier*DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;//DensityTexture[uv*float3(30.,20.,10.)];
+                return DensityMultiplier*DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;//DensityTexture[uv*float3(30.,20.,10.)];
             }
 
             #define STEPSIZE 0.01
@@ -189,19 +139,20 @@ Shader "Unlit/WaterRaymarch"
                 float tEnd = boxTs.y;
 
                 float3 accumLight = 0.;
-                float transmittance = 1.;
+                float3 transmittance = 1.;
 
                 while(tCurr <= tEnd) {
                     float3 pos = ro + rd * tCurr;
 
-                    float density = SampleDensity(pos);
-                    transmittance *= exp(-STEPSIZE * ExtinctionMultiplier * density);
-                    accumLight += STEPSIZE * transmittance * LightMultiplier * density * float3(1., 1., 1.) * float3(0.2, 0.4, 1.0) * exp(- LightExtinctionMultiplier * CalculateDensityAlongRay(pos, -lightDir));
+                    float densityAlongStep = STEPSIZE * SampleDensity(pos);
+                    transmittance *= exp(-densityAlongStep * ExtinctionCoefficients);
+                    float3 Li = exp(- ExtinctionCoefficients * CalculateDensityAlongRay(pos, -lightDir)); // Directional light
+                    accumLight += transmittance * densityAlongStep * ExtinctionCoefficients * Li;
 
                     tCurr += STEPSIZE;
                 }
 
-                return accumLight;
+                return LightMultiplier * accumLight;
             }
 
             fixed4 frag(vOut i) : SV_Target
