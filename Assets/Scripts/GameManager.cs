@@ -49,6 +49,8 @@ public class GameManager : MonoBehaviour
         PostProcessManager.Ins.UpdateContainerData();
     }
 
+    int counter = 1;
+
     void Update()
     {
         inputManager.Update();
@@ -57,7 +59,8 @@ public class GameManager : MonoBehaviour
             ResetSimulation();
 
         simUpdater.Update(Time.deltaTime);
-        PostProcessManager.Ins.CacheDensities(); // Takes up ton of time . .
+        if (counter >= 1) { PostProcessManager.Ins.CacheDensities(); counter = 0; } // Takes up ton of time . .
+        else ++counter;
 
         drawer.DrawParticles();
         drawer.DrawBoxAndObstacle();

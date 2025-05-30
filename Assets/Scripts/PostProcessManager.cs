@@ -19,19 +19,6 @@ public class PostProcessManager : MonoBehaviour
 
     public void SetupShaderUniforms()
     {
-        // waterRaymarchMat.SetBuffer("positions", GameManager.Ins.computeManager.positionBuffer);
-        // waterRaymarchMat.SetBuffer("densities", GameManager.Ins.computeManager.densityBuffer);
-        // waterRaymarchMat.SetBuffer("masses", GameManager.Ins.computeManager.massBuffer);
-
-        // waterRaymarchMat.SetBuffer("particleCellKeyEntries", GameManager.Ins.computeManager.particleCellKeyEntryBuffer);
-        // waterRaymarchMat.SetBuffer("cellKeyToStartCoord", GameManager.Ins.computeManager.cellKeyToStartCoordBuffer);
-
-        // waterRaymarchMat.SetInt("ParticleCount", ParticleCount);
-        // waterRaymarchMat.SetInt("SpatialLookupSize", SpatialLookupSize);
-        // waterRaymarchMat.SetFloat("GridSize", GridSize);
-        // waterRaymarchMat.SetFloat("SmoothingRadius", SmoothingRadius);
-        // waterRaymarchMat.SetFloat("SqrSmoothingRadius", SmoothingRadius * SmoothingRadius);
-        // waterRaymarchMat.SetFloat("InvSmoothingRadius", 1.0f / SmoothingRadius);
 
         //
         waterRaymarchMat.SetFloat("FovY", radians(MainCamera.fieldOfView));
@@ -41,7 +28,6 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetFloat("DensityMultiplier", DensityMultiplier);
         waterRaymarchMat.SetFloat("LightMultiplier", LightMultiplier);
         waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3) ExtinctionCoefficients);
-        waterRaymarchMat.SetFloat("LightExtinctionMultiplier", LightExtinctionMultiplier);
 
     }
 
@@ -67,7 +53,7 @@ public class PostProcessManager : MonoBehaviour
 
     public void CacheDensities()
     {
-        int3 densitySampleCount = (int3)ceil(ContainerScale / DensityCacheStepSize);
+        int3 densitySampleCount = int3(DensityCacheSampleCount); //UseDensityStepSize ? (int3)ceil(ContainerScale / DensityCacheStepSize) : int3(DensityCacheSampleCount);
         densityTexture = ComputeHelper.UpdateRenderTexture3D(densityTexture, densitySampleCount, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
 
         GameManager.Ins.simUniformer.UniformDensityTexture(densityTexture, densitySampleCount);

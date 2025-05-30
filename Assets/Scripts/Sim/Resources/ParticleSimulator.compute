@@ -43,6 +43,8 @@ const float SpringForceMultiplier;
 const float Plasticity;
 const float SpringYieldRatio;
 const bool EnableParticleSprings;
+
+const bool EnableStickForce;
 const float MaxStickDistance;
 const float StickForceMultiplier;
 
@@ -153,8 +155,8 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
                         
                         float sqrDist = dot(predictedPositions[particleIndex] - pos, predictedPositions[particleIndex] - pos);
                         if(sqrDist <= SmoothingRadius*SmoothingRadius) {
-                            totalDensity += masses[particleIndex] * SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
-                            totalNearDensity += masses[particleIndex] * SmoothingKernelPow3(SmoothingRadius, sqrt(sqrDist));
+                            totalDensity += /*masses[particleIndex] **/ SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
+                            totalNearDensity += /*masses[particleIndex] **/ SmoothingKernelPow3(SmoothingRadius, sqrt(sqrDist));
                         }
 
                         currIndex++;
@@ -219,12 +221,12 @@ float3 CalculatePressureForce(int i)
                         if (i != otherParticleIndex)
                         {
                             totalForce +=
-                                masses[otherParticleIndex] *
+                                //masses[otherParticleIndex] *
                                 (DensityToPressure(densities[i]) + DensityToPressure(densities[otherParticleIndex])) * 0.5f *
                                 (-SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
                                 / densities[i];
                             totalForce +=
-                                masses[otherParticleIndex] *
+                                //masses[otherParticleIndex] *
                                 (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[otherParticleIndex])) * 0.5f *
                                 (-SmoothingKernelPow3Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
                                 / densities[i];
@@ -269,7 +271,7 @@ float3 CalculateViscosityForce(int i)
                             float sqrDist = dot(predictedPositions[otherParticleIndex] - pos, predictedPositions[otherParticleIndex] - pos);
                             if(sqrDist <= SqrSmoothingRadius) {
                                 totalForce +=
-                                    masses[otherParticleIndex] *
+                                    //masses[otherParticleIndex] *
                                     (velocities[otherParticleIndex] - vel) *
                                     SmoothingKernelSmoothTop(SmoothingRadius, sqrt(sqrDist));
                             }
@@ -413,12 +415,13 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
 
     float3 pos = positions[i];
     float3 vel = velocities[i];
+    float dens = densities[i];
 
     // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
-    float3 pressureAcceleration = CalculatePressureForce(i) / densities[i];
-    float3 viscosityAcceleration = CalculateViscosityForce(i) / densities[i];
-    float3 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / densities[i] : 0.;
-    float3 stickinessAcceleration = CalculateStickinessForce(i) / densities[i];
+    float3 pressureAcceleration = CalculatePressureForce(i) / dens;
+    float3 viscosityAcceleration = CalculateViscosityForce(i) / dens;
+    float3 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / dens : 0.;
+    float3 stickinessAcceleration = EnableStickForce ? CalculateStickinessForce(i) / dens : 0.;
     float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + springAcceleration + Gravity;
 
     vel += a * dt;
@@ -445,8 +448,7 @@ float CalculateDensity(float3 pos) {
     int3 currCell;
     int particleIndex;
 
-    // TODO: TEMP cuz the gridsize won't even conform
-    float h = SmoothingRadius;
+    float h = SmoothingRadius; // 1.4
 
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
@@ -464,7 +466,7 @@ float CalculateDensity(float3 pos) {
                         float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
 
                         if(sqrDist <= h*h) {
-                            totalDensity += masses[particleIndex] * SmoothingKernelPow2(h, sqrt(sqrDist));
+                            totalDensity += /*masses[particleIndex] * */SmoothingKernelPow2(h, sqrt(sqrDist));
                         }
 
                         currIndex++;

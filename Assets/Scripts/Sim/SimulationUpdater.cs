@@ -18,6 +18,8 @@ public class SimulationUpdater
         particleSimulator = GameManager.Ins.computeManager.particleSimulatorShader;
     }
 
+    int counter = 6;
+
     public void Update(float dt)
     {
         if (dt > 1.0f / 60.0f)
@@ -33,11 +35,11 @@ public class SimulationUpdater
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashEntries");
         GameManager.Ins.bitonicSorter.SortParticleEntries();
-        ComputeHelper.Dispatch(particleSimulator, SpatialLookupSize, 1, 1, "ResetSpatialHashOffsets");
+        //ComputeHelper.Dispatch(particleSimulator, SpatialLookupSize, 1, 1, "ResetSpatialHashOffsets");
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculateDensities");
-        if(EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths");
+        if (EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths");
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
         //testspatialhash();

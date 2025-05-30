@@ -90,6 +90,7 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("Plasticity", Plasticity);
         particleSimulatorShader.SetFloat("SpringYieldRatio", SpringYieldRatio);
         particleSimulatorShader.SetBool("EnableParticleSprings", EnableParticleSprings);
+        particleSimulatorShader.SetBool("EnableStickForce", EnableStickForce);
         particleSimulatorShader.SetFloat("MaxStickDistance", MaxStickDistance);
         particleSimulatorShader.SetFloat("StickForceMultiplier", StickForceMultiplier);
 

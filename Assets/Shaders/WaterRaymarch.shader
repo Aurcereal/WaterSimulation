@@ -63,13 +63,12 @@ Shader "Unlit/WaterRaymarch"
 
             //
             Texture3D<float> DensityTexture;
-            SamplerState _LinearClamp;
+            SamplerState _LinearClamp; // https://docs.unity3d.com/Manual/SL-SamplerStates.html
 
             //
             const float DensityMultiplier;
             const float LightMultiplier;
             const float3 ExtinctionCoefficients;
-            const float LightExtinctionMultiplier;
 
             float3 Raycast(float2 uv) {
                 float2 p = uv*2.0-1.0;

@@ -37,6 +37,7 @@ public class SimulationParameters : MonoBehaviour
     public static float Plasticity => Ins.plasticity;
     public static float SpringYieldRatio => Ins.springYieldRatio;
 
+    public static bool EnableStickForce => Ins.enableStickForce;
     public static float MaxStickDistance => Ins.maxStickDistance;
     public static float StickForceMultiplier => Ins.stickForceMultiplier;
 
@@ -50,10 +51,11 @@ public class SimulationParameters : MonoBehaviour
     public static float GridSize => SmoothingRadius/sqrt(2);
 
     public static float DensityCacheStepSize => Ins.densityCacheStepSize;
+    public static float DensityCacheSampleCount => Ins.densityCacheSampleCount;
+    public static bool UseDensityStepSize => Ins.useDensityStepSize;
     public static float DensityMultiplier => Ins.densityMultiplier;
     public static float LightMultiplier => Ins.lightMultiplier;
     public static float3 ExtinctionCoefficients => Ins.extinctionCoefficients;
-    public static float LightExtinctionMultiplier => Ins.lightExtinctionMultiplier;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -77,7 +79,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.0f, 5000.0f)][SerializeField] float mouseForceStrength = 100.0f;
 
     [Header("Pressure Force")]
-    [Range(0.0f, 100.0f)][SerializeField] float targetDensity = 10.0f;
+    [Range(0.0f, 500.0f)][SerializeField] float targetDensity = 10.0f;
     [Range(0.0f, 500.0f)][SerializeField] float nearDensityPressureMultiplier = 1.0f;
     [Range(0.05f, 500.0f)][SerializeField] float pressureMultiplier = 1.0f;
 
@@ -94,6 +96,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.0f, 10.0f)][SerializeField] float springYieldRatio = 0.1f;
 
     [Header("Stickiness Force")]
+    [SerializeField] bool enableStickForce = true;
     [Range(0.0f, 2.0f)][SerializeField] float maxStickDistance = 0.07f;
     [Range(0.0f, 10000.0f)][SerializeField] float stickForceMultiplier = 10.0f;
 
@@ -108,10 +111,11 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Raymarched Rendering")]
     [SerializeField] float densityCacheStepSize = 0.05f;
+    [SerializeField] float densityCacheSampleCount = 128;
+    [SerializeField] bool useDensityStepSize = false;
     [Range(0.005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
     [Range(0.005f, 10.0f)] [SerializeField] float lightMultiplier = 0.5f;
     [SerializeField] float3 extinctionCoefficients = 1.0f;
-    [Range(0.005f, 10.0f)] [SerializeField] float lightExtinctionMultiplier = 0.5f;
 
     private static SimulationParameters Ins;
     void Awake()
