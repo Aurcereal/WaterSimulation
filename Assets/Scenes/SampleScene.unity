@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 15000
+  particleCount: 25000
   spawnWidth: 9.5
   spawnHeight: 5.1
   spawnDepth: 4.2
@@ -194,7 +194,7 @@ MonoBehaviour:
     z: 0
   mouseForceRadius: 2.31
   mouseForceStrength: 826
-  targetDensity: 31.4
+  targetDensity: 86
   nearDensityPressureMultiplier: 12
   pressureMultiplier: 215
   viscosityStrength: 54.9
@@ -250,6 +250,7 @@ MonoBehaviour:
     x: 9
     y: 1
     z: 1
+  lightTransform: {fileID: 705507995}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,14 +337,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.589714, y: -0.5905045, z: 0.1242068, w: 0.536763}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 51.239, y: -128.872, z: -64.085}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -422,7 +423,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.27367955, y: -0, z: -0, w: 0.96182096}
-  m_LocalPosition: {x: 0, y: 25.65, z: -38.54}
+  m_LocalPosition: {x: 0, y: 14.92, z: -21.21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

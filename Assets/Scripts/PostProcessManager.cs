@@ -17,7 +17,7 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat = new(Shader.Find("Unlit/WaterRaymarch"));
     }
 
-    public void SetupShaderUniforms()
+    public void UniformAllParameters()
     {
 
         //
@@ -27,7 +27,8 @@ public class PostProcessManager : MonoBehaviour
         //
         waterRaymarchMat.SetFloat("DensityMultiplier", DensityMultiplier);
         waterRaymarchMat.SetFloat("LightMultiplier", LightMultiplier);
-        waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3) ExtinctionCoefficients);
+        waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3)ExtinctionCoefficients);
+        waterRaymarchMat.SetVector("LightDir", (Vector3)LightDir);
 
     }
 
@@ -44,6 +45,7 @@ public class PostProcessManager : MonoBehaviour
     {
         waterRaymarchMat.SetMatrix("ContainerTransform", ContainerTransform);
         waterRaymarchMat.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
+        waterRaymarchMat.SetVector("ContainerScale", (Vector3) ContainerScale);
     }
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)

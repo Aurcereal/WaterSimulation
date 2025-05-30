@@ -56,6 +56,7 @@ public class SimulationParameters : MonoBehaviour
     public static float DensityMultiplier => Ins.densityMultiplier;
     public static float LightMultiplier => Ins.lightMultiplier;
     public static float3 ExtinctionCoefficients => Ins.extinctionCoefficients;
+    public static float3 LightDir => Ins.lightTransform.forward;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -116,6 +117,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
     [Range(0.005f, 10.0f)] [SerializeField] float lightMultiplier = 0.5f;
     [SerializeField] float3 extinctionCoefficients = 1.0f;
+    [SerializeField] Transform lightTransform;
 
     private static SimulationParameters Ins;
     void Awake()
@@ -127,16 +129,17 @@ public class SimulationParameters : MonoBehaviour
     {
         // This Monobehavior func is called when a value changes
         GameManager.Ins?.simUniformer.UniformAllParameters();
-        PostProcessManager.Ins?.SetupShaderUniforms();
+        PostProcessManager.Ins?.UniformAllParameters();
     }
 
     void Update()
     {
-        if (obstacleTransform.hasChanged || containerTransform.hasChanged)
+        if (obstacleTransform.hasChanged || containerTransform.hasChanged || lightTransform.hasChanged)
         {
-            obstacleTransform.hasChanged = false; containerTransform.hasChanged = false;
+            obstacleTransform.hasChanged = false; containerTransform.hasChanged = false; lightTransform.hasChanged = false;
             GameManager.Ins?.simUniformer.UniformAllParameters();
             PostProcessManager.Ins.UpdateContainerData();
+            PostProcessManager.Ins.UniformAllParameters();
         }
     }
 }
