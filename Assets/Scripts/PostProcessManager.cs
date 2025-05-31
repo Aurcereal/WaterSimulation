@@ -29,6 +29,9 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetFloat("LightMultiplier", LightMultiplier);
         waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3)ExtinctionCoefficients);
         waterRaymarchMat.SetVector("LightDir", (Vector3)LightDir);
+        waterRaymarchMat.SetInt("NumBounces", NumBounces);
+        waterRaymarchMat.SetFloat("WaterExistenceThreshold", WaterExistenceThreshold);
+        waterRaymarchMat.SetFloat("WaterExistenceEps", WaterExistenceEps);
 
     }
 

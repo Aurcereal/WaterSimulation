@@ -2,15 +2,19 @@ https://matthias-research.github.io/pages/publications/sca03.pdf
 https://sph-tutorial.physics-simulation.org/pdf/SPH_Tutorial.pdf
 http://www.ligum.umontreal.ca/Clavet-2005-PVFS/pvfs.pdf
 
-h *= 1.4 in cache density
 gridsize = h/sqrt(2)
+
+write about optimizations to run in realtime
 
 Seb Lague Vid
 
+- Try using golf and unsafe versions of smoothing kernels/gradients
 - Group density and neardensity as a float2 (less reads and writes)
-- Maybe higher smoothing radius just for density texture or blur it in some way
 - Implement linked list method for springs (detailed below)
+
+- Maybe higher smoothing radius just for density texture or blur it in some way
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
+- Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals
 
 -=Ignore/Done for now=-
 

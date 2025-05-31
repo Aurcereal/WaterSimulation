@@ -57,6 +57,9 @@ public class SimulationParameters : MonoBehaviour
     public static float LightMultiplier => Ins.lightMultiplier;
     public static float3 ExtinctionCoefficients => Ins.extinctionCoefficients;
     public static float3 LightDir => Ins.lightTransform.forward;
+    public static int NumBounces => Ins.numBounces;
+    public static float WaterExistenceThreshold => Ins.waterExistenceThreshold;
+    public static float WaterExistenceEps => Ins.waterExistenceEps;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -118,6 +121,9 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.005f, 10.0f)] [SerializeField] float lightMultiplier = 0.5f;
     [SerializeField] float3 extinctionCoefficients = 1.0f;
     [SerializeField] Transform lightTransform;
+    [SerializeField] int numBounces = 2;
+    [Range(0.001f, 10.0f)][SerializeField] float waterExistenceThreshold = 0.1f;
+    [SerializeField] float waterExistenceEps = 0.05f;
 
     private static SimulationParameters Ins;
     void Awake()
