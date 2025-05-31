@@ -245,10 +245,10 @@ MonoBehaviour:
   densityCacheSampleCount: 128
   useDensityStepSize: 0
   densityMultiplier: 0.008
-  lightMultiplier: 2.14
+  lightMultiplier: 10
   extinctionCoefficients:
-    x: 9
-    y: 1
+    x: 5.68
+    y: 1.05
     z: 1
   lightTransform: {fileID: 705507995}
   numBounces: 2

@@ -171,7 +171,7 @@ Shader "Unlit/WaterRaymarch"
             }
 
             float3 SampleEnvironment(float3 rd) {
-                return float3(10., 0., 0.);
+                return LightMultiplier*1.;//float3(10., 0., 0.);
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering
@@ -215,7 +215,7 @@ Shader "Unlit/WaterRaymarch"
                 const float2 eps = float2(NORMEPS, 0.);
 
                 // Can turn it to SampleLocalDensity later by transforming the normal direction and stuff
-                return normalize(float3(
+                return -normalize(float3(
                     SampleDensity(pos+eps.xyy) - SampleDensity(pos-eps.xyy),
                     SampleDensity(pos+eps.yxy) - SampleDensity(pos-eps.yxy),
                     SampleDensity(pos+eps.yyx) - SampleDensity(pos-eps.yyx)
@@ -300,7 +300,7 @@ Shader "Unlit/WaterRaymarch"
                         break;
                     }
 
-                    transmittance *= exp(- 0.01*ExtinctionCoefficients * densityAlongRay);
+                    transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
                     float ior = isInsideLiquid ? 1.33 : 1./1.33;
 
