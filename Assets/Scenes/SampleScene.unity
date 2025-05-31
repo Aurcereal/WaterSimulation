@@ -251,6 +251,9 @@ MonoBehaviour:
     y: 1
     z: 1
   lightTransform: {fileID: 705507995}
+  numBounces: 2
+  waterExistenceThreshold: 0.1
+  waterExistenceEps: 0.05
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
