@@ -231,7 +231,7 @@ Shader "Unlit/WaterRaymarch"
                 float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
 
                 float2 boxTs = rayBoxIntersect(lro, lrd);
-                if(boxTs.x > boxTs.y) return float2(0., MAXDIST);
+                if(boxTs.x > boxTs.y) return float2(MAXDIST, 0.);
 
                 // Bring to Local Rot Trans space
                 lro *= ContainerScale;
@@ -275,7 +275,7 @@ Shader "Unlit/WaterRaymarch"
                     }
                 }
                 
-                return float2(accumDensity, MAXDIST);
+                return float2(MAXDIST, accumDensity);
             }
 
             bool IsInsideLiquid(float3 pos) {
@@ -297,6 +297,7 @@ Shader "Unlit/WaterRaymarch"
                     if(isInsideLiquid) norm *= -1.0;
 
                     if(t >= MAXDIST) {
+                        if(i==0) return 0.; // Just want the background to be black
                         break;
                     }
 
@@ -318,18 +319,18 @@ Shader "Unlit/WaterRaymarch"
                     float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
                     float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
 
-                    if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
+                    if(f >= 0.5) {//reflectTransmittance >= refractTransmittance) { // f >= 0.5
                         rd = reflectRay;
                         ro = hitPos + rd*0.0005;
                         transmittance *= f;
 
-                        li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
+                        li += transmittance * (1.-f) * SampleEnvironment(refractRay);//transmittance * refractTransmittance * SampleEnvironment(refractRay);
                     } else {
                         rd = refractRay;
                         ro = hitPos + rd*0.0005;
                         transmittance *= 1.-f;
 
-                        li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
+                        li += transmittance * f * SampleEnvironment(refractRay);//transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
                     }
                 }
 
@@ -346,9 +347,9 @@ Shader "Unlit/WaterRaymarch"
                 
                 //
                 float3 accumLight = TraceWaterRay(ro, rd);
-                // gamma reinhards?
+                float3 col = pow(accumLight/(1.+accumLight),1./2.2);
 
-                return float4(accumLight, 1.);//tex2D(_MainTex, i.uv) * float4(1.0, 0.2, 0.2, 1.0);
+                return float4(col, 1.);
             }
             ENDCG
         }
