@@ -311,18 +311,25 @@ Shader "Unlit/WaterRaymarch"
                     float3 reflectRay = Reflect(-rd, norm);
                     float3 refractRay = Refract(-rd, norm, ior);
 
-                    if(f >= 0.5) {
+                    // Optimize, shouldn't have these 2 calculate densities and not stop at water when we use same intersection info in next loop
+                    float densAlongReflect = CalculateDensityAlongRay(hitPos+reflectRay*0.0005, reflectRay);
+                    float densAlongRefract = CalculateDensityAlongRay(hitPos+refractRay*0.0005, refractRay);
+
+                    float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
+                    float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
+
+                    if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
                         rd = reflectRay;
                         ro = hitPos + rd*0.0005;
                         transmittance *= f;
 
-                        li += (1.-f) * SampleEnvironment(refractRay);
+                        li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
                     } else {
                         rd = refractRay;
                         ro = hitPos + rd*0.0005;
                         transmittance *= 1.-f;
 
-                        li += f * SampleEnvironment(reflectRay);
+                        li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
                     }
                 }
 
