@@ -70,6 +70,11 @@ Shader "Unlit/WaterRaymarch"
             const float DensityMultiplier;
             const float LightMultiplier;
             const float3 ExtinctionCoefficients;
+            const float IndexOfRefraction;
+
+            const int NumBounces;
+            const float WaterExistenceThreshold;
+            const float WaterExistenceEps;
 
             //
             const float3 LightDir;
@@ -101,10 +106,6 @@ Shader "Unlit/WaterRaymarch"
                 float3 uv = lp+0.5;
                 return DensityMultiplier*DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;//DensityTexture[uv*float3(30.,20.,10.)];
             }
-
-            const int NumBounces;
-            const float WaterExistenceThreshold;
-            const float WaterExistenceEps;
 
             #define STEPSIZE 0.01
             #define BIGSTEPSIZE 0.5
@@ -303,7 +304,7 @@ Shader "Unlit/WaterRaymarch"
 
                     transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
-                    float ior = isInsideLiquid ? 1.33 : 1./1.33;
+                    float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
 
                     float f = Fresnel(-rd, norm, ior);
                     float kReflect = f;
@@ -334,7 +335,7 @@ Shader "Unlit/WaterRaymarch"
                     }
                 }
 
-                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd));
+                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
                 li += transmittance * transmittanceToLight * SampleEnvironment(rd);
 
                 return li;

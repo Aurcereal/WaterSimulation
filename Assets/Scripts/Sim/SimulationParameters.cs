@@ -56,6 +56,7 @@ public class SimulationParameters : MonoBehaviour
     public static float DensityMultiplier => Ins.densityMultiplier;
     public static float LightMultiplier => Ins.lightMultiplier;
     public static float3 ExtinctionCoefficients => Ins.extinctionCoefficients;
+    public static float IndexOfRefraction => Ins.indexOfRefraction;
     public static float3 LightDir => Ins.lightTransform.forward;
     public static int NumBounces => Ins.numBounces;
     public static float WaterExistenceThreshold => Ins.waterExistenceThreshold;
@@ -106,7 +107,6 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Mostly Visual")]
     [Range(0.025f, 1.0f)][SerializeField] float particleRadius = 0.05f;
-    [Range(0.05f, 1.0f)][SerializeField] float boxThickness = 0.1f;
     [SerializeField] Gradient particleSpeedGradient;
     [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 0.0f;
     [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
@@ -120,6 +120,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
     [Range(0.005f, 100.0f)] [SerializeField] float lightMultiplier = 0.5f;
     [SerializeField] float3 extinctionCoefficients = 1.0f;
+    [Range(0.1f, 10.0f)][SerializeField] float indexOfRefraction = 1.33f;
     [SerializeField] Transform lightTransform;
     [SerializeField] int numBounces = 2;
     [Range(0.001f, 10.0f)][SerializeField] float waterExistenceThreshold = 0.1f;

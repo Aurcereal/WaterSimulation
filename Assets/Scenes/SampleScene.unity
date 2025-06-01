@@ -207,7 +207,6 @@ MonoBehaviour:
   maxStickDistance: 0.25
   stickForceMultiplier: 8250
   particleRadius: 0.305
-  boxThickness: 0.1
   particleSpeedGradient:
     serializedVersion: 2
     key0: {r: 0, g: 0.50156784, b: 1, a: 1}
@@ -250,6 +249,7 @@ MonoBehaviour:
     x: 20.92
     y: 1.05
     z: 1
+  indexOfRefraction: 1.333
   lightTransform: {fileID: 705507995}
   numBounces: 2
   waterExistenceThreshold: 0.1
