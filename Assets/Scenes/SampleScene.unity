@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 25000
+  particleCount: 40000
   spawnWidth: 9.5
   spawnHeight: 5.1
   spawnDepth: 4.2
@@ -245,9 +245,9 @@ MonoBehaviour:
   densityCacheSampleCount: 128
   useDensityStepSize: 0
   densityMultiplier: 0.008
-  lightMultiplier: 10
+  lightMultiplier: 20.5
   extinctionCoefficients:
-    x: 5.68
+    x: 20.92
     y: 1.05
     z: 1
   lightTransform: {fileID: 705507995}

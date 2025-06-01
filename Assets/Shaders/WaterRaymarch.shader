@@ -319,23 +319,23 @@ Shader "Unlit/WaterRaymarch"
                     float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
                     float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
 
-                    if(f >= 0.5) {//reflectTransmittance >= refractTransmittance) { // f >= 0.5
+                    if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
                         rd = reflectRay;
                         ro = hitPos + rd*0.0005;
                         transmittance *= f;
 
-                        li += transmittance * (1.-f) * SampleEnvironment(refractRay);//transmittance * refractTransmittance * SampleEnvironment(refractRay);
+                        li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
                     } else {
                         rd = refractRay;
                         ro = hitPos + rd*0.0005;
                         transmittance *= 1.-f;
 
-                        li += transmittance * f * SampleEnvironment(refractRay);//transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
+                        li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
                     }
                 }
 
-                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, -LightDir));
-                li += transmittance * transmittanceToLight * SampleEnvironment(-LightDir);
+                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd));
+                li += transmittance * transmittanceToLight * SampleEnvironment(rd);
 
                 return li;
             }
@@ -349,7 +349,7 @@ Shader "Unlit/WaterRaymarch"
                 float3 accumLight = TraceWaterRay(ro, rd);
                 float3 col = pow(accumLight/(1.+accumLight),1./2.2);
 
-                return float4(col, 1.);
+                return float4(accumLight, 1.);
             }
             ENDCG
         }
