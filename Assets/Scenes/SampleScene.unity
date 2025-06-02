@@ -254,6 +254,13 @@ MonoBehaviour:
   numBounces: 2
   waterExistenceThreshold: 0.1
   waterExistenceEps: 0.05
+  cameraRotateSpeed:
+    x: 1
+    y: 1
+  cameraPanSpeed:
+    x: 0.05
+    y: 0.05
+  cameraZoomSpeed: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,6 +5,8 @@ using Unity.Mathematics;
 
 using static Unity.Mathematics.math;
 
+using static SimulationParameters;
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Ins { get; private set; }
@@ -15,9 +17,12 @@ public class GameManager : MonoBehaviour
     public SimulationUniformer simUniformer;
     public SimulationInitializer simInitializer;
     public SimulationUpdater simUpdater;
+    public SimulationTimeController simTimeController;
 
     public BitonicSortManager bitonicSorter;
     public Drawer drawer;
+
+    public CameraController camController;
 
     void Start()
     {
@@ -40,9 +45,12 @@ public class GameManager : MonoBehaviour
         simInitializer.InitializeSimulation();
 
         simUpdater = new();
+        simTimeController = new();
 
         bitonicSorter = new();
         drawer = new();
+
+        camController = new(MainCamera.transform.position, float3(0));
 
         PostProcessManager.Ins.UniformAllParameters();
         PostProcessManager.Ins.UpdateCameraData();
@@ -55,13 +63,20 @@ public class GameManager : MonoBehaviour
     {
         inputManager.Update();
 
+        camController.Update();
+        MainCamera.transform.position = camController.Position;
+        MainCamera.transform.rotation = camController.Rotation;
+
         if (inputManager.KeyDownR)
             ResetSimulation();
 
-        simUpdater.Update(Time.deltaTime);
+        simTimeController.UpdateState();
+
+        if (simTimeController.ShouldUpdate())
+            simUpdater.Update(simTimeController.GetDeltaTime());
+
         if (counter >= 1) { PostProcessManager.Ins.CacheDensities(); counter = 0; } // Takes up ton of time . .
         else ++counter;
-
         drawer.DrawParticles();
         drawer.DrawBoxAndObstacle();
     }

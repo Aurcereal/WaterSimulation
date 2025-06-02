@@ -18,6 +18,9 @@ Seb Lague Vid
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 - Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals
 
+- Extreme viscosity so like a fluid box will stay together (very very strong springs?)
+- Can turn a arb mesh into fluid so it'd be kinda like soft body sim lol
+
 -=Ignore/Done for now=-
 
 - Surface Tension from one of those papers (didn't turn out well for now..)

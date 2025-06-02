@@ -12,6 +12,14 @@ public class InputManager
     public bool LeftMouseButton { get; private set; }
     public bool RightMouseButton { get; private set; }
     public bool KeyDownR { get; private set; }
+    public bool KeyDownSpace { get; private set; }
+    public bool KeyDownRightArrow { get; private set; }
+    public bool KeyDownF3 { get; private set; }
+
+    public float2 MousePosition { get; private set; }
+    public float2 DeltaMousePosition { get; private set; }
+
+    public float ScrollWheelDelta;
 
     public void Update()
     {
@@ -19,8 +27,17 @@ public class InputManager
         RightMouseButton = Input.GetMouseButton(1);
 
         KeyDownR = Input.GetKeyDown(KeyCode.R);
+        KeyDownSpace = Input.GetKeyDown(KeyCode.Space);
+        KeyDownRightArrow = Input.GetKeyDown(KeyCode.RightArrow);
+        KeyDownF3 = Input.GetKeyDown(KeyCode.F3);
 
         WorldMousePosition = (Vector2)MainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, MainCamera.nearClipPlane));
+
+        var prevMousePos = MousePosition;
+        MousePosition = (Vector2)Input.mousePosition;
+        DeltaMousePosition = MousePosition - prevMousePos;
+
+        ScrollWheelDelta = Input.mouseScrollDelta.y;
     }
     
 }

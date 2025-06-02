@@ -62,6 +62,10 @@ public class SimulationParameters : MonoBehaviour
     public static float WaterExistenceThreshold => Ins.waterExistenceThreshold;
     public static float WaterExistenceEps => Ins.waterExistenceEps;
 
+    public static float2 CameraRotateSpeed => Ins.cameraRotateSpeed;
+    public static float2 CameraPanSpeed => Ins.cameraPanSpeed;
+    public static float CameraZoomSpeed => Ins.cameraZoomSpeed;
+
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
@@ -125,6 +129,11 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] int numBounces = 2;
     [Range(0.001f, 10.0f)][SerializeField] float waterExistenceThreshold = 0.1f;
     [SerializeField] float waterExistenceEps = 0.05f;
+
+    [Header("Camera Controller Parameters")]
+    [SerializeField] float2 cameraRotateSpeed;
+    [SerializeField] float2 cameraPanSpeed;
+    [SerializeField] float cameraZoomSpeed;
 
     private static SimulationParameters Ins;
     void Awake()
