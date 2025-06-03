@@ -61,6 +61,7 @@ public class SimulationParameters : MonoBehaviour
     public static int NumBounces => Ins.numBounces;
     public static float WaterExistenceThreshold => Ins.waterExistenceThreshold;
     public static float WaterExistenceEps => Ins.waterExistenceEps;
+    public static Cubemap EnvironmentMap => Ins.environmentMap;
 
     public static float2 CameraRotateSpeed => Ins.cameraRotateSpeed;
     public static float2 CameraPanSpeed => Ins.cameraPanSpeed;
@@ -129,6 +130,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] int numBounces = 2;
     [Range(0.001f, 10.0f)][SerializeField] float waterExistenceThreshold = 0.1f;
     [SerializeField] float waterExistenceEps = 0.05f;
+    [SerializeField] Cubemap environmentMap;
 
     [Header("Camera Controller Parameters")]
     [SerializeField] float2 cameraRotateSpeed;

@@ -22,6 +22,7 @@ Shader "Unlit/WaterRaymarch"
 
             #include "../Scripts/Sim/Resources/MathHelper.hlsl"
             #include "../Scripts/Sim/Resources/RaytraceMath.hlsl"
+            #include "./Skybox.hlsl"
 
             #define PI 3.141592
 
@@ -86,7 +87,6 @@ Shader "Unlit/WaterRaymarch"
                 return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
             }
 
-            // maybe should march in local space or smth.. or at least local rotation and position, maybe not scale (cuz transforming takes a lot of time)
             float SampleDensity(float3 p) {
                 float3 lp = mul(ContainerInverseTransform, float4(p, 1.0));
                 
@@ -94,9 +94,10 @@ Shader "Unlit/WaterRaymarch"
                 if(max(alp.x, max(alp.y, alp.z)) > .5) return 0.;
                 
                 float3 uv = lp+0.5;
-                return DensityMultiplier*DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;//DensityTexture[uv*float3(30.,20.,10.)];
+                return DensityMultiplier*DensityTexture.SampleLevel(_LinearClamp, uv, 0.0, 0).r;
             }
 
+            // Same as SampleDensity but slightly better performance (no transformation)
             float SampleLocalDensity(float3 lp) {
                 lp /= ContainerScale;
                 
@@ -171,11 +172,13 @@ Shader "Unlit/WaterRaymarch"
                 return LightMultiplier * accumLight;
             }
 
+            samplerCUBE EnvironmentMap;
+
             float3 SampleEnvironment(float3 rd) {
-                return LightMultiplier*1.;//float3(10., 0., 0.);
+                return LightMultiplier*SampleSpaceSkybox(rd, float2(rd.x, rd.y), CamFo);//texCUBE(EnvironmentMap, rd);//;//1.;//;//
             }
 
-            // ior is Index of Medium we're in div by Index of Medium we're entering
+            // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)
             float3 Refract(float3 wo, float3 norm, float ior) {
                 float cosThetaI = dot(wo, norm);
                 float sinThetaT2 = ior * ior * (1.0 - cosThetaI*cosThetaI);
@@ -283,11 +286,11 @@ Shader "Unlit/WaterRaymarch"
                 return SampleDensity(pos) >= WaterExistenceThreshold;
             }
 
-            float3 TraceWaterRay(float3 ro, float3 rd) {
+            float3 TraceWaterRay(float3 ro, float3 rd, float2 sp) {
                 float3 transmittance = 1.;
                 float3 li = 0.;
 
-                for(int i=0; i<NumBounces; i++) {
+                for(int i=0; i<2; i++) {
                     bool isInsideLiquid = IsInsideLiquid(ro);
 
                     float2 inter = RayIntersectWater(ro, rd, isInsideLiquid);
@@ -298,7 +301,7 @@ Shader "Unlit/WaterRaymarch"
                     if(isInsideLiquid) norm *= -1.0;
 
                     if(t >= MAXDIST) {
-                        if(i==0) return 0.; // Just want the background to be black
+                        if(i==0) return 0.;//SampleEnvironment(rd)/LightMultiplier;//SampleSpaceSkybox(rd, sp, CamFo); // Temp cuz I don't want it to actually look that bright from cam rays
                         break;
                     }
 
@@ -345,9 +348,12 @@ Shader "Unlit/WaterRaymarch"
             {
                 float3 ro = CamPos;
                 float3 rd = Raycast(i.uv);
+
+                //
+                float2 sp = (i.uv*2.0-1.0)*float2(1.3, 1.0);
                 
                 //
-                float3 accumLight = TraceWaterRay(ro, rd);
+                float3 accumLight = TraceWaterRay(ro, rd, sp);
                 float3 col = pow(accumLight/(1.+accumLight),1./2.2);
 
                 return float4(accumLight, 1.);

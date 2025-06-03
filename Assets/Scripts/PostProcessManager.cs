@@ -34,6 +34,9 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetFloat("WaterExistenceThreshold", WaterExistenceThreshold);
         waterRaymarchMat.SetFloat("WaterExistenceEps", WaterExistenceEps);
 
+        //
+        waterRaymarchMat.SetTexture("EnvironmentMap", EnvironmentMap);
+
     }
 
     public void UpdateCameraData()

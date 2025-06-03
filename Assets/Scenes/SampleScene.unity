@@ -244,7 +244,7 @@ MonoBehaviour:
   densityCacheSampleCount: 128
   useDensityStepSize: 0
   densityMultiplier: 0.008
-  lightMultiplier: 20.5
+  lightMultiplier: 41
   extinctionCoefficients:
     x: 20.92
     y: 1.05
@@ -254,6 +254,7 @@ MonoBehaviour:
   numBounces: 2
   waterExistenceThreshold: 0.1
   waterExistenceEps: 0.05
+  environmentMap: {fileID: 8900000, guid: 91231629c1b2627498c11ce1f7109c97, type: 3}
   cameraRotateSpeed:
     x: 1
     y: 1

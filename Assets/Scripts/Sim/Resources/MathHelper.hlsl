@@ -6,9 +6,9 @@ float3x3 rot2D(float o) {
     );
 }
 
-float2 rot(float2 v, float o) {
-    return mul(float2x2(cos(o), sin(o), -sin(o), cos(o)), v);
-}
+// float2 rot(float2 v, float o) {
+//     return mul(float2x2(cos(o), sin(o), -sin(o), cos(o)), v);
+// }
 
 float3 normalizesafe(float3 v) {
     float sqrDist = dot(v, v);
