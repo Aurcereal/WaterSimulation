@@ -109,8 +109,8 @@ Shader "Unlit/WaterRaymarch"
             }
 
             #define STEPSIZE 0.01
-            #define BIGSTEPSIZE 0.5
-            #define NORMEPS 0.001
+            #define BIGSTEPSIZE 0.1 // 0.5
+            #define NORMEPS 0.1 // 0.001
             #define MAXDIST 1000.0
 
             float CalculateDensityAlongRay(float3 ro, float3 rd) {
@@ -175,7 +175,7 @@ Shader "Unlit/WaterRaymarch"
             samplerCUBE EnvironmentMap;
 
             float3 SampleEnvironment(float3 rd) {
-                return LightMultiplier*SampleSpaceSkybox(rd, float2(rd.x, rd.y), CamFo);//texCUBE(EnvironmentMap, rd);//;//1.;//;//
+                return LightMultiplier*texCUBE(EnvironmentMap, rd);//SampleSpaceSkybox(rd, float2(rd.x, rd.y), CamFo);////;//1.;//;//
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)
@@ -301,7 +301,7 @@ Shader "Unlit/WaterRaymarch"
                     if(isInsideLiquid) norm *= -1.0;
 
                     if(t >= MAXDIST) {
-                        if(i==0) return 0.;//SampleEnvironment(rd)/LightMultiplier;//SampleSpaceSkybox(rd, sp, CamFo); // Temp cuz I don't want it to actually look that bright from cam rays
+                        if(i==0) return SampleEnvironment(rd)/LightMultiplier;//SampleSpaceSkybox(rd, sp, CamFo); // Temp cuz I don't want it to actually look that bright from cam rays
                         break;
                     }
 
@@ -322,6 +322,8 @@ Shader "Unlit/WaterRaymarch"
 
                     float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
                     float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
+
+                    //return t*0.05;
 
                     if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
                         rd = reflectRay;
