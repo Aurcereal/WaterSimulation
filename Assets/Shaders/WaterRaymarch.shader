@@ -112,7 +112,7 @@ Shader "Unlit/WaterRaymarch"
             }
 
             #define STEPSIZE 0.01
-            #define BIGSTEPSIZE 0.5 // 0.1
+            #define BIGSTEPSIZE 0.1 // 0.1
             #define NORMEPS 0.1 // 0.001
             #define MAXDIST 1000.0
 
@@ -352,9 +352,9 @@ Shader "Unlit/WaterRaymarch"
             float3 TraceWaterRayOverride(float3 ro, float3 rd, float2 sp, bool firstFollowReflect) {
                 float3 transmittance = 1.;
                 float3 li = 0.;
+                bool isInsideLiquid = IsInsideLiquid(ro);
 
                 for(int i=0; i<min(NumBounces, MAXBOUNCECOUNT); i++) {
-                    bool isInsideLiquid = IsInsideLiquid(ro);
 
                     float2 inter = RayIntersectWater(ro, rd, isInsideLiquid);
                     float t = inter.x; float densityAlongRay = inter.y;
@@ -398,6 +398,8 @@ Shader "Unlit/WaterRaymarch"
                         rd = refractRay;
                         ro = hitPos + (norm+rd)*NextRayOffset;
                         transmittance *= 1.-f;
+
+                        isInsideLiquid = !isInsideLiquid;
 
                         if(i != 0) li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
                     }
