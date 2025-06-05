@@ -31,8 +31,10 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetFloat("IndexOfRefraction", IndexOfRefraction);
         waterRaymarchMat.SetVector("LightDir", (Vector3)LightDir);
         waterRaymarchMat.SetInt("NumBounces", NumBounces);
+        waterRaymarchMat.SetInt("TraceReflectAndRefract", TraceReflectAndRefract ? 1 : 0);
         waterRaymarchMat.SetFloat("WaterExistenceThreshold", WaterExistenceThreshold);
         waterRaymarchMat.SetFloat("WaterExistenceEps", WaterExistenceEps);
+        waterRaymarchMat.SetFloat("NextRayOffset", NextRayOffset);
 
         //
         waterRaymarchMat.SetTexture("EnvironmentMap", EnvironmentMap);

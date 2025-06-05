@@ -59,8 +59,10 @@ public class SimulationParameters : MonoBehaviour
     public static float IndexOfRefraction => Ins.indexOfRefraction;
     public static float3 LightDir => Ins.lightTransform.forward;
     public static int NumBounces => Ins.numBounces;
+    public static bool TraceReflectAndRefract => Ins.traceReflectAndRefract;
     public static float WaterExistenceThreshold => Ins.waterExistenceThreshold;
     public static float WaterExistenceEps => Ins.waterExistenceEps;
+    public static float NextRayOffset => Ins.nextRayOffset;
     public static Cubemap EnvironmentMap => Ins.environmentMap;
 
     public static float2 CameraRotateSpeed => Ins.cameraRotateSpeed;
@@ -127,9 +129,11 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float3 extinctionCoefficients = 1.0f;
     [Range(0.1f, 10.0f)][SerializeField] float indexOfRefraction = 1.33f;
     [SerializeField] Transform lightTransform;
-    [SerializeField] int numBounces = 2;
+    [Range(1, 4)] [SerializeField] int numBounces = 2;
+    [SerializeField] [Tooltip("Traces reflect and refract ray Li on iter 1 and adds them instead of following only refract or reflect.")] bool traceReflectAndRefract;
     [Range(0.001f, 10.0f)][SerializeField] float waterExistenceThreshold = 0.1f;
     [SerializeField] float waterExistenceEps = 0.05f;
+    [SerializeField] float nextRayOffset = 0.0005f;
     [SerializeField] Cubemap environmentMap;
 
     [Header("Camera Controller Parameters")]

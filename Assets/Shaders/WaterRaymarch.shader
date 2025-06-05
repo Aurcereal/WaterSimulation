@@ -73,9 +73,12 @@ Shader "Unlit/WaterRaymarch"
             const float3 ExtinctionCoefficients;
             const float IndexOfRefraction;
 
+            #define MAXBOUNCECOUNT 4
+            const bool TraceReflectAndRefract;
             const int NumBounces;
             const float WaterExistenceThreshold;
             const float WaterExistenceEps;
+            const float NextRayOffset;
 
             //
             const float3 LightDir;
@@ -264,7 +267,7 @@ Shader "Unlit/WaterRaymarch"
                         float3 lpos = lro + lrd * tCurr;
 
                         float dens = SampleLocalDensity(lpos);
-                        if(dens >= WaterExistenceThreshold + WaterExistenceEps) {
+                        if(dens > WaterExistenceThreshold + WaterExistenceEps) {
                             while(dens >= WaterExistenceThreshold + WaterExistenceEps && tCurr >= tStart) {
                                 tCurr -= STEPSIZE;
                                 float3 lpos = lro + lrd * tCurr;
@@ -290,7 +293,7 @@ Shader "Unlit/WaterRaymarch"
                 float3 transmittance = 1.;
                 float3 li = 0.;
 
-                for(int i=0; i<2; i++) {
+                for(int i=0; i<min(NumBounces, MAXBOUNCECOUNT); i++) {
                     bool isInsideLiquid = IsInsideLiquid(ro);
 
                     float2 inter = RayIntersectWater(ro, rd, isInsideLiquid);
@@ -304,8 +307,6 @@ Shader "Unlit/WaterRaymarch"
                         if(i==0) return SampleEnvironment(rd)/LightMultiplier;//SampleSpaceSkybox(rd, sp, CamFo); // Temp cuz I don't want it to actually look that bright from cam rays
                         break;
                     }
-
-                    //if(i==1) return float3(t,0.,0.);
 
                     transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
@@ -327,27 +328,79 @@ Shader "Unlit/WaterRaymarch"
 
                     if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
                         rd = reflectRay;
-                        ro = hitPos + norm*0.0005;
+                        ro = hitPos + norm*NextRayOffset;
                         transmittance *= f;
 
                         li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
                     } else {
                         rd = refractRay;
-                        ro = hitPos + norm*0.0005;
+                        ro = hitPos + norm*NextRayOffset;
                         transmittance *= 1.-f;
 
                         li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
                     }
 
-                    // why does it never seem to follow refract ray on first bounce?? the f term getting so low should cause it to refract..
-                    // but it follows refract ray on second bounce a lot? how does that make sense given that it should fall into the void
-                    // also fix normals on boundaries or something, smooth it out so it becomes box normal?
-                    // also when we look at a grazing angle on the top it's black even though reflection should be strong and sample skybox?..  
-                        // well this one could be because fresnel only happens when it's very reflective? maybe that's wrong too though.  
+                }
 
-                    // Answers:
-                    // wasn't following refract just cuz massive extinction coefficients and there's no density in air so it was making the refract transmittance exponentially lower, lowering extinction coefficients helps
-                    // it's black when we look at grazing angle since reflected ray wins but the epsilon is too small so it has self intersection instead of sampling skybox
+                // We already calculate this density in case of t >= MAXDIST..
+                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
+                li += transmittance * transmittanceToLight * SampleEnvironment(rd);
+
+                return li;
+            }
+
+            float3 TraceWaterRayOverride(float3 ro, float3 rd, float2 sp, bool firstFollowReflect) {
+                float3 transmittance = 1.;
+                float3 li = 0.;
+
+                for(int i=0; i<min(NumBounces, MAXBOUNCECOUNT); i++) {
+                    bool isInsideLiquid = IsInsideLiquid(ro);
+
+                    float2 inter = RayIntersectWater(ro, rd, isInsideLiquid);
+                    float t = inter.x; float densityAlongRay = inter.y;
+
+                    //if(i==1 && firstFollowReflect) return t*0.05;
+
+                    float3 hitPos = ro + rd*t;
+                    float3 norm = CalculateNormal(hitPos);
+                    if(isInsideLiquid) norm *= -1.0;
+
+                    if(t >= MAXDIST) {
+                        if(i==0) return 0.5*SampleEnvironment(rd)/LightMultiplier;
+                        break;
+                    }
+
+                    transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
+
+                    float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
+
+                    float f = Fresnel(-rd, norm, ior);
+                    float kReflect = f;
+                    float kRefract = 1.-f;
+
+                    float3 reflectRay = Reflect(-rd, norm);
+                    float3 refractRay = Refract(-rd, norm, ior);
+
+                    // Optimize, shouldn't have these 2 calculate densities and not stop at water when we use same intersection info in next loop
+                    float densAlongReflect = CalculateDensityAlongRay(hitPos+reflectRay*0.0005, reflectRay);
+                    float densAlongRefract = CalculateDensityAlongRay(hitPos+refractRay*0.0005, refractRay);
+
+                    float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
+                    float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
+
+                    if((i == 0 && firstFollowReflect) || (i != 0 && reflectTransmittance >= refractTransmittance)) { // f >= 0.5
+                        rd = reflectRay;
+                        ro = hitPos + (norm+rd)*NextRayOffset;
+                        transmittance *= f;
+
+                        if(i != 0) li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
+                    } else {
+                        rd = refractRay;
+                        ro = hitPos + (norm+rd)*NextRayOffset;
+                        transmittance *= 1.-f;
+
+                        if(i != 0) li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
+                    }
 
                 }
 
@@ -367,7 +420,17 @@ Shader "Unlit/WaterRaymarch"
                 float2 sp = (i.uv*2.0-1.0)*float2(1.3, 1.0);
                 
                 //
-                float3 accumLight = TraceWaterRay(ro, rd, sp);
+                float3 accumLight;
+
+                if(!TraceReflectAndRefract) {
+                    accumLight = TraceWaterRay(ro, rd, sp);
+                } else {
+                    // Can optimize more like so many repeated intersection and density marching calculations idk if they're bottleneck tho
+                    float3 accumReflectLight = TraceWaterRayOverride(ro, rd, sp, true);
+                    float3 accumRefractLight = TraceWaterRayOverride(ro, rd, sp, false);
+                    accumLight = accumReflectLight + accumRefractLight;
+                }
+
                 float3 col = pow(accumLight/(1.+accumLight),1./2.2);
 
                 return float4(accumLight, 1.);

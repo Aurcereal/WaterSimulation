@@ -244,16 +244,18 @@ MonoBehaviour:
   densityCacheSampleCount: 128
   useDensityStepSize: 0
   densityMultiplier: 0.008
-  lightMultiplier: 20.5
+  lightMultiplier: 1.8
   extinctionCoefficients:
-    x: 20.92
-    y: 1.05
-    z: 1
+    x: 0.5
+    y: 0.5
+    z: 0.5
   indexOfRefraction: 1.333
   lightTransform: {fileID: 705507995}
   numBounces: 2
+  traceReflectAndRefract: 1
   waterExistenceThreshold: 0.1
-  waterExistenceEps: 0.05
+  waterExistenceEps: 0.01
+  nextRayOffset: 0.5
   environmentMap: {fileID: 8900000, guid: 91231629c1b2627498c11ce1f7109c97, type: 3}
   cameraRotateSpeed:
     x: 1
