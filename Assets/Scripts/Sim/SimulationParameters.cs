@@ -122,7 +122,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float densityCacheStepSize = 0.05f;
     [SerializeField] float densityCacheSampleCount = 128;
     [SerializeField] bool useDensityStepSize = false;
-    [Range(0.005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
+    [Range(0.00005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
     [Range(0.005f, 100.0f)] [SerializeField] float lightMultiplier = 0.5f;
     [SerializeField] float3 extinctionCoefficients = 1.0f;
     [Range(0.1f, 10.0f)][SerializeField] float indexOfRefraction = 1.33f;

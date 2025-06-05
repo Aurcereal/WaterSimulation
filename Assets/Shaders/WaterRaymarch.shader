@@ -109,7 +109,7 @@ Shader "Unlit/WaterRaymarch"
             }
 
             #define STEPSIZE 0.01
-            #define BIGSTEPSIZE 0.1 // 0.5
+            #define BIGSTEPSIZE 0.5 // 0.1
             #define NORMEPS 0.1 // 0.001
             #define MAXDIST 1000.0
 
@@ -251,14 +251,14 @@ Shader "Unlit/WaterRaymarch"
                 //
                 if(isInsideLiquid) {
                     while(tCurr <= tEnd) {
-                    float3 lpos = lro + lrd * tCurr;
-                    float dens = SampleLocalDensity(lpos);
-                    if(dens < WaterExistenceThreshold - WaterExistenceEps) {
-                        return float2(tCurr, accumDensity);
+                        float3 lpos = lro + lrd * tCurr;
+                        float dens = SampleLocalDensity(lpos);
+                        if(dens < WaterExistenceThreshold - WaterExistenceEps) {
+                            return float2(tCurr, accumDensity);
+                        }
+                        accumDensity += STEPSIZE * dens;
+                        tCurr += STEPSIZE;
                     }
-                    accumDensity += STEPSIZE * dens;
-                    tCurr += STEPSIZE;
-                }
                 } else {
                     while(tCurr <= tEnd) {
                         float3 lpos = lro + lrd * tCurr;
@@ -305,6 +305,8 @@ Shader "Unlit/WaterRaymarch"
                         break;
                     }
 
+                    //if(i==1) return float3(t,0.,0.);
+
                     transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
                     float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
@@ -323,23 +325,33 @@ Shader "Unlit/WaterRaymarch"
                     float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
                     float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
 
-                    //return t*0.05;
-
                     if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
                         rd = reflectRay;
-                        ro = hitPos + rd*0.0005;
+                        ro = hitPos + norm*0.0005;
                         transmittance *= f;
 
                         li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
                     } else {
                         rd = refractRay;
-                        ro = hitPos + rd*0.0005;
+                        ro = hitPos + norm*0.0005;
                         transmittance *= 1.-f;
 
                         li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
                     }
+
+                    // why does it never seem to follow refract ray on first bounce?? the f term getting so low should cause it to refract..
+                    // but it follows refract ray on second bounce a lot? how does that make sense given that it should fall into the void
+                    // also fix normals on boundaries or something, smooth it out so it becomes box normal?
+                    // also when we look at a grazing angle on the top it's black even though reflection should be strong and sample skybox?..  
+                        // well this one could be because fresnel only happens when it's very reflective? maybe that's wrong too though.  
+
+                    // Answers:
+                    // wasn't following refract just cuz massive extinction coefficients and there's no density in air so it was making the refract transmittance exponentially lower, lowering extinction coefficients helps
+                    // it's black when we look at grazing angle since reflected ray wins but the epsilon is too small so it has self intersection instead of sampling skybox
+
                 }
 
+                // We already calculate this density in case of t >= MAXDIST..
                 float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
                 li += transmittance * transmittanceToLight * SampleEnvironment(rd);
 

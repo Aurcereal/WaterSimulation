@@ -244,7 +244,7 @@ MonoBehaviour:
   densityCacheSampleCount: 128
   useDensityStepSize: 0
   densityMultiplier: 0.008
-  lightMultiplier: 41
+  lightMultiplier: 20.5
   extinctionCoefficients:
     x: 20.92
     y: 1.05
