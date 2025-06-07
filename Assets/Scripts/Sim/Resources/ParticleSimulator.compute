@@ -52,6 +52,9 @@ const float4x4 ContainerInverseTransform;
 const float4x4 ContainerTransform;
 const float3 ContainerScale;
 
+const float4x4 ObstacleInverseTransform;
+const float3 ObstacleScale;
+
 RWTexture3D<float> DensityTexture;
 float3 DensityTextureSize;
 
@@ -403,7 +406,8 @@ float3 CalculateStickinessForce(int particleIndex) {
 
 float sdScene(float3 p) {
     float dBox = -sdBox(ContainerScale * mul(ContainerInverseTransform, float4(p, 1.)).xyz, ContainerScale);
-    return dBox;
+    float dObstacle = sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale-1.5*SmoothingRadius);
+    return min(dBox, dObstacle);
 }
 
 [numthreads(THREADGROUPSIZE, 1,1)]

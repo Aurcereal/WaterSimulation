@@ -5,9 +5,8 @@
 #include "../Scripts/Sim/Resources/SDFMath3D.hlsl"
 
 float sdScene(float3 p) {
-    // Uniform obstacle transform and type from Simulation Params and an Object Transform (and make it interactable in sim)
-    float dBox = sdBox(p - float3(0., 0., 0.), float3(2., 15., 2.));
-    return dBox;
+    float dObstacle = sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale);
+    return dObstacle;
 }
 
 // Point -> Material (for now just color)

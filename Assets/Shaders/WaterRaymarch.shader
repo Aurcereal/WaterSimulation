@@ -64,6 +64,10 @@ Shader "Unlit/WaterRaymarch"
             const float3 ContainerScale;
 
             //
+            const float4x4 ObstacleInverseTransform;
+            const float3 ObstacleScale;
+
+            //
             Texture3D<float> DensityTexture;
             SamplerState _LinearClamp; // https://docs.unity3d.com/Manual/SL-SamplerStates.html
 

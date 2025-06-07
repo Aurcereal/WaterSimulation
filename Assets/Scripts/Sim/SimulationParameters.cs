@@ -19,6 +19,10 @@ public class SimulationParameters : MonoBehaviour
     public static Matrix4x4 ContainerInverseTransform => Ins.containerTransform.transform.worldToLocalMatrix;
     public static float3 ContainerScale => Ins.containerTransform.transform.localScale;
 
+    public static Matrix4x4 ObstacleTransorm => Ins.obstacleTransform.transform.localToWorldMatrix;
+    public static Matrix4x4 ObstacleInverseTransform => Ins.obstacleTransform.transform.worldToLocalMatrix;
+    public static float3 ObstacleScale => Ins.obstacleTransform.transform.localScale;
+
     public static float3 Gravity => Ins.gravity;
 
     public static float MouseForceRadius => Ins.mouseForceRadius;
@@ -161,6 +165,7 @@ public class SimulationParameters : MonoBehaviour
             obstacleTransform.hasChanged = false; containerTransform.hasChanged = false; lightTransform.hasChanged = false;
             GameManager.Ins?.simUniformer.UniformAllParameters();
             PostProcessManager.Ins.UpdateContainerData();
+            PostProcessManager.Ins.UpdateObstacleData();
             PostProcessManager.Ins.UniformAllParameters();
         }
     }

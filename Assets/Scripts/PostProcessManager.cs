@@ -20,6 +20,8 @@ public class PostProcessManager : MonoBehaviour
     public void UniformAllParameters()
     {
 
+        if (waterRaymarchMat == null) return;
+
         //
         waterRaymarchMat.SetFloat("FovY", radians(MainCamera.fieldOfView));
         waterRaymarchMat.SetFloat("Aspect", MainCamera.aspect);
@@ -55,6 +57,12 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetMatrix("ContainerTransform", ContainerTransform);
         waterRaymarchMat.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
         waterRaymarchMat.SetVector("ContainerScale", (Vector3) ContainerScale);
+    }
+
+    public void UpdateObstacleData()
+    {
+        waterRaymarchMat.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
+        waterRaymarchMat.SetVector("ObstacleScale", (Vector3) ObstacleScale);
     }
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)

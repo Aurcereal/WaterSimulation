@@ -8,8 +8,7 @@ write about optimizations to run in realtime
 
 Seb Lague Vid
 
-- Test Scene just SampleEnvironment also takes in ro and we only sample skybox if we miss (maybe just use raytraced scene for now if we're doing it realllly simple later we can do sdf scene prolly)
-- I wanna put objects in the water that'd be cool so maybe can do an sdf check for intersection in all the marching stuff (this means i would use sdf scene not raytraced prolly)
+- Can choose obstacle object
 
 - Try using golf and unsafe versions of smoothing kernels/gradients
 - Group density and neardensity as a float2 (less reads and writes)
@@ -20,6 +19,9 @@ Seb Lague Vid
 
 - Extreme viscosity so like a fluid box will stay together (very very strong springs?)
 - Can turn a arb mesh into fluid so it'd be kinda like soft body sim lol
+
+- eventually could make like a water slide or something with sdfs
+- tinted glass could also be really nice, prolly wouldn't be hard since it's just perfect reflect and perfect transmit.. like prolly is extremely similar to water actually mabe with different base reflectance
 
 -=Ignore/Done for now=-
 

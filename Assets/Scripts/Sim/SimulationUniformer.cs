@@ -71,9 +71,14 @@ public class SimulationUniformer
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
 
         particleSimulatorShader.SetInt("ParticleCount", ParticleCount);
+
         particleSimulatorShader.SetMatrix("ContainerTransform", ContainerTransform);
         particleSimulatorShader.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
         particleSimulatorShader.SetVector("ContainerScale", (Vector3)ContainerScale);
+
+        particleSimulatorShader.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
+        particleSimulatorShader.SetVector("ObstacleScale", (Vector3)ObstacleScale);
+
         particleSimulatorShader.SetVector("Gravity", (Vector3)Gravity);
         particleSimulatorShader.SetFloat("ParticleRadius", ParticleRadius);
         particleSimulatorShader.SetFloat("SmoothingRadius", SmoothingRadius);
