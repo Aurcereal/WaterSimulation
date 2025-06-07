@@ -11,8 +11,6 @@ Seb Lague Vid
 - Test Scene just SampleEnvironment also takes in ro and we only sample skybox if we miss (maybe just use raytraced scene for now if we're doing it realllly simple later we can do sdf scene prolly)
 - I wanna put objects in the water that'd be cool so maybe can do an sdf check for intersection in all the marching stuff (this means i would use sdf scene not raytraced prolly)
 
-- Try a WaterTracer that takes in a bool that lets you override and choose whether you wanna follow refract ray or reflect ray, the watertracer won't add up a approx version of the other ray since we'll do WaterTracer(refractIter1) + WaterTracer(reflectIter1) so we get very accurate first iteration so we don't have the abrupt cutoff that happens when switch from refract ray to reflect ray (even tho transmittance is the same doesn't mean skybox sample will be..)
-
 - Try using golf and unsafe versions of smoothing kernels/gradients
 - Group density and neardensity as a float2 (less reads and writes)
 - Implement linked list method for springs (detailed below)

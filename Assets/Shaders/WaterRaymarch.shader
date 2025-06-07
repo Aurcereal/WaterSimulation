@@ -113,8 +113,10 @@ Shader "Unlit/WaterRaymarch"
 
             #define STEPSIZE 0.01
             #define BIGSTEPSIZE 0.1 // 0.1
-            #define NORMEPS 0.1 // 0.001
-            #define MAXDIST 1000.0
+            #define WATERNORMEPS 0.1 // 0.001
+            #define MAXDIST 1000.0 // 250.0
+
+            #include "./SDFScene.hlsl"
 
             float CalculateDensityAlongRay(float3 ro, float3 rd) {
                 // Bounding Box Intersection
@@ -137,6 +139,33 @@ Shader "Unlit/WaterRaymarch"
                 while(tCurr <= tEnd) {
                     // TODO: Optimize and make it so once we find the first thing over existence threshold, we stop when we find the first thing not over existence threshold.
                     // Can also optimize with larger step size and then a binary search once we find wall
+                    float3 lpos = lro + lrd * tCurr;
+                    accumDensity += BIGSTEPSIZE * SampleLocalDensity(lpos);
+                    tCurr += BIGSTEPSIZE;
+                }
+
+                return accumDensity;
+            }
+
+            float CalculateDensityAlongRayStopAtObject(float3 ro, float3 rd) {
+                // Bounding Box Intersection
+                float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
+                float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
+
+                float2 boxTs = rayBoxIntersect(lro, lrd);
+                if(boxTs.x > boxTs.y) return 0.;
+
+                // Bring to Local Rot Trans space
+                lro *= ContainerScale;
+                lrd *= ContainerScale; 
+
+                //
+                float tCurr = max(0., boxTs.x);
+                float tEnd = min(boxTs.y, RayIntersectObjects(ro, rd));
+
+                float accumDensity = 0.;
+
+                while(tCurr <= tEnd) {
                     float3 lpos = lro + lrd * tCurr;
                     accumDensity += BIGSTEPSIZE * SampleLocalDensity(lpos);
                     tCurr += BIGSTEPSIZE;
@@ -219,7 +248,7 @@ Shader "Unlit/WaterRaymarch"
 
             float3 CalculateNormal(float3 pos) {
                 // -Gradient of Density
-                const float2 eps = float2(NORMEPS, 0.);
+                const float2 eps = float2(WATERNORMEPS, 0.);
 
                 // Can turn it to SampleLocalDensity later by transforming the normal direction and stuff
                 return -normalize(float3(
@@ -229,7 +258,7 @@ Shader "Unlit/WaterRaymarch"
                 ));
             }
 
-            float2 RayIntersectWater(float3 ro, float3 rd, bool isInsideLiquid) { // ~ (t, densityAlongRay)
+            float2 RayIntersectWater(float3 ro, float3 rd, float objDist, bool isInsideLiquid) { // ~ (t, densityAlongRay)
                 // First do bounding box, then step for water existence threshold, possibly doing binary search later
                 // keep in mind that we can do larger steps if density is small, we wanna do much smaller steps when we're in water than when we're in air
 
@@ -247,7 +276,7 @@ Shader "Unlit/WaterRaymarch"
                 //
                 float tStart = max(0., boxTs.x);
                 float tCurr = tStart;
-                float tEnd = boxTs.y;
+                float tEnd = min(objDist, boxTs.y);
 
                 float accumDensity = 0.;
 
@@ -285,6 +314,29 @@ Shader "Unlit/WaterRaymarch"
                 return float2(MAXDIST, accumDensity);
             }
 
+            #define INTERTYPE_OBJECT 0
+            #define INTERTYPE_WATER 1
+            #define INTERTYPE_SKYBOX 2
+
+            float2 RayIntersectScene(float3 ro, float3 rd, bool isInsideLiquid, out int intersectionType) {
+                float objDist = RayIntersectObjects(ro, rd);
+                float2 waterInter = RayIntersectWater(ro, rd, objDist, isInsideLiquid);
+                float waterDist = waterInter.x; float accumDensity = waterInter.y;
+
+                if(objDist + waterDist >= 2. * MAXDIST) {
+                    intersectionType = INTERTYPE_SKYBOX;
+                    return float2(MAXDIST, 0.);
+                }
+
+                if(objDist <= waterDist) {
+                    intersectionType = INTERTYPE_OBJECT;
+                    return float2(objDist, accumDensity);
+                } else {
+                    intersectionType = INTERTYPE_WATER;
+                    return waterInter;
+                }
+            }
+
             bool IsInsideLiquid(float3 pos) {
                 return SampleDensity(pos) >= WaterExistenceThreshold;
             }
@@ -296,17 +348,18 @@ Shader "Unlit/WaterRaymarch"
                 for(int i=0; i<min(NumBounces, MAXBOUNCECOUNT); i++) {
                     bool isInsideLiquid = IsInsideLiquid(ro);
 
-                    float2 inter = RayIntersectWater(ro, rd, isInsideLiquid);
+                    int interType;
+                    float2 inter = RayIntersectScene(ro, rd, isInsideLiquid, interType);
                     float t = inter.x; float densityAlongRay = inter.y;
-
                     float3 hitPos = ro + rd*t;
-                    float3 norm = CalculateNormal(hitPos);
-                    if(isInsideLiquid) norm *= -1.0;
 
-                    if(t >= MAXDIST) {
-                        if(i==0) return SampleEnvironment(rd)/LightMultiplier;//SampleSpaceSkybox(rd, sp, CamFo); // Temp cuz I don't want it to actually look that bright from cam rays
+                    if(interType != INTERTYPE_WATER) {
+                        if(i==0) return SampleObjectScene(hitPos, rd); // / LightMultiplier
                         break;
                     }
+
+                    float3 norm = CalculateNormal(hitPos);
+                    if(isInsideLiquid) norm *= -1.0;
 
                     transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
@@ -320,8 +373,8 @@ Shader "Unlit/WaterRaymarch"
                     float3 refractRay = Refract(-rd, norm, ior);
 
                     // Optimize, shouldn't have these 2 calculate densities and not stop at water when we use same intersection info in next loop
-                    float densAlongReflect = CalculateDensityAlongRay(hitPos+reflectRay*0.0005, reflectRay);
-                    float densAlongRefract = CalculateDensityAlongRay(hitPos+refractRay*0.0005, refractRay);
+                    float densAlongReflect = CalculateDensityAlongRayStopAtObject(hitPos+reflectRay*0.0005, reflectRay);
+                    float densAlongRefract = CalculateDensityAlongRayStopAtObject(hitPos+refractRay*0.0005, refractRay);
 
                     float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
                     float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
@@ -331,20 +384,20 @@ Shader "Unlit/WaterRaymarch"
                         ro = hitPos + norm*NextRayOffset;
                         transmittance *= f;
 
-                        li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
+                        li += transmittance * refractTransmittance * SampleObjectScene(ro, refractRay);
                     } else {
                         rd = refractRay;
                         ro = hitPos + norm*NextRayOffset;
                         transmittance *= 1.-f;
 
-                        li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
+                        li += transmittance * reflectTransmittance * SampleObjectScene(ro, reflectRay);
                     }
 
                 }
 
                 // We already calculate this density in case of t >= MAXDIST..
-                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
-                li += transmittance * transmittanceToLight * SampleEnvironment(rd);
+                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRayStopAtObject(ro, rd)); // Can use big step sizefor this one
+                li += transmittance * transmittanceToLight * SampleObjectScene(ro, rd);
 
                 return li;
             }
@@ -352,21 +405,20 @@ Shader "Unlit/WaterRaymarch"
             float3 TraceWaterRayOverride(float3 ro, float3 rd, float2 sp, bool firstFollowReflect) {
                 float3 transmittance = 1.;
                 float3 li = 0.;
+
                 bool isInsideLiquid = IsInsideLiquid(ro);
 
                 for(int i=0; i<min(NumBounces, MAXBOUNCECOUNT); i++) {
 
-                    float2 inter = RayIntersectWater(ro, rd, isInsideLiquid);
+                    int interType;
+                    float2 inter = RayIntersectScene(ro, rd, isInsideLiquid, interType);
                     float t = inter.x; float densityAlongRay = inter.y;
-
-                    //if(i==1 && firstFollowReflect) return t*0.05;
-
                     float3 hitPos = ro + rd*t;
                     float3 norm = CalculateNormal(hitPos);
                     if(isInsideLiquid) norm *= -1.0;
 
-                    if(t >= MAXDIST) {
-                        if(i==0) return 0.5*SampleEnvironment(rd)/LightMultiplier;
+                    if(interType != INTERTYPE_WATER) {
+                        if(i==0) return 0.5*SampleObjectScene(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier);
                         break;
                     }
 
@@ -382,8 +434,8 @@ Shader "Unlit/WaterRaymarch"
                     float3 refractRay = Refract(-rd, norm, ior);
 
                     // Optimize, shouldn't have these 2 calculate densities and not stop at water when we use same intersection info in next loop
-                    float densAlongReflect = CalculateDensityAlongRay(hitPos+reflectRay*0.0005, reflectRay);
-                    float densAlongRefract = CalculateDensityAlongRay(hitPos+refractRay*0.0005, refractRay);
+                    float densAlongReflect = CalculateDensityAlongRayStopAtObject(hitPos+reflectRay*0.0005, reflectRay);
+                    float densAlongRefract = CalculateDensityAlongRayStopAtObject(hitPos+refractRay*0.0005, refractRay);
 
                     float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
                     float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
@@ -393,7 +445,7 @@ Shader "Unlit/WaterRaymarch"
                         ro = hitPos + (norm+rd)*NextRayOffset;
                         transmittance *= f;
 
-                        if(i != 0) li += transmittance * refractTransmittance * SampleEnvironment(refractRay);
+                        if(i != 0) li += transmittance * refractTransmittance * SampleObjectScene(ro, refractRay);
                     } else {
                         rd = refractRay;
                         ro = hitPos + (norm+rd)*NextRayOffset;
@@ -401,14 +453,14 @@ Shader "Unlit/WaterRaymarch"
 
                         isInsideLiquid = !isInsideLiquid;
 
-                        if(i != 0) li += transmittance * reflectTransmittance * SampleEnvironment(reflectRay);
+                        if(i != 0) li += transmittance * reflectTransmittance * SampleObjectScene(ro, reflectRay);
                     }
 
                 }
 
                 // We already calculate this density in case of t >= MAXDIST..
                 float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
-                li += transmittance * transmittanceToLight * SampleEnvironment(rd);
+                li += transmittance * transmittanceToLight * SampleObjectScene(ro, rd);
 
                 return li;
             }
