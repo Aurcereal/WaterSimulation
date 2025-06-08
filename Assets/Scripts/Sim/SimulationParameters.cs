@@ -160,8 +160,8 @@ public class SimulationParameters : MonoBehaviour
     {
         // This Monobehavior func is called when a value changes
         GameManager.Ins?.simUniformer.UniformAllParameters();
-        PostProcessManager.Ins?.UniformAllParameters();
-        if (PostProcessManager.Ins != null) PostProcessManager.Ins.enabled = EnableRaymarchShader;
+        RaymarchManager.Ins?.UniformAllParameters();
+        if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
     }
 
     void Update()
@@ -170,9 +170,9 @@ public class SimulationParameters : MonoBehaviour
         {
             obstacleTransform.hasChanged = false; containerTransform.hasChanged = false; lightTransform.hasChanged = false;
             GameManager.Ins?.simUniformer.UniformAllParameters();
-            PostProcessManager.Ins.UpdateContainerData();
-            PostProcessManager.Ins.UpdateObstacleData();
-            PostProcessManager.Ins.UniformAllParameters();
+            RaymarchManager.Ins.UpdateContainerData();
+            RaymarchManager.Ins.UpdateObstacleData();
+            RaymarchManager.Ins.UniformAllParameters();
         }
     }
 }

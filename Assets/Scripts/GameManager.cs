@@ -52,9 +52,9 @@ public class GameManager : MonoBehaviour
 
         camController = new(MainCamera.transform.position, float3(0));
 
-        PostProcessManager.Ins.UniformAllParameters();
-        PostProcessManager.Ins.UpdateCameraData();
-        PostProcessManager.Ins.UpdateContainerData();
+        RaymarchManager.Ins.UniformAllParameters();
+        RaymarchManager.Ins.UpdateCameraData();
+        RaymarchManager.Ins.UpdateContainerData();
     }
 
     int counter = 1;
@@ -77,10 +77,10 @@ public class GameManager : MonoBehaviour
 
         if (EnableRaymarchShader)
         {
-            if (counter >= 1) { PostProcessManager.Ins.CacheDensities(); counter = 0; } // Takes up ton of time . .
+            if (counter >= 1) { RaymarchManager.Ins.CacheDensities(); counter = 0; } // Takes up ton of time . .
             else ++counter;
         }
-        
+
         drawer.DrawParticles();
         drawer.DrawBoxAndObstacle();
     }

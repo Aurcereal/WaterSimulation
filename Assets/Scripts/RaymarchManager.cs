@@ -6,9 +6,9 @@ using static SimulationParameters;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
-public class PostProcessManager : MonoBehaviour
+public class RaymarchManager : MonoBehaviour
 {
-    public static PostProcessManager Ins { get; private set; }
+    public static RaymarchManager Ins { get; private set; }
     Material waterRaymarchMat;
     RenderTexture densityTexture;
     void Awake()
