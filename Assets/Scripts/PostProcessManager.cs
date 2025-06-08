@@ -38,6 +38,8 @@ public class PostProcessManager : MonoBehaviour
         waterRaymarchMat.SetFloat("WaterExistenceEps", WaterExistenceEps);
         waterRaymarchMat.SetFloat("NextRayOffset", NextRayOffset);
 
+        waterRaymarchMat.SetInt("ObstacleType", ObstacleType ? 1 : 0);
+
         //
         waterRaymarchMat.SetTexture("EnvironmentMap", EnvironmentMap);
 

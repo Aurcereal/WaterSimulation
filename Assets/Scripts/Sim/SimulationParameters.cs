@@ -22,6 +22,8 @@ public class SimulationParameters : MonoBehaviour
     public static Matrix4x4 ObstacleTransorm => Ins.obstacleTransform.transform.localToWorldMatrix;
     public static Matrix4x4 ObstacleInverseTransform => Ins.obstacleTransform.transform.worldToLocalMatrix;
     public static float3 ObstacleScale => Ins.obstacleTransform.transform.localScale;
+    public static bool ObstacleType => Ins.obstacleType;
+    public static bool ObstacleSimInteraction => Ins.obstacleSimInteraction;
 
     public static float3 Gravity => Ins.gravity;
 
@@ -85,6 +87,7 @@ public class SimulationParameters : MonoBehaviour
     [Header("Box/Obstacle Parameters")]
     [SerializeField] Transform obstacleTransform;
     [SerializeField] bool obstacleType;
+    [SerializeField] bool obstacleSimInteraction = true;
     [SerializeField] Transform containerTransform;
 
     [Header("Gravity Force")]

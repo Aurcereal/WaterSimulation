@@ -78,6 +78,8 @@ public class SimulationUniformer
 
         particleSimulatorShader.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
         particleSimulatorShader.SetVector("ObstacleScale", (Vector3)ObstacleScale);
+        particleSimulatorShader.SetBool("ObstacleType", ObstacleType);
+        particleSimulatorShader.SetBool("ObstacleSimInteraction", ObstacleSimInteraction);
 
         particleSimulatorShader.SetVector("Gravity", (Vector3)Gravity);
         particleSimulatorShader.SetFloat("ParticleRadius", ParticleRadius);

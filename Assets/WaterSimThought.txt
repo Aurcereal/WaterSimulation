@@ -9,10 +9,14 @@ write about optimizations to run in realtime
 Seb Lague Vid
 
 - Can choose obstacle object
+- Collisions with sdf objects considering velocities from one of those papers? idk not that important mabe
+	- Simple way would just be adding the velocity of the object with a multiplier, maybe make wrt density.. prolly should make bounce off velocity like that too anyways
 
 - Try using golf and unsafe versions of smoothing kernels/gradients
 - Group density and neardensity as a float2 (less reads and writes)
+- Maybe just take out masses for now?
 - Implement linked list method for springs (detailed below)
+- People in Seb Lague video comments talking about how full bitonic sort doesn't gotta be run every frame, odd even sort? like swapping odd and even entries maybe and just doing that every frame but how can iteratively sorting work when the whole hash system is reset every frame?  though it shouldnt have to be reset since only a few entries change every frame prolly 
 
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 - Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals

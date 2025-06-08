@@ -54,6 +54,8 @@ const float3 ContainerScale;
 
 const float4x4 ObstacleInverseTransform;
 const float3 ObstacleScale;
+const bool ObstacleType;
+const bool ObstacleSimInteraction;
 
 RWTexture3D<float> DensityTexture;
 float3 DensityTextureSize;
@@ -406,7 +408,9 @@ float3 CalculateStickinessForce(int particleIndex) {
 
 float sdScene(float3 p) {
     float dBox = -sdBox(ContainerScale * mul(ContainerInverseTransform, float4(p, 1.)).xyz, ContainerScale);
-    float dObstacle = sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale-1.5*SmoothingRadius);
+    float dObstacle = !ObstacleSimInteraction ? 10000.0 : ObstacleType ? 
+        sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale-1.5*SmoothingRadius) : 
+        sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x-1.5*SmoothingRadius);
     return min(dBox, dObstacle);
 }
 

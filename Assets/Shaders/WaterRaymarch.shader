@@ -66,6 +66,7 @@ Shader "Unlit/WaterRaymarch"
             //
             const float4x4 ObstacleInverseTransform;
             const float3 ObstacleScale;
+            const bool ObstacleType;
 
             //
             Texture3D<float> DensityTexture;

@@ -5,7 +5,9 @@
 #include "../Scripts/Sim/Resources/SDFMath3D.hlsl"
 
 float sdScene(float3 p) {
-    float dObstacle = sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale);
+    float dObstacle = ObstacleType ? 
+        sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
+        sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
     return dObstacle;
 }
 
