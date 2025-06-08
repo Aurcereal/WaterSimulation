@@ -56,6 +56,7 @@ public class SimulationParameters : MonoBehaviour
     public const int SpatialLookupSize = 1048576;
     public static float GridSize => SmoothingRadius/sqrt(2);
 
+    public static bool EnableRaymarchShader => Ins.enableRaymarchShader;
     public static float DensityCacheStepSize => Ins.densityCacheStepSize;
     public static float DensityCacheSampleCount => Ins.densityCacheSampleCount;
     public static bool UseDensityStepSize => Ins.useDensityStepSize;
@@ -128,6 +129,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] Camera mainCamera;
 
     [Header("Raymarched Rendering")]
+    [SerializeField] bool enableRaymarchShader = true;
     [SerializeField] float densityCacheStepSize = 0.05f;
     [SerializeField] float densityCacheSampleCount = 128;
     [SerializeField] bool useDensityStepSize = false;
@@ -159,6 +161,7 @@ public class SimulationParameters : MonoBehaviour
         // This Monobehavior func is called when a value changes
         GameManager.Ins?.simUniformer.UniformAllParameters();
         PostProcessManager.Ins?.UniformAllParameters();
+        if (PostProcessManager.Ins != null) PostProcessManager.Ins.enabled = EnableRaymarchShader;
     }
 
     void Update()

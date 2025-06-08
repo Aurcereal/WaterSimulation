@@ -18,8 +18,6 @@ public class SimulationUpdater
         particleSimulator = GameManager.Ins.computeManager.particleSimulatorShader;
     }
 
-    int counter = 6;
-
     public void Update(float dt)
     {
         if (dt > 1.0f / 60.0f)

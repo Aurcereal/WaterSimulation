@@ -75,8 +75,12 @@ public class GameManager : MonoBehaviour
         if (simTimeController.ShouldUpdate())
             simUpdater.Update(simTimeController.GetDeltaTime());
 
-        if (counter >= 1) { PostProcessManager.Ins.CacheDensities(); counter = 0; } // Takes up ton of time . .
-        else ++counter;
+        if (EnableRaymarchShader)
+        {
+            if (counter >= 1) { PostProcessManager.Ins.CacheDensities(); counter = 0; } // Takes up ton of time . .
+            else ++counter;
+        }
+        
         drawer.DrawParticles();
         drawer.DrawBoxAndObstacle();
     }
