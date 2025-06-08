@@ -160,8 +160,8 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
                         
                         float sqrDist = dot(predictedPositions[particleIndex] - pos, predictedPositions[particleIndex] - pos);
                         if(sqrDist <= SmoothingRadius*SmoothingRadius) {
-                            totalDensity += /*masses[particleIndex] **/ SmoothingKernelPow2(SmoothingRadius, sqrt(sqrDist));
-                            totalNearDensity += /*masses[particleIndex] **/ SmoothingKernelPow3(SmoothingRadius, sqrt(sqrDist));
+                            totalDensity += /*masses[particleIndex] **/ SmoothingKernelPow2Unsafe(sqrt(sqrDist));
+                            totalNearDensity += /*masses[particleIndex] **/ SmoothingKernelPow3Unsafe(sqrt(sqrDist));
                         }
 
                         currIndex++;
@@ -278,7 +278,7 @@ float3 CalculateViscosityForce(int i)
                                 totalForce +=
                                     //masses[otherParticleIndex] *
                                     (velocities[otherParticleIndex] - vel) *
-                                    SmoothingKernelSmoothTop(SmoothingRadius, sqrt(sqrDist));
+                                    SmoothingKernelSmoothTopUnsafe(sqrt(sqrDist));
                             }
                         }
 
@@ -456,8 +456,6 @@ float CalculateDensity(float3 pos) {
     int3 currCell;
     int particleIndex;
 
-    float h = SmoothingRadius; // 1.4
-
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
             for(int z=-1; z<=1; z++) {
@@ -473,8 +471,8 @@ float CalculateDensity(float3 pos) {
                         
                         float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
 
-                        if(sqrDist <= h*h) {
-                            totalDensity += /*masses[particleIndex] * */SmoothingKernelPow2(h, sqrt(sqrDist));
+                        if(sqrDist <= SmoothingRadius*SmoothingRadius) {
+                            totalDensity += /*masses[particleIndex] * */SmoothingKernelPow2Unsafe(sqrt(sqrDist));
                         }
 
                         currIndex++;

@@ -54,6 +54,8 @@ Shader "Unlit/InstancedParticle3D"
 
             fixed4 frag(vOut i) : SV_Target
             {
+                return float4(1.-i.vertex.zzz, 1.);
+
                 float3 ambient = 0.4;
                 
                 float diffuse = max(0., dot(normalize(i.normal), float3(1.,1.,1.)/sqrt(3.)));

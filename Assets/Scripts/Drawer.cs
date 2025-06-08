@@ -7,6 +7,7 @@ using static Unity.Mathematics.math;
 using System.Threading.Tasks;
 
 using static SimulationParameters;
+using UnityEngine.Rendering;
 
 public class Drawer
 {
@@ -23,21 +24,23 @@ public class Drawer
 
         particleMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
         particleMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
-        particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius);
+        UniformParameters();
     }
 
-    public void DrawBoxAndObstacle()
+    public void UniformParameters()
     {
-        // if (IsObstacleBox) DrawUtils.DrawOutlineBox(ObstaclePosition, ObstacleRotation, ObstacleDimensions, BoxThickness, Color.white);
-        // else DrawUtils.DrawOutlineCircle(ObstaclePosition, ObstacleDimensions.x, BoxThickness, Color.white);
-
-        // DrawUtils.DrawOutlineBox(float2(0.0f), 0.0f, BoxDimensions, BoxThickness, Color.white);
+        particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius);
     }
 
     public void DrawParticles()
     {
-        particleMaterial.SetFloat("_Radius", SimulationParameters.ParticleRadius); // TODO: take out in update I put it in so it changes as user updates
         Bounds bounds = new Bounds(Vector3.zero, Vector3.one * 100f);
-        Graphics.DrawMeshInstancedProcedural(ParticleMesh, 0, particleMaterial, bounds, SimulationParameters.ParticleCount);
+        Graphics.DrawMeshInstancedProcedural(ParticleMesh, 0, particleMaterial, bounds, ParticleCount);
+    }
+
+    public void DrawParticlesOnCommandBuffer(CommandBuffer cmd)
+    {
+        Bounds bounds = new Bounds(Vector3.zero, Vector3.one * 100f);
+        cmd.DrawMeshInstancedProcedural(ParticleMesh, 0, particleMaterial, 0, ParticleCount);
     }
 }

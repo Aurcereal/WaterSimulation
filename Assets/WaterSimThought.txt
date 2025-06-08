@@ -17,6 +17,11 @@ Seb Lague Vid
 - Maybe just take out masses for now?
 - Implement linked list method for springs (detailed below)
 - People in Seb Lague video comments talking about how full bitonic sort doesn't gotta be run every frame, odd even sort? like swapping odd and even entries maybe and just doing that every frame but how can iteratively sorting work when the whole hash system is reset every frame?  though it shouldnt have to be reset since only a few entries change every frame prolly 
+	- count sort type of thing?
+
+- Shadow
+- Caustics
+- God rays
 
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 - Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals
@@ -26,6 +31,8 @@ Seb Lague Vid
 
 - eventually could make like a water slide or something with sdfs
 - tinted glass could also be really nice, prolly wouldn't be hard since it's just perfect reflect and perfect transmit.. like prolly is extremely similar to water actually mabe with different base reflectance
+
+- Flip fluid implementation mode? downloaded paper on it
 
 -=Ignore/Done for now=-
 

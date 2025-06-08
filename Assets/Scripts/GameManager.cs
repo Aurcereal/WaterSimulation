@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
 
     public CameraController camController;
 
+    public ScreenSpaceWaterManager screenSpaceManager;
+
     void Start()
     {
         Ins = this;
@@ -52,9 +54,12 @@ public class GameManager : MonoBehaviour
 
         camController = new(MainCamera.transform.position, float3(0));
 
+        screenSpaceManager = new();
+
         RaymarchManager.Ins.UniformAllParameters();
         RaymarchManager.Ins.UpdateCameraData();
         RaymarchManager.Ins.UpdateContainerData();
+        if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
     }
 
     int counter = 1;
@@ -81,8 +86,8 @@ public class GameManager : MonoBehaviour
             else ++counter;
         }
 
-        drawer.DrawParticles();
-        drawer.DrawBoxAndObstacle();
+        if(!EnableRaymarchShader)
+            screenSpaceManager.Draw(); //drawer.DrawParticles(); //
     }
 
     void OnDisable()

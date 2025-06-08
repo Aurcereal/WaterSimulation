@@ -79,7 +79,29 @@ public static class ComputeHelper
         }
     }
 
-    public static RenderTexture CreateRenderTexture3D(int3 size, GraphicsFormat format, TextureWrapMode wrapMode = TextureWrapMode.Repeat, string name = "Untitled", bool useMipmaps = false)
+    public enum DepthMode {
+        DepthNone = 0,
+        Depth16 = 16,
+        Depth24 = 24,
+        Depth32 = 32
+    }
+
+    public static RenderTexture CreateRenderTexture2D(int2 size, GraphicsFormat graphicsFormat = GraphicsFormat.R32G32B32A32_SFloat, FilterMode filterMode = FilterMode.Bilinear, string name = "Unnamed", DepthMode depthMode = DepthMode.DepthNone, bool useMipMaps = false)
+    {
+        var texture = new RenderTexture(size.x, size.y, (int)depthMode);
+        texture.graphicsFormat = graphicsFormat;
+        texture.filterMode = filterMode;
+        texture.name = name;
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.enableRandomWrite = true;
+        texture.autoGenerateMips = false;
+        texture.useMipMap = useMipMaps;
+        texture.Create();
+
+        return texture;
+    }
+
+    public static RenderTexture CreateRenderTexture3D(int3 size, GraphicsFormat format, TextureWrapMode wrapMode = TextureWrapMode.Repeat, string name = "Unnamed", bool useMipmaps = false)
     {
         var texture = new RenderTexture(size.x, size.y, 0);
         texture.graphicsFormat = format;
@@ -96,7 +118,7 @@ public static class ComputeHelper
     }
 
     /// <summary>
-    /// Same as CreateRenderTexture but may not need to create a render texture if oldTexture has params satisfied.
+    /// Same as CreateRenderTexture but may not need to create a new render texture if oldTexture has params satisfied.
     /// </summary>
     public static RenderTexture UpdateRenderTexture3D(RenderTexture oldTexture, int3 size, GraphicsFormat format, TextureWrapMode wrapMode = TextureWrapMode.Repeat, string name = "Untitled", bool useMipmaps = false)
     {

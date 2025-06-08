@@ -69,7 +69,7 @@ public class RaymarchManager : MonoBehaviour
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        Graphics.Blit(src, dest, waterRaymarchMat);
+        Graphics.Blit(null, dest, waterRaymarchMat);
     }
 
     public void CacheDensities()
