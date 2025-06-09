@@ -1,6 +1,6 @@
 // Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
-Shader "Unlit/InstancedParticle3D"
+Shader "Unlit/ParticleDebug"
 {
     Properties
     {
@@ -54,7 +54,6 @@ Shader "Unlit/InstancedParticle3D"
 
             fixed4 frag(vOut i) : SV_Target
             {
-                return float4(1.-i.vertex.zzz, 1.);
 
                 float3 ambient = 0.4;
                 

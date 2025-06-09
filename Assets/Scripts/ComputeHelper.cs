@@ -86,7 +86,7 @@ public static class ComputeHelper
         Depth32 = 32
     }
 
-    public static RenderTexture CreateRenderTexture2D(int2 size, GraphicsFormat graphicsFormat = GraphicsFormat.R32G32B32A32_SFloat, FilterMode filterMode = FilterMode.Bilinear, string name = "Unnamed", DepthMode depthMode = DepthMode.DepthNone, bool useMipMaps = false)
+    public static RenderTexture CreateRenderTexture2D(int2 size, DepthMode depthMode = DepthMode.DepthNone, GraphicsFormat graphicsFormat = GraphicsFormat.R32G32B32A32_SFloat, FilterMode filterMode = FilterMode.Bilinear, string name = "Unnamed", bool useMipMaps = false)
     {
         var texture = new RenderTexture(size.x, size.y, (int)depthMode);
         texture.graphicsFormat = graphicsFormat;

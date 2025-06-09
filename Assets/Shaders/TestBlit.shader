@@ -48,7 +48,7 @@ Shader "Unlit/TestBlit"
 
             fixed4 frag(vOut i) : SV_Target
             {
-                return tex2D(_MainTex, i.uv) * float4(1.,0.4,0.4,1.);
+                return tex2D(_MainTex, i.uv);// * float4(1.,0.4,0.4,1.);
             }
             ENDCG
         }

@@ -48,9 +48,7 @@ public class SimulationParameters : MonoBehaviour
     public static float StickForceMultiplier => Ins.stickForceMultiplier;
 
     public static float ParticleRadius => Ins.particleRadius;
-    public static Gradient ParticleSpeedGradient => Ins.particleSpeedGradient;
     public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
-    public static Mesh ParticleMesh => Ins.particleMesh;
     public static Camera MainCamera => Ins.mainCamera;
 
     public const int SpatialLookupSize = 1048576;
@@ -122,10 +120,8 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Mostly Visual")]
     [Range(0.025f, 1.0f)][SerializeField] float particleRadius = 0.05f;
-    [SerializeField] Gradient particleSpeedGradient;
     [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 0.0f;
     [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
-    [SerializeField] Mesh particleMesh;
     [SerializeField] Camera mainCamera;
 
     [Header("Raymarched Rendering")]
@@ -161,7 +157,7 @@ public class SimulationParameters : MonoBehaviour
         // This Monobehavior func is called when a value changes
         GameManager.Ins?.simUniformer.UniformAllParameters();
         RaymarchManager.Ins?.UniformAllParameters();
-        GameManager.Ins?.drawer.UniformParameters();
+        GameManager.Ins?.screenSpaceManager.UniformParameters();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
     }
 

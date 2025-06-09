@@ -20,7 +20,6 @@ public class GameManager : MonoBehaviour
     public SimulationTimeController simTimeController;
 
     public BitonicSortManager bitonicSorter;
-    public Drawer drawer;
 
     public CameraController camController;
 
@@ -50,7 +49,6 @@ public class GameManager : MonoBehaviour
         simTimeController = new();
 
         bitonicSorter = new();
-        drawer = new();
 
         camController = new(MainCamera.transform.position, float3(0));
 
@@ -87,7 +85,7 @@ public class GameManager : MonoBehaviour
         }
 
         if(!EnableRaymarchShader)
-            screenSpaceManager.Draw(); //drawer.DrawParticles(); //
+            screenSpaceManager.Draw();
     }
 
     void OnDisable()
