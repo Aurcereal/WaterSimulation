@@ -86,12 +86,24 @@ public class CameraController
             PanAlongRight(pan.x);
             PanAlongUp(-pan.y);
         }
-        else if(im.LeftMouseButton)
+        else if (im.LeftMouseButton)
         {
             // Rotate
             float2 rot = CameraRotateSpeed * im.DeltaMousePosition;
             RotateGlobalY(rot.x);
             RotateLocalX(rot.y);
         }
+    }
+    
+    public void SetGlobalUniformCameraData()
+    {
+        Shader.SetGlobalFloat("FovY", radians(MainCamera.fieldOfView));
+        Shader.SetGlobalFloat("Aspect", MainCamera.aspect);
+
+        Shader.SetGlobalVector("CamRi", MainCamera.transform.right);
+        Shader.SetGlobalVector("CamUp", MainCamera.transform.up);
+        Shader.SetGlobalVector("CamFo", MainCamera.transform.forward);
+
+        Shader.SetGlobalVector("CamPos", MainCamera.transform.position);
     }
 }

@@ -23,10 +23,6 @@ public class RaymarchManager : MonoBehaviour
         if (waterRaymarchMat == null) return;
 
         //
-        waterRaymarchMat.SetFloat("FovY", radians(MainCamera.fieldOfView));
-        waterRaymarchMat.SetFloat("Aspect", MainCamera.aspect);
-
-        //
         waterRaymarchMat.SetFloat("DensityMultiplier", DensityMultiplier);
         waterRaymarchMat.SetFloat("LightMultiplier", LightMultiplier);
         waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3)ExtinctionCoefficients);
@@ -45,26 +41,17 @@ public class RaymarchManager : MonoBehaviour
 
     }
 
-    public void UpdateCameraData()
-    {
-        waterRaymarchMat.SetVector("CamRi", MainCamera.transform.right);
-        waterRaymarchMat.SetVector("CamUp", MainCamera.transform.up);
-        waterRaymarchMat.SetVector("CamFo", MainCamera.transform.forward);
-
-        waterRaymarchMat.SetVector("CamPos", MainCamera.transform.position);
-    }
-
     public void UpdateContainerData()
     {
         waterRaymarchMat.SetMatrix("ContainerTransform", ContainerTransform);
         waterRaymarchMat.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
-        waterRaymarchMat.SetVector("ContainerScale", (Vector3) ContainerScale);
+        waterRaymarchMat.SetVector("ContainerScale", (Vector3)ContainerScale);
     }
 
     public void UpdateObstacleData()
     {
         waterRaymarchMat.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
-        waterRaymarchMat.SetVector("ObstacleScale", (Vector3) ObstacleScale);
+        waterRaymarchMat.SetVector("ObstacleScale", (Vector3)ObstacleScale);
     }
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -82,14 +69,5 @@ public class RaymarchManager : MonoBehaviour
         ComputeHelper.Dispatch(GameManager.Ins.computeManager.particleSimulatorShader, densitySampleCount.x, densitySampleCount.y, densitySampleCount.z, "CacheDensities");
 
         waterRaymarchMat.SetTexture("DensityTexture", densityTexture);
-    }
-
-    void Update()
-    {
-        if (transform.hasChanged)
-        {
-            transform.hasChanged = false;
-            UpdateCameraData();
-        }
     }
 }

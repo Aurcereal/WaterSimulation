@@ -7,6 +7,7 @@ using static Unity.Mathematics.math;
 
 using static SimulationParameters;
 
+[RequireComponent(typeof(ResolutionTracker))]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Ins { get; private set; }
@@ -55,7 +56,7 @@ public class GameManager : MonoBehaviour
         screenSpaceManager = new();
 
         RaymarchManager.Ins.UniformAllParameters();
-        RaymarchManager.Ins.UpdateCameraData();
+        camController.SetGlobalUniformCameraData();
         RaymarchManager.Ins.UpdateContainerData();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
     }
@@ -69,6 +70,12 @@ public class GameManager : MonoBehaviour
         camController.Update();
         MainCamera.transform.position = camController.Position;
         MainCamera.transform.rotation = camController.Rotation;
+
+        if (MainCamera.transform.hasChanged)
+        {
+            MainCamera.transform.hasChanged = false;
+            camController.SetGlobalUniformCameraData();
+        }
 
         if (inputManager.KeyDownR)
             ResetSimulation();
@@ -84,7 +91,7 @@ public class GameManager : MonoBehaviour
             else ++counter;
         }
 
-        if(!EnableRaymarchShader)
+        if (!EnableRaymarchShader)
             screenSpaceManager.Draw();
     }
 

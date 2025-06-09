@@ -79,7 +79,7 @@ Shader "Unlit/ParticleSphereDepth"
                 Depth = LinearDepthToRawDepth(distAlongCam);
 
                 //
-                return float4(distAlongCam*0.1, distAlongCam*0.1, distAlongCam*0.1 ,1.);//float4(ambient + diffuseContribution, 1.);
+                return distAlongCam;//float4(ambient + diffuseContribution, 1.);
             }
             ENDCG
         }

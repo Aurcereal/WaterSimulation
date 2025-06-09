@@ -12,8 +12,8 @@ using static SimulationParameters;
 public class ScreenSpaceWaterManager
 {
 
-    int ScreenWidth => Screen.width;
-    int ScreenHeight => Screen.height;
+    int ScreenWidth => ResolutionTracker.ScreenWidth;
+    int ScreenHeight => ResolutionTracker.ScreenHeight;
 
     RenderTexture testTex;
     CommandBuffer commandBuffer;
@@ -22,6 +22,14 @@ public class ScreenSpaceWaterManager
     //
     Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
     Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
+
+    Material depthTextureToNormals = new Material(Shader.Find("Unlit/ParticleNormalFromDepth"));
+
+    void UpdateGlobalScreenSizeUniform(int2 newSize)
+    {
+        Shader.SetGlobalInt("ScreenWidth", ScreenWidth);
+        Shader.SetGlobalInt("ScreenHeight", ScreenHeight);
+    }
 
     public ScreenSpaceWaterManager()
     {
@@ -34,10 +42,13 @@ public class ScreenSpaceWaterManager
         particleSphereDepthMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
 
         commandBuffer = new();
-        testTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16);
+        testTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
         testBlit = new Material(Shader.Find("Unlit/TestBlit"));
 
         UniformParameters();
+
+        ResolutionTracker.ResolutionChangeEvent += UpdateGlobalScreenSizeUniform;
+        UpdateGlobalScreenSizeUniform(int2(ScreenWidth, ScreenHeight));
     }
 
     public void UniformParameters()
@@ -54,8 +65,8 @@ public class ScreenSpaceWaterManager
 
         commandBuffer.Clear();
         commandBuffer.SetRenderTarget(testTex);
-        commandBuffer.ClearRenderTarget(true, true, Color.black);
+        commandBuffer.ClearRenderTarget(true, true, Color.white * 100000.0f); // We're using distAlongCam so have to make initial depth very large
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
-        commandBuffer.Blit(testTex, MainCamera.targetTexture, testBlit);
+        commandBuffer.Blit(testTex, MainCamera.targetTexture, depthTextureToNormals);
     }
 }
