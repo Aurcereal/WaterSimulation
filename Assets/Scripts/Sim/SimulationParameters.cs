@@ -74,6 +74,8 @@ public class SimulationParameters : MonoBehaviour
     public static float2 CameraPanSpeed => Ins.cameraPanSpeed;
     public static float CameraZoomSpeed => Ins.cameraZoomSpeed;
 
+    public static int DepthBlurRadius => Ins.depthBlurRadius;
+
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
@@ -141,6 +143,9 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float nextRayOffset = 0.0005f;
     [SerializeField] Cubemap environmentMap;
 
+    [Header("Screenspace Rendering")]
+    [Range(1, 100)][SerializeField] int depthBlurRadius = 10;
+
     [Header("Camera Controller Parameters")]
     [SerializeField] float2 cameraRotateSpeed;
     [SerializeField] float2 cameraPanSpeed;
@@ -159,6 +164,7 @@ public class SimulationParameters : MonoBehaviour
         RaymarchManager.Ins?.UniformAllParameters();
         GameManager.Ins?.screenSpaceManager.UniformParameters();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
+        GameManager.Ins?.screenSpaceManager.blurManager.CreateAndSetupGaussianKernel(DepthBlurRadius);
     }
 
     void Update()
