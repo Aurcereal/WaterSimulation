@@ -17,9 +17,11 @@ public class GaussianBlurManager
         CreateAndSetupGaussianKernel(DepthBlurRadius);
     }
 
-    public void Blur(CommandBuffer cmd, RenderTexture src, RenderTexture dest)
+    public void Blur(CommandBuffer cmd, RenderTexture src, RenderTexture firstPassRT, RenderTexture dest)
     {
-        cmd.Blit(src, dest, GaussianBlur1DMaterial);
+        // Do multiple iters?
+        cmd.Blit(src, firstPassRT, GaussianBlur1DMaterial, 0);
+        cmd.Blit(firstPassRT, dest, GaussianBlur1DMaterial, 1);
     }
 
     public void CreateAndSetupGaussianKernel(int newRadius)

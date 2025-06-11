@@ -29,6 +29,8 @@ public class ScreenSpaceWaterManager
 
     //
     RenderTexture depthTex;
+    RenderTexture scratchScreenRTex;
+    RenderTexture scratchScreenRGBATex;
     RenderTexture smoothedDepthTex;
     RenderTexture normalTex;
 
@@ -52,6 +54,8 @@ public class ScreenSpaceWaterManager
         blurManager = new();
 
         depthTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
+        scratchScreenRTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
+        scratchScreenRGBATex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
         smoothedDepthTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
         normalTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
 
@@ -81,13 +85,13 @@ public class ScreenSpaceWaterManager
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
 
         // Blur depth tex
-        blurManager.Blur(commandBuffer, depthTex, smoothedDepthTex);
+        blurManager.Blur(commandBuffer, depthTex, scratchScreenRTex, smoothedDepthTex);
 
         // Use smooth depth to get normals
         commandBuffer.Blit(smoothedDepthTex, normalTex, depthTextureToNormals);
 
         //
-        commandBuffer.Blit(normalTex, MainCamera.targetTexture);//
+        commandBuffer.Blit(normalTex, MainCamera.targetTexture);
 
     }
 }
