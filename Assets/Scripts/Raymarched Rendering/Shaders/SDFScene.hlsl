@@ -2,7 +2,7 @@
 #define SDEPS 0.005
 #define MAXSTEPS 50
 
-#include "../Scripts/Sim/Resources/SDFMath3D.hlsl"
+#include "../../../Scripts/Sim/Resources/SDFMath3D.hlsl"
 
 float sdScene(float3 p) {
     float dObstacle = ObstacleType ? 

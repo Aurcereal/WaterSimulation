@@ -82,7 +82,7 @@ Shader "Unlit/ParticleNormalFromDepth"
                 float3 pos = GetPosFromDepthTexture(i.uv);
 
                 float depth = tex2D(_MainTex, i.uv);
-                if(invalidDepth(depth)) return float4(1.,1.,1.,0.);
+                if(invalidDepth(depth)) return float4(1.,.75,.79,0.);
                 float depthPositiveX = tex2D(_MainTex, i.uv+float2(oneTexel.x, 0.));
                 float depthPositiveY = tex2D(_MainTex, i.uv+float2(0., oneTexel.y));
 

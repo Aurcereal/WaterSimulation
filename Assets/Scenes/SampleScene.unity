@@ -230,6 +230,9 @@ MonoBehaviour:
   waterExistenceEps: 0.01
   nextRayOffset: 0.01
   environmentMap: {fileID: 8900000, guid: f4901bebe85413b4eb78ac7571f05385, type: 3}
+  depthBlurRadius: 6
+  depthBlurBilteralFalloff: 1
+  depthBlurIterationCount: 1
   cameraRotateSpeed:
     x: 1
     y: 1

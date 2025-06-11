@@ -9,33 +9,42 @@ using UnityEngine.Rendering;
 public class GaussianBlurManager
 {
 
-    static Material GaussianBlur1DMaterial = new Material(Shader.Find("Unlit/GaussianBlur1D"));
-    int kernelRadius;
+    static Material GaussianBlur1DMaterial = new Material(Shader.Find("Unlit/BilateralDepthBlur1D"));
+    int kernelRadius = -1;
 
     public GaussianBlurManager()
     {
-        CreateAndSetupGaussianKernel(DepthBlurRadius);
+        CreateAndSetupGaussianKernel();
     }
 
     public void Blur(CommandBuffer cmd, RenderTexture src, RenderTexture firstPassRT, RenderTexture dest)
     {
-        // Do multiple iters?
-        cmd.Blit(src, firstPassRT, GaussianBlur1DMaterial, 0);
-        cmd.Blit(firstPassRT, dest, GaussianBlur1DMaterial, 1);
+        for (int i = 0; i < DepthBlurIterationCount; i++)
+        {
+            cmd.Blit(src, firstPassRT, GaussianBlur1DMaterial, 0);
+            cmd.Blit(firstPassRT, dest, GaussianBlur1DMaterial, 1);
+
+            src = dest;
+        }        
     }
 
-    public void CreateAndSetupGaussianKernel(int newRadius)
+    public void CreateAndSetupGaussianKernel()
     {
-        if (kernelRadius == newRadius)
+        if (kernelRadius == DepthBlurRadius)
         {
-            Debug.Log("Aborting Gaussian Kernel Creation since newRadius is same as current radius");
+            Debug.Log("Aborting Gaussian Kernel Creation since SimulationParameters.DepthBlurRadius is same as current radius");
             return;
         }
 
-        kernelRadius = newRadius;
-        CreateGaussianKernelTexture1D(newRadius);
+        kernelRadius = DepthBlurRadius;
+        CreateGaussianKernelTexture1D(DepthBlurRadius);
         GaussianBlur1DMaterial.SetTexture("GaussianKernel", gaussianKernel1D);
-        GaussianBlur1DMaterial.SetInt("KernelRadius", newRadius);
+        UniformAllParameters();
+    }
+
+    public void UniformAllParameters() {
+        GaussianBlur1DMaterial.SetInt("KernelRadius", DepthBlurRadius);
+        GaussianBlur1DMaterial.SetFloat("DepthBlurBilateralFalloff", DepthBlurBilateralFalloff);
     }
 
     Texture2D gaussianKernel1D;

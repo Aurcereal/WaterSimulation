@@ -52,7 +52,7 @@ public class SimulationParameters : MonoBehaviour
     public static Camera MainCamera => Ins.mainCamera;
 
     public const int SpatialLookupSize = 1048576;
-    public static float GridSize => SmoothingRadius/sqrt(2);
+    public static float GridSize => SmoothingRadius / sqrt(2);
 
     public static bool EnableRaymarchShader => Ins.enableRaymarchShader;
     public static float DensityCacheStepSize => Ins.densityCacheStepSize;
@@ -75,6 +75,8 @@ public class SimulationParameters : MonoBehaviour
     public static float CameraZoomSpeed => Ins.cameraZoomSpeed;
 
     public static int DepthBlurRadius => Ins.depthBlurRadius;
+    public static float DepthBlurBilateralFalloff => Ins.depthBlurBilteralFalloff;
+    public static int DepthBlurIterationCount => Ins.depthBlurIterationCount;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -110,7 +112,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.0f, 500.0f)][SerializeField] float surfaceTensionMultiplier = 5.0f;
 
     [Header("Spring Force")]
-    [Tooltip("Requires Restart")] [SerializeField] bool enableParticleSprings = false;
+    [Tooltip("Requires Restart")][SerializeField] bool enableParticleSprings = false;
     [Range(0.0f, 200000.0f)][SerializeField] float springForceMultiplier = 50000f;
     [Range(0.0f, 10.0f)][SerializeField] float plasticity = 0f;
     [Range(0.0f, 10.0f)][SerializeField] float springYieldRatio = 0.1f;
@@ -131,13 +133,13 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float densityCacheStepSize = 0.05f;
     [SerializeField] float densityCacheSampleCount = 128;
     [SerializeField] bool useDensityStepSize = false;
-    [Range(0.00005f, 10.0f)] [SerializeField] float densityMultiplier = 1.0f;
-    [Range(0.005f, 100.0f)] [SerializeField] float lightMultiplier = 0.5f;
+    [Range(0.00005f, 10.0f)][SerializeField] float densityMultiplier = 1.0f;
+    [Range(0.005f, 100.0f)][SerializeField] float lightMultiplier = 0.5f;
     [SerializeField] float3 extinctionCoefficients = 1.0f;
     [Range(0.1f, 10.0f)][SerializeField] float indexOfRefraction = 1.33f;
     [SerializeField] Transform lightTransform;
-    [Range(1, 4)] [SerializeField] int numBounces = 2;
-    [SerializeField] [Tooltip("Traces reflect and refract ray Li on iter 1 and adds them instead of following only refract or reflect.")] bool traceReflectAndRefract;
+    [Range(1, 4)][SerializeField] int numBounces = 2;
+    [SerializeField][Tooltip("Traces reflect and refract ray Li on iter 1 and adds them instead of following only refract or reflect.")] bool traceReflectAndRefract;
     [Range(0.001f, 10.0f)][SerializeField] float waterExistenceThreshold = 0.1f;
     [SerializeField] float waterExistenceEps = 0.05f;
     [SerializeField] float nextRayOffset = 0.0005f;
@@ -145,6 +147,9 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Screenspace Rendering")]
     [Range(1, 100)][SerializeField] int depthBlurRadius = 10;
+    [Range(0.0f, 100.0f)][SerializeField] float depthBlurBilteralFalloff = 1.0f;
+    [Range(1, 5)][SerializeField] int depthBlurIterationCount;
+
 
     [Header("Camera Controller Parameters")]
     [SerializeField] float2 cameraRotateSpeed;
@@ -164,7 +169,8 @@ public class SimulationParameters : MonoBehaviour
         RaymarchManager.Ins?.UniformAllParameters();
         GameManager.Ins?.screenSpaceManager.UniformParameters();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
-        GameManager.Ins?.screenSpaceManager.blurManager.CreateAndSetupGaussianKernel(DepthBlurRadius);
+        GameManager.Ins?.screenSpaceManager.blurManager.CreateAndSetupGaussianKernel();
+        GameManager.Ins?.screenSpaceManager.blurManager.UniformAllParameters();
     }
 
     void Update()

@@ -20,8 +20,8 @@ Shader "Unlit/WaterRaymarch"
 			#pragma fragment frag
 			#pragma target 4.5
 
-            #include "../Scripts/Sim/Resources/MathHelper.hlsl"
-            #include "../Scripts/Sim/Resources/RaytraceMath.hlsl"
+            #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
+            #include "../../../Scripts/Sim/Resources/RaytraceMath.hlsl"
             #include "./Skybox.hlsl"
 
             #define PI 3.141592
