@@ -10,7 +10,7 @@ public class GaussianBlurManager
 {
 
     static Material GaussianBlur1DMaterial = new Material(Shader.Find("Unlit/BilateralDepthBlur1D"));
-    int kernelRadius = -1;
+    float kernelRadius = -1;
 
     public GaussianBlurManager()
     {
@@ -30,20 +30,20 @@ public class GaussianBlurManager
 
     public void CreateAndSetupGaussianKernel()
     {
-        if (kernelRadius == DepthBlurRadius)
+        if (kernelRadius == DepthWorldBlurRadius)
         {
-            Debug.Log("Aborting Gaussian Kernel Creation since SimulationParameters.DepthBlurRadius is same as current radius");
+            Debug.Log("Aborting Gaussian Kernel Creation since SimulationParameters.WorldDepthBlurRadius is same as current radius");
             return;
         }
 
-        kernelRadius = DepthBlurRadius;
-        CreateGaussianKernelTexture1D(DepthBlurRadius);
+        kernelRadius = DepthWorldBlurRadius;
+        CreateGaussianKernelTexture1D((int) ceil(DepthWorldBlurRadius));
         GaussianBlur1DMaterial.SetTexture("GaussianKernel", gaussianKernel1D);
         UniformAllParameters();
     }
 
     public void UniformAllParameters() {
-        GaussianBlur1DMaterial.SetInt("KernelRadius", DepthBlurRadius);
+        GaussianBlur1DMaterial.SetFloat("WorldKernelRadius", DepthWorldBlurRadius);
         GaussianBlur1DMaterial.SetFloat("DepthBlurBilateralFalloff", DepthBlurBilateralFalloff);
     }
 

@@ -74,7 +74,7 @@ public class SimulationParameters : MonoBehaviour
     public static float2 CameraPanSpeed => Ins.cameraPanSpeed;
     public static float CameraZoomSpeed => Ins.cameraZoomSpeed;
 
-    public static int DepthBlurRadius => Ins.depthBlurRadius;
+    public static float DepthWorldBlurRadius => Ins.depthWorldBlurRadius;
     public static float DepthBlurBilateralFalloff => Ins.depthBlurBilteralFalloff;
     public static int DepthBlurIterationCount => Ins.depthBlurIterationCount;
 
@@ -146,7 +146,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] Cubemap environmentMap;
 
     [Header("Screenspace Rendering")]
-    [Range(1, 100)][SerializeField] int depthBlurRadius = 10;
+    [Range(1, 1000)][SerializeField] float depthWorldBlurRadius = 10;
     [Range(0.0f, 100.0f)][SerializeField] float depthBlurBilteralFalloff = 1.0f;
     [Range(1, 5)][SerializeField] int depthBlurIterationCount;
 

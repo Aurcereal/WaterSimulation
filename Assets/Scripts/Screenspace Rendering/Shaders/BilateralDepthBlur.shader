@@ -46,8 +46,12 @@ Shader "Unlit/BilateralDepthBlur1D"
                 return o;
             }
 
+            inline bool invalidDepth(float depth) {
+                return depth >= 100000.0;
+            }
+
             sampler2D GaussianKernel;
-            int KernelRadius;
+            float WorldKernelRadius;
 
             int ScreenWidth;
             int ScreenHeight;
@@ -59,20 +63,23 @@ Shader "Unlit/BilateralDepthBlur1D"
                 float2 oneTexel = 1./float2(ScreenWidth, ScreenHeight);
                 float2 oneOffset = oneTexel*float2(1.,0.);
 
-                float4 sumVal;
+                float sumVal = 0.;
                 float totalWeight = 0.;
 
                 float depth = tex2D(_MainTex, i.uv).r;
+                if(invalidDepth(depth)) return depth; // Invalid depth shouldn't mix with valid depth
+                float screenKernelRadius = min(50., ceil(WorldKernelRadius/depth));
 
-                for(int l=-KernelRadius; l<=KernelRadius; l++) {
+                for(float l=-screenKernelRadius; l<=screenKernelRadius; l++) {
                     float otherDepth = tex2D(_MainTex, i.uv+l*oneOffset).r;
+                    if(invalidDepth(otherDepth)) continue; // Valid depth shouldn't mix with invalid depth
                     float t = DepthBlurBilateralFalloff * (otherDepth - depth);
                     float weightMultiplier = exp(-t*t);
 
-                    float weight = tex2D(GaussianKernel, float2(float(l+KernelRadius)/(2.0*KernelRadius), 0.5)).r * weightMultiplier;
+                    float weight = tex2D(GaussianKernel, float2(float(l+screenKernelRadius)/(2.0*screenKernelRadius), 0.5)).r * weightMultiplier;
                     totalWeight += weight; // Can't assume normalized anymore
 
-                    sumVal += tex2D(_MainTex, i.uv+l*oneOffset) * weight;
+                    sumVal += otherDepth * weight;
                 }
 
                 return sumVal/totalWeight;
@@ -113,8 +120,12 @@ Shader "Unlit/BilateralDepthBlur1D"
                 return o;
             }
 
+            inline bool invalidDepth(float depth) {
+                return depth >= 100000.0;
+            }
+
             sampler2D GaussianKernel;
-            int KernelRadius;
+            float WorldKernelRadius;
 
             int ScreenWidth;
             int ScreenHeight;
@@ -124,27 +135,31 @@ Shader "Unlit/BilateralDepthBlur1D"
             fixed4 frag(vOut i) : SV_Target
             {
                 float2 oneTexel = 1./float2(ScreenWidth, ScreenHeight);
-                float2 oneOffset = oneTexel*float2(0.,1.);
+                float2 oneOffset = oneTexel*float2(0., 1.);
 
-                float4 sumVal;
+                float sumVal = 0.;
                 float totalWeight = 0.;
 
                 float depth = tex2D(_MainTex, i.uv).r;
+                if(invalidDepth(depth)) return depth; // Invalid depth shouldn't mix with valid depth
+                float screenKernelRadius = min(50., ceil(WorldKernelRadius/depth));
 
-                for(int l=-KernelRadius; l<=KernelRadius; l++) {
+                for(float l=-screenKernelRadius; l<=screenKernelRadius; l++) {
                     float otherDepth = tex2D(_MainTex, i.uv+l*oneOffset).r;
+                    if(invalidDepth(otherDepth)) continue; // Valid depth shouldn't mix with invalid depth
                     float t = DepthBlurBilateralFalloff * (otherDepth - depth);
                     float weightMultiplier = exp(-t*t);
 
-                    float weight = tex2D(GaussianKernel, float2(float(l+KernelRadius)/(2.0*KernelRadius), 0.5)).r * weightMultiplier;
+                    float weight = tex2D(GaussianKernel, float2(float(l+screenKernelRadius)/(2.0*screenKernelRadius), 0.5)).r * weightMultiplier;
                     totalWeight += weight; // Can't assume normalized anymore
 
-                    sumVal += tex2D(_MainTex, i.uv+l*oneOffset) * weight;
+                    sumVal += otherDepth * weight;
                 }
 
                 return sumVal/totalWeight;
             }
             ENDCG
         }
+
     }
 }
