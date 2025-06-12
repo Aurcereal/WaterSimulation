@@ -61,7 +61,7 @@ Shader "Unlit/BilateralDepthBlur1D"
             fixed4 frag(vOut i) : SV_Target
             {
                 float2 oneTexel = 1./float2(ScreenWidth, ScreenHeight);
-                float2 oneOffset = oneTexel*float2(1.,0.);
+                float2 oneOffset = oneTexel*float2(0.,1.);
 
                 float sumVal = 0.;
                 float totalWeight = 0.;
@@ -135,7 +135,7 @@ Shader "Unlit/BilateralDepthBlur1D"
             fixed4 frag(vOut i) : SV_Target
             {
                 float2 oneTexel = 1./float2(ScreenWidth, ScreenHeight);
-                float2 oneOffset = oneTexel*float2(0., 1.);
+                float2 oneOffset = oneTexel*float2(1.,0.);
 
                 float sumVal = 0.;
                 float totalWeight = 0.;

@@ -2,7 +2,7 @@
 
 // Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
-Shader "Unlit/ParticleNormalFromDepth"
+Shader "Unlit/NormalFromDepth"
 {
     Properties
     {

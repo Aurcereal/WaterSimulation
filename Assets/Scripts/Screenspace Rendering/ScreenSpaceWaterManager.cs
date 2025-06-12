@@ -18,8 +18,9 @@ public class ScreenSpaceWaterManager
     //
     Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
     Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
+    Material particleAdditiveDensity = new Material(Shader.Find("Unlit/ParticleAdditiveDensity"));
 
-    Material depthTextureToNormals = new Material(Shader.Find("Unlit/ParticleNormalFromDepth"));
+    Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
 
     //
     public GaussianBlurManager blurManager;
@@ -33,6 +34,9 @@ public class ScreenSpaceWaterManager
     RenderTexture scratchScreenRGBATex;
     RenderTexture smoothedDepthTex;
     RenderTexture normalTex;
+
+    RenderTexture densityTex;
+    float densityTexResolutionPercentage => .25f;
 
     void UpdateGlobalScreenSizeUniform(int2 newSize)
     {
@@ -50,6 +54,10 @@ public class ScreenSpaceWaterManager
         particleSphereDepthMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
         particleSphereDepthMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
 
+        particleAdditiveDensity.enableInstancing = true;
+        particleAdditiveDensity.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
+        particleAdditiveDensity.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
+
         commandBuffer = new();
         blurManager = new();
 
@@ -58,6 +66,9 @@ public class ScreenSpaceWaterManager
         scratchScreenRGBATex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
         smoothedDepthTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
         normalTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
+
+        // TODO: take out depth tex see if it needs it
+        densityTex = ComputeHelper.CreateRenderTexture2D((int2) (densityTexResolutionPercentage * float2(Screen.width, Screen.height)), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
 
         UniformParameters();
 
@@ -78,11 +89,17 @@ public class ScreenSpaceWaterManager
         MainCamera.AddCommandBuffer(CameraEvent.AfterEverything, commandBuffer);
         MainCamera.depthTextureMode = DepthTextureMode.Depth;
 
-        // Draw particle depths
         commandBuffer.Clear();
+
+        // Draw particle depths
         commandBuffer.SetRenderTarget(depthTex);
         commandBuffer.ClearRenderTarget(true, true, Color.white * 100000.0f); // We're using distAlongCam so have to make initial depth very large
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
+
+        // Draw thickness/density texture
+        commandBuffer.SetRenderTarget(densityTex);
+        commandBuffer.ClearRenderTarget(true, true, Color.black);
+        commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleAdditiveDensity, 0, ParticleCount);
 
         // Blur depth tex
         blurManager.Blur(commandBuffer, depthTex, scratchScreenRTex, smoothedDepthTex);
@@ -91,7 +108,7 @@ public class ScreenSpaceWaterManager
         commandBuffer.Blit(smoothedDepthTex, normalTex, depthTextureToNormals);
 
         //
-        commandBuffer.Blit(normalTex, MainCamera.targetTexture);
+        commandBuffer.Blit(densityTex, MainCamera.targetTexture);
 
     }
 }
