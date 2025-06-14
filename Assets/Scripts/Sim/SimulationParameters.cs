@@ -167,7 +167,7 @@ public class SimulationParameters : MonoBehaviour
         // This Monobehavior func is called when a value changes
         GameManager.Ins?.simUniformer.UniformAllParameters();
         RaymarchManager.Ins?.UniformAllParameters();
-        GameManager.Ins?.screenSpaceManager.UniformParameters();
+        GameManager.Ins?.screenSpaceManager.UniformParametersAndTextures();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
         GameManager.Ins?.screenSpaceManager.blurManager.CreateAndSetupGaussianKernel();
         GameManager.Ins?.screenSpaceManager.blurManager.UniformAllParameters();

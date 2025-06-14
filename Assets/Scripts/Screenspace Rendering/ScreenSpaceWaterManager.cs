@@ -21,6 +21,7 @@ public class ScreenSpaceWaterManager
     Material particleAdditiveDensity = new Material(Shader.Find("Unlit/ParticleAdditiveDensity"));
 
     Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
+    Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
 
     //
     public GaussianBlurManager blurManager;
@@ -70,24 +71,46 @@ public class ScreenSpaceWaterManager
         // TODO: take out depth tex see if it needs it
         densityTex = ComputeHelper.CreateRenderTexture2D((int2) (densityTexResolutionPercentage * float2(Screen.width, Screen.height)), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
 
-        UniformParameters();
+        UniformParametersAndTextures();
 
         ResolutionTracker.ResolutionChangeEvent += UpdateGlobalScreenSizeUniform;
         UpdateGlobalScreenSizeUniform(int2(ScreenWidth, ScreenHeight));
 
     }
 
-    public void UniformParameters()
+    public void UniformParametersAndTextures()
     {
         particle3DMaterial.SetFloat("_Radius", ParticleRadius);
         particleSphereDepthMaterial.SetFloat("_Radius", ParticleRadius);
+
+        compositeIntoWater.SetTexture("SmoothedDepthTex", smoothedDepthTex);
+        compositeIntoWater.SetTexture("NormalTex", normalTex);
+        compositeIntoWater.SetTexture("DensityTex", densityTex);
+        compositeIntoWater.SetTexture("EnvironmentMap", EnvironmentMap);
+
+        //
+        compositeIntoWater.SetFloat("DensityMultiplier", DensityMultiplier);
+        compositeIntoWater.SetFloat("LightMultiplier", LightMultiplier);
+        compositeIntoWater.SetVector("ExtinctionCoefficients", (Vector3)ExtinctionCoefficients);
+        compositeIntoWater.SetFloat("IndexOfRefraction", IndexOfRefraction);
+        //compositeIntoWater.SetVector("LightDir", (Vector3)LightDir);
+        //compositeIntoWater.SetFloat("NextRayOffset", NextRayOffset);
     }
 
-    public void Draw()
+    public void OnEnable()
     {
         MainCamera.RemoveAllCommandBuffers();
         MainCamera.AddCommandBuffer(CameraEvent.AfterEverything, commandBuffer);
         MainCamera.depthTextureMode = DepthTextureMode.Depth;
+    }
+
+    public void OnDisable()
+    {
+        MainCamera.RemoveAllCommandBuffers();
+    }
+
+    public void Draw()
+    {
 
         commandBuffer.Clear();
 
@@ -108,7 +131,7 @@ public class ScreenSpaceWaterManager
         commandBuffer.Blit(smoothedDepthTex, normalTex, depthTextureToNormals);
 
         //
-        commandBuffer.Blit(densityTex, MainCamera.targetTexture);
+        commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
 
     }
 }

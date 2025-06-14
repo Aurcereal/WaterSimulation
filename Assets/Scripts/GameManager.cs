@@ -59,9 +59,15 @@ public class GameManager : MonoBehaviour
         camController.SetGlobalUniformCameraData();
         RaymarchManager.Ins.UpdateContainerData();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
+
+        if (EnableRaymarchShader)
+                screenSpaceManager.OnDisable();
+            else
+                screenSpaceManager.OnEnable();
     }
 
     int counter = 1;
+    bool prevEnableRaymarchShader;
 
     void Update()
     {
@@ -91,8 +97,18 @@ public class GameManager : MonoBehaviour
             else ++counter;
         }
 
+        if (EnableRaymarchShader != prevEnableRaymarchShader)
+        {
+            if (EnableRaymarchShader)
+                screenSpaceManager.OnDisable();
+            else
+                screenSpaceManager.OnEnable();
+        }
+
         if (!EnableRaymarchShader)
             screenSpaceManager.Draw();
+
+        prevEnableRaymarchShader = EnableRaymarchShader;
     }
 
     void OnDisable()
