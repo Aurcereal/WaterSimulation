@@ -432,8 +432,6 @@ Shader "Unlit/WaterRaymarch"
                     float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
 
                     float f = Fresnel(-rd, norm, ior);
-                    float kReflect = f;
-                    float kRefract = 1.-f;
 
                     float3 reflectRay = Reflect(-rd, norm);
                     float3 refractRay = Refract(-rd, norm, ior);

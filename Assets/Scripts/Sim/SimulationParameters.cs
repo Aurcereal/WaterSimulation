@@ -58,9 +58,9 @@ public class SimulationParameters : MonoBehaviour
     public static float DensityCacheStepSize => Ins.densityCacheStepSize;
     public static float DensityCacheSampleCount => Ins.densityCacheSampleCount;
     public static bool UseDensityStepSize => Ins.useDensityStepSize;
-    public static float DensityMultiplier => Ins.densityMultiplier;
+    public static float RaymarchDensityMultiplier => Ins.raymarchDensityMultiplier;
     public static float LightMultiplier => Ins.lightMultiplier;
-    public static float3 ExtinctionCoefficients => Ins.extinctionCoefficients;
+    public static float3 RaymarchExtinctionCoefficients => Ins.raymarchExtinctionCoefficients;
     public static float IndexOfRefraction => Ins.indexOfRefraction;
     public static float3 LightDir => Ins.lightTransform.forward;
     public static int NumBounces => Ins.numBounces;
@@ -77,6 +77,8 @@ public class SimulationParameters : MonoBehaviour
     public static float DepthWorldBlurRadius => Ins.depthWorldBlurRadius;
     public static float DepthBlurBilateralFalloff => Ins.depthBlurBilteralFalloff;
     public static int DepthBlurIterationCount => Ins.depthBlurIterationCount;
+    public static float ScreenSpaceDensityMultiplier => Ins.screenSpaceDensityMultiplier;
+    public static float3 ScreenSpaceExtinctionCoefficients => Ins.screenSpaceExtinctionCoefficients;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -133,9 +135,9 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float densityCacheStepSize = 0.05f;
     [SerializeField] float densityCacheSampleCount = 128;
     [SerializeField] bool useDensityStepSize = false;
-    [Range(0.00005f, 10.0f)][SerializeField] float densityMultiplier = 1.0f;
+    [Range(0.00005f, 10.0f)][SerializeField] float raymarchDensityMultiplier = 1.0f;
     [Range(0.005f, 100.0f)][SerializeField] float lightMultiplier = 0.5f;
-    [SerializeField] float3 extinctionCoefficients = 1.0f;
+    [SerializeField] float3 raymarchExtinctionCoefficients = 1.0f;
     [Range(0.1f, 10.0f)][SerializeField] float indexOfRefraction = 1.33f;
     [SerializeField] Transform lightTransform;
     [Range(1, 4)][SerializeField] int numBounces = 2;
@@ -149,6 +151,8 @@ public class SimulationParameters : MonoBehaviour
     [Range(1, 1000)][SerializeField] float depthWorldBlurRadius = 10;
     [Range(0.0f, 100.0f)][SerializeField] float depthBlurBilteralFalloff = 1.0f;
     [Range(1, 5)][SerializeField] int depthBlurIterationCount;
+    [Range(0.00005f, 10.0f)][SerializeField] float screenSpaceDensityMultiplier = 0.118f;
+    [SerializeField] float3 screenSpaceExtinctionCoefficients = 1.0f;
 
 
     [Header("Camera Controller Parameters")]

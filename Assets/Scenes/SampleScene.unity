@@ -212,13 +212,13 @@ MonoBehaviour:
   particleLowColorSpeed: 1
   particleHighColorSpeed: 7.5
   mainCamera: {fileID: 963194227}
-  enableRaymarchShader: 0
+  enableRaymarchShader: 1
   densityCacheStepSize: 0.25
   densityCacheSampleCount: 128
   useDensityStepSize: 0
-  densityMultiplier: 0.008
+  raymarchDensityMultiplier: 0.008
   lightMultiplier: 1.8
-  extinctionCoefficients:
+  raymarchExtinctionCoefficients:
     x: 0.5
     y: 0.5
     z: 0.5
@@ -232,7 +232,12 @@ MonoBehaviour:
   environmentMap: {fileID: 8900000, guid: f4901bebe85413b4eb78ac7571f05385, type: 3}
   depthWorldBlurRadius: 150
   depthBlurBilteralFalloff: 1
-  depthBlurIterationCount: 1
+  depthBlurIterationCount: 2
+  screenSpaceDensityMultiplier: 0.118
+  screenSpaceExtinctionCoefficients:
+    x: 20
+    y: 8
+    z: 2
   cameraRotateSpeed:
     x: 1
     y: 1

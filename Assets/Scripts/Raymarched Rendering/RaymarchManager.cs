@@ -23,9 +23,9 @@ public class RaymarchManager : MonoBehaviour
         if (waterRaymarchMat == null) return;
 
         //
-        waterRaymarchMat.SetFloat("DensityMultiplier", DensityMultiplier);
+        waterRaymarchMat.SetFloat("DensityMultiplier", RaymarchDensityMultiplier);
         waterRaymarchMat.SetFloat("LightMultiplier", LightMultiplier);
-        waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3)ExtinctionCoefficients);
+        waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3)RaymarchExtinctionCoefficients);
         waterRaymarchMat.SetFloat("IndexOfRefraction", IndexOfRefraction);
         waterRaymarchMat.SetVector("LightDir", (Vector3)LightDir);
         waterRaymarchMat.SetInt("NumBounces", NumBounces);

@@ -130,7 +130,7 @@ Shader "Unlit/CompositeIntoWater"
             }
 
             float3 ShadeWater(float3 rd, float3 pos, float3 norm, float densityAlongRd) {
-                float ior = IndexOfRefraction; // Screen Space Technique would only work outside water I think
+                float ior = 1./IndexOfRefraction; // Screen Space Technique would only work outside water I think
 
                 float3 reflectRay = Reflect(-rd, norm);
                 float3 refractRay = Refract(-rd, norm, ior);
@@ -139,7 +139,7 @@ Shader "Unlit/CompositeIntoWater"
 
                 float f = Fresnel(-rd, norm, ior);
 
-                const float densAlongReflect = 0.2;
+                const float densAlongReflect = 0.;
                 float densAlongRefract = densityAlongRd; // Approximation since refracted ray is bent
 
                 float3 reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
