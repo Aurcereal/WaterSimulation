@@ -234,10 +234,10 @@ MonoBehaviour:
   depthBlurBilteralFalloff: 1
   depthBlurIterationCount: 2
   depthDifferenceCutoffForNormals: 0.5
-  screenSpaceDensityMultiplier: 0.118
+  screenSpaceDensityMultiplier: 0.4
   screenSpaceExtinctionCoefficients:
     x: 20
-    y: 8
+    y: 4.25
     z: 2
   cameraRotateSpeed:
     x: 1

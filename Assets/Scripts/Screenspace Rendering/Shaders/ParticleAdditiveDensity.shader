@@ -69,7 +69,7 @@ Shader "Unlit/ParticleAdditiveDensity"
                 float sphereZ = _Radius * sqrt(1.-sqrDist);
 
                 // maybe make spherical depth, like get the z val of sphere.. check seb lague mabe
-                return 0.001;//sphereZ*0.001;
+                return sphereZ*0.1; //0.001
             }
             ENDCG
         }
