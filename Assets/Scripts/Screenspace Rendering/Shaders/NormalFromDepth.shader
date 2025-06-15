@@ -71,6 +71,12 @@ Shader "Unlit/NormalFromDepth"
                 return pos;
             }
 
+            float DepthDifferenceCutoff;
+
+            inline bool invalidDepthPair(float currDepth, float otherDepth) { // Assume currDepth is valid
+                return abs(currDepth-otherDepth) > DepthDifferenceCutoff || otherDepth >= 100000.0;
+            }
+
             inline bool invalidDepth(float depth) {
                 return depth >= 100000.0;
             }
@@ -86,16 +92,20 @@ Shader "Unlit/NormalFromDepth"
                 float depthPositiveX = tex2D(_MainTex, i.uv+float2(oneTexel.x, 0.));
                 float depthPositiveY = tex2D(_MainTex, i.uv+float2(0., oneTexel.y));
 
+                float normDir = 1.;
+
                 float3 posX;
-                if(invalidDepth(depthPositiveX)) {
+                if(invalidDepthPair(depth, depthPositiveX)) {
                     posX = GetPosFromDepthTexture(i.uv+float2(oneTexel.x, 0.));
+                    normDir *= -1.;
                 } else {
                     posX = GetPosFromDepthTexture(i.uv-float2(oneTexel.x, 0.));
                 }
 
                 float3 posY;
-                if(invalidDepth(depthPositiveY)) {
+                if(invalidDepthPair(depth, depthPositiveY)) {
                     posY = GetPosFromDepthTexture(i.uv+float2(0., oneTexel.y));
+                    normDir *= -1.;
                 } else {
                     posY = GetPosFromDepthTexture(i.uv-float2(0., oneTexel.y));
                 }
@@ -103,7 +113,7 @@ Shader "Unlit/NormalFromDepth"
                 float3 ddx = posX - pos;
                 float3 ddy = posY - pos;
 
-                float3 norm = normalize(cross(ddy, ddx));
+                float3 norm = normDir * normalize(cross(ddy, ddx));
 
                 return float4(norm, 1.0);
             }

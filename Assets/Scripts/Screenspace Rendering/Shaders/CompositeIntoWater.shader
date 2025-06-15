@@ -135,6 +135,7 @@ Shader "Unlit/CompositeIntoWater"
                 float3 reflectRay = Reflect(-rd, norm);
                 float3 refractRay = Refract(-rd, norm, ior);
 
+                //if(densityAlongRd < 0.01) return float3(1.,0.,0.);
                 float densityAlongRefractRay = densityAlongRd; 
 
                 float f = Fresnel(-rd, norm, ior);

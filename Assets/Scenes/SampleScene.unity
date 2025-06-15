@@ -212,7 +212,7 @@ MonoBehaviour:
   particleLowColorSpeed: 1
   particleHighColorSpeed: 7.5
   mainCamera: {fileID: 963194227}
-  enableRaymarchShader: 1
+  enableRaymarchShader: 0
   densityCacheStepSize: 0.25
   densityCacheSampleCount: 128
   useDensityStepSize: 0
@@ -233,6 +233,7 @@ MonoBehaviour:
   depthWorldBlurRadius: 150
   depthBlurBilteralFalloff: 1
   depthBlurIterationCount: 2
+  depthDifferenceCutoffForNormals: 0.5
   screenSpaceDensityMultiplier: 0.118
   screenSpaceExtinctionCoefficients:
     x: 20

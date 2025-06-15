@@ -18,7 +18,7 @@ public class ScreenSpaceWaterManager
     //
     Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
     Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
-    Material particleAdditiveDensity = new Material(Shader.Find("Unlit/ParticleAdditiveDensity"));
+    Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity"));
 
     Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
     Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
@@ -55,9 +55,9 @@ public class ScreenSpaceWaterManager
         particleSphereDepthMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
         particleSphereDepthMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
 
-        particleAdditiveDensity.enableInstancing = true;
-        particleAdditiveDensity.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
-        particleAdditiveDensity.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
+        particleAdditiveDensityMaterial.enableInstancing = true;
+        particleAdditiveDensityMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
+        particleAdditiveDensityMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
 
         commandBuffer = new();
         blurManager = new();
@@ -82,6 +82,9 @@ public class ScreenSpaceWaterManager
     {
         particle3DMaterial.SetFloat("_Radius", ParticleRadius);
         particleSphereDepthMaterial.SetFloat("_Radius", ParticleRadius);
+        particleAdditiveDensityMaterial.SetFloat("_Radius", ParticleRadius);
+
+        depthTextureToNormals.SetFloat("DepthDifferenceCutoff", DepthDifferenceCutoffForNormals);
 
         compositeIntoWater.SetTexture("SmoothedDepthTex", smoothedDepthTex);
         compositeIntoWater.SetTexture("NormalTex", normalTex);
@@ -122,7 +125,7 @@ public class ScreenSpaceWaterManager
         // Draw thickness/density texture
         commandBuffer.SetRenderTarget(densityTex);
         commandBuffer.ClearRenderTarget(true, true, Color.black);
-        commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleAdditiveDensity, 0, ParticleCount);
+        commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleAdditiveDensityMaterial, 0, ParticleCount);
 
         // Blur depth tex
         blurManager.Blur(commandBuffer, depthTex, scratchScreenRTex, smoothedDepthTex);

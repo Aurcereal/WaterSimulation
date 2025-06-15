@@ -77,6 +77,7 @@ public class SimulationParameters : MonoBehaviour
     public static float DepthWorldBlurRadius => Ins.depthWorldBlurRadius;
     public static float DepthBlurBilateralFalloff => Ins.depthBlurBilteralFalloff;
     public static int DepthBlurIterationCount => Ins.depthBlurIterationCount;
+    public static float DepthDifferenceCutoffForNormals => Ins.depthDifferenceCutoffForNormals;
     public static float ScreenSpaceDensityMultiplier => Ins.screenSpaceDensityMultiplier;
     public static float3 ScreenSpaceExtinctionCoefficients => Ins.screenSpaceExtinctionCoefficients;
 
@@ -151,6 +152,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(1, 1000)][SerializeField] float depthWorldBlurRadius = 10;
     [Range(0.0f, 100.0f)][SerializeField] float depthBlurBilteralFalloff = 1.0f;
     [Range(1, 5)][SerializeField] int depthBlurIterationCount;
+    [SerializeField] float depthDifferenceCutoffForNormals = 0.5f;
     [Range(0.00005f, 10.0f)][SerializeField] float screenSpaceDensityMultiplier = 0.118f;
     [SerializeField] float3 screenSpaceExtinctionCoefficients = 1.0f;
 
