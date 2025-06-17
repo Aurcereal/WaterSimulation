@@ -217,7 +217,7 @@ MonoBehaviour:
   densityCacheSampleCount: 128
   useDensityStepSize: 0
   raymarchDensityMultiplier: 0.008
-  lightMultiplier: 1.8
+  raymarchLightMultiplier: 1.8
   raymarchExtinctionCoefficients:
     x: 0.5
     y: 0.5
@@ -234,11 +234,12 @@ MonoBehaviour:
   depthBlurBilteralFalloff: 1
   depthBlurIterationCount: 2
   depthDifferenceCutoffForNormals: 0.5
-  screenSpaceDensityMultiplier: 0.4
+  screenSpaceDensityMultiplier: 0.2
   screenSpaceExtinctionCoefficients:
-    x: 20
-    y: 4.25
-    z: 2
+    x: 5
+    y: 2
+    z: 1
+  screenSpaceLightMultiplier: 1
   cameraRotateSpeed:
     x: 1
     y: 1
@@ -505,8 +506,8 @@ Transform:
   m_GameObject: {fileID: 2036646828}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 30, y: 7.463139, z: 3.9106846}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 29.7, y: 7.388508, z: 3.8715777}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4

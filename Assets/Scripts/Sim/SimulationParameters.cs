@@ -59,7 +59,7 @@ public class SimulationParameters : MonoBehaviour
     public static float DensityCacheSampleCount => Ins.densityCacheSampleCount;
     public static bool UseDensityStepSize => Ins.useDensityStepSize;
     public static float RaymarchDensityMultiplier => Ins.raymarchDensityMultiplier;
-    public static float LightMultiplier => Ins.lightMultiplier;
+    public static float RaymarchLightMultiplier => Ins.raymarchLightMultiplier;
     public static float3 RaymarchExtinctionCoefficients => Ins.raymarchExtinctionCoefficients;
     public static float IndexOfRefraction => Ins.indexOfRefraction;
     public static float3 LightDir => Ins.lightTransform.forward;
@@ -80,6 +80,7 @@ public class SimulationParameters : MonoBehaviour
     public static float DepthDifferenceCutoffForNormals => Ins.depthDifferenceCutoffForNormals;
     public static float ScreenSpaceDensityMultiplier => Ins.screenSpaceDensityMultiplier;
     public static float3 ScreenSpaceExtinctionCoefficients => Ins.screenSpaceExtinctionCoefficients;
+    public static float ScreenSpaceLightMultiplier => Ins.screenSpaceLightMultiplier;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -137,7 +138,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float densityCacheSampleCount = 128;
     [SerializeField] bool useDensityStepSize = false;
     [Range(0.00005f, 10.0f)][SerializeField] float raymarchDensityMultiplier = 1.0f;
-    [Range(0.005f, 100.0f)][SerializeField] float lightMultiplier = 0.5f;
+    [Range(0.005f, 100.0f)][SerializeField] float raymarchLightMultiplier = 0.5f;
     [SerializeField] float3 raymarchExtinctionCoefficients = 1.0f;
     [Range(0.1f, 10.0f)][SerializeField] float indexOfRefraction = 1.33f;
     [SerializeField] Transform lightTransform;
@@ -155,6 +156,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float depthDifferenceCutoffForNormals = 0.5f;
     [Range(0.00005f, 10.0f)][SerializeField] float screenSpaceDensityMultiplier = 0.118f;
     [SerializeField] float3 screenSpaceExtinctionCoefficients = 1.0f;
+    [Range(0.005f, 100.0f)][SerializeField] float screenSpaceLightMultiplier = 1f;
 
 
     [Header("Camera Controller Parameters")]

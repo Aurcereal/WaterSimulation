@@ -93,7 +93,7 @@ public class ScreenSpaceWaterManager
 
         //
         compositeIntoWater.SetFloat("DensityMultiplier", ScreenSpaceDensityMultiplier);
-        compositeIntoWater.SetFloat("LightMultiplier", LightMultiplier);
+        compositeIntoWater.SetFloat("LightMultiplier", ScreenSpaceLightMultiplier);
         compositeIntoWater.SetVector("ExtinctionCoefficients", (Vector3) ScreenSpaceExtinctionCoefficients);
         compositeIntoWater.SetFloat("IndexOfRefraction", IndexOfRefraction);
         //compositeIntoWater.SetVector("LightDir", (Vector3)LightDir);

@@ -436,7 +436,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     pos += vel * dt;
 
     // Collision
-    float dScene = sdScene(pos) - ParticleRadius; // Maybe take out the influence of ParticleRadius later
+    float dScene = sdScene(pos) - ParticleRadius; // We need Particle Radius for correct raymarching keeping all density inside bounds?
     if(dScene < 0.) {
         float3 norm = normal(pos);
         vel -= 2. * norm * dot(norm, vel);
