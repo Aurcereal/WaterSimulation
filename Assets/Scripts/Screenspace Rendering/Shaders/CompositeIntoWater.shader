@@ -86,7 +86,7 @@ Shader "Unlit/CompositeIntoWater"
             samplerCUBE EnvironmentMap;
 
             float3 SampleSkybox(float3 rd) {
-                return LightMultiplier*texCUBE(EnvironmentMap, rd);
+                return LightMultiplier*texCUBE(EnvironmentMap, rd).rgb;
             }
 
             float3 SampleEnvironment(float3 ro, float3 rd) {
