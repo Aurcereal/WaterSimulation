@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     public CameraController camController;
 
     public ScreenSpaceWaterManager screenSpaceManager;
+    public SimulationFoamParticleManager simFoamManager;
 
     void Start()
     {
@@ -61,9 +62,11 @@ public class GameManager : MonoBehaviour
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
 
         if (EnableRaymarchShader)
-                screenSpaceManager.OnDisable();
-            else
-                screenSpaceManager.OnEnable();
+            screenSpaceManager.OnDisable();
+        else
+            screenSpaceManager.OnEnable();
+
+        simFoamManager = new();
     }
 
     int counter = 1;

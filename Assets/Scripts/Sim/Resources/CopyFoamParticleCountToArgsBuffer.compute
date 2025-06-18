@@ -1,0 +1,11 @@
+#pragma kernel CopyFoamParticleCountToArgsBuffer
+
+RWStructuredBuffer<uint> argsBuffer;
+StructuredBuffer<uint> foamParticleCounts;
+
+[numthreads(1, 1, 1)]
+void CopyFoamParticleCountToArgsBuffer(uint3 id : SV_DispatchThreadID) { 
+    if(id.x >= 1) return;
+
+    argsBuffer[1] = foamParticleCounts[1];
+}

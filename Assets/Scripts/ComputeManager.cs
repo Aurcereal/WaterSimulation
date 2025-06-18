@@ -13,6 +13,7 @@ public class ComputeManager
     // Shaders
     public ComputeShader particleSimulatorShader;
     public ComputeShader bitonicSortForwardShader;
+    public ComputeShader copyFoamParticleCountToArgsBufferShader;
 
     // Physics
     public ComputeBuffer positionBuffer;
@@ -32,25 +33,36 @@ public class ComputeManager
     public ComputeBuffer particleCellKeyEntryBuffer;
     public ComputeBuffer cellKeyToStartCoordBuffer;
 
+    //
+    public ComputeBuffer updatingFoamParticles;
+    public ComputeBuffer survivingFoamParticles;
+    public ComputeBuffer foamParticleCounts;
+
     public ComputeManager()
     {
         particleSimulatorShader = ComputeHelper.FindInResourceFolder("ParticleSimulator");
         bitonicSortForwardShader = ComputeHelper.FindInResourceFolder("BitonicSortForward");
+        copyFoamParticleCountToArgsBufferShader = ComputeHelper.FindInResourceFolder("CopyFoamParticleCountToArgsBuffer");
 
         positionBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
         predictedPositionBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
         velocityBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
-        
+
         massBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         densityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         nearDensityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
 
-        if(EnableParticleSprings) springRestLengthBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount * ParticleCount);
+        if (EnableParticleSprings) springRestLengthBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount * ParticleCount);
 
         colorBuffer = ComputeHelper.CreateBuffer<Color>(ParticleCount);
 
         particleCellKeyEntryBuffer = ComputeHelper.CreateBuffer<ParticleEntry>(ParticleCount);
         cellKeyToStartCoordBuffer = ComputeHelper.CreateBuffer<int>(SpatialLookupSize);
+
+        //
+        updatingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
+        survivingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
+        foamParticleCounts = ComputeHelper.CreateBuffer<uint>(2);
     }
 
     public void Destructor()
@@ -62,9 +74,12 @@ public class ComputeManager
             massBuffer,
             densityBuffer,
             nearDensityBuffer,
+            colorBuffer,
             particleCellKeyEntryBuffer,
             cellKeyToStartCoordBuffer,
-            colorBuffer
+            updatingFoamParticles,
+            survivingFoamParticles,
+            foamParticleCounts
         );
 
         springRestLengthBuffer?.Dispose();

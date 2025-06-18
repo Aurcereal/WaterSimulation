@@ -13,6 +13,10 @@
 
 #pragma kernel CacheDensities
 
+#pragma kernel SpawnFoamParticles
+#pragma kernel UpdateFoamParticles
+#pragma kernel MoveSurvivingFoamParticlesToUpdatingBuffer
+
 //
 RWStructuredBuffer<float3> positions;
 RWStructuredBuffer<float3> predictedPositions;
@@ -494,4 +498,39 @@ void CacheDensities(uint3 id : SV_DispatchThreadID) {
     float3 worldPos = mul(ContainerTransform, float4(untransformedP, 1.0)).xyz;
 
     DensityTexture[id] = CalculateDensity(worldPos);
+}
+
+#include "./FoamParticles.hlsl"
+
+[numthreads(THREADGROUPSIZE, 1, 1)]
+void SpawnFoamParticles(uint3 id : SV_DispatchThreadID) {
+    int i = id.x;
+    if(i >= ParticleCount) return;
+
+    if(i == 0) 
+        foamParticleCounts[1] = 0;
+
+    // temp condition
+    if(i >= 4 && i <= 20) {
+        SpawnFoamParticle(positions[i]);
+    }
+}
+
+[numthreads(THREADGROUPSIZE, 1, 1)]
+void UpdateFoamParticles(uint3 id : SV_DispatchThreadID) {
+    uint i = id.x;
+    if(i >= foamParticleCounts[0]) return;
+
+    UpdateFoamParticle(i, DeltaTime);
+}
+
+[numthreads(THREADGROUPSIZE, 1, 1)]
+void MoveSurvivingFoamParticlesToUpdatingBuffer(uint3 id : SV_DispatchThreadID) {
+    uint i = id.x;
+    if(i >= foamParticleCounts[1]) return;
+
+    if(i == 0)
+        foamParticleCounts[0] = foamParticleCounts[1];
+
+    updatingFoamParticles[i] = survivingFoamParticles[i];
 }

@@ -45,3 +45,8 @@ Seb Lague Vid
 - Sim Parameters has 'Initialization' header section with particle count, spawn zone... etc... and whether to use springs (so we can avoid creating big buffer sometimes)
 - Rectangle w/ Arb transform Collision (or just sdfs lol)
 - Try SDF stickiness (Clavet 6.2 maybe can ignore fact that my collision resolution is very simpler just add sticky force)
+
+-=-=-=-
+
+Different buttons linking to different parts of same page
+Emphasize compute shader stuff and graphics programming related stuff, optimizations and realtime gpu utilization stufff

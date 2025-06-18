@@ -40,6 +40,10 @@ public class SimulationUpdater
         if (EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths");
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
+        GameManager.Ins.simFoamManager.SpawnFoamParticles();
+        GameManager.Ins.simFoamManager.UpdateFoamParticles();
+        GameManager.Ins.simFoamManager.MoveSurvivingFoamParticlesToUpdatingBuffer();
+        GameManager.Ins.simFoamManager.UpdateFoamArgsBuffer();
         //testspatialhash();
         //testdensities();
     }

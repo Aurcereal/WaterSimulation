@@ -35,8 +35,10 @@ public class SimulationInitializer
         var masses = new float[ParticleCount];
         var densities = new float[ParticleCount];
         var nearDensities = new float[ParticleCount];
-        
+
         var colors = new Color[ParticleCount];
+
+        var foamParticleCounts = new uint[] { 0, 0 };
 
         for (int i = 0; i < positions.Length; i++)
         {
@@ -73,6 +75,8 @@ public class SimulationInitializer
 
         GameManager.Ins.computeManager.particleCellKeyEntryBuffer.SetData(partIDCellKeyPairs);
         GameManager.Ins.computeManager.cellKeyToStartCoordBuffer.SetData(keyToStartCoord);
+
+        GameManager.Ins.computeManager.foamParticleCounts.SetData(foamParticleCounts);
 
     }
 

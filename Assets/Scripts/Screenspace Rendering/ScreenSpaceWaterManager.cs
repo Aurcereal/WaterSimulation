@@ -23,6 +23,8 @@ public class ScreenSpaceWaterManager
     Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
     Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
 
+    Material foamParticle3DMaterial = new Material(Shader.Find("Unlit/FoamParticleDebug"));
+
     //
     public GaussianBlurManager blurManager;
 
@@ -59,6 +61,9 @@ public class ScreenSpaceWaterManager
         particleAdditiveDensityMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
         particleAdditiveDensityMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
 
+        foamParticle3DMaterial.enableInstancing = true;
+        foamParticle3DMaterial.SetBuffer("foamParticleBuffer", GameManager.Ins.computeManager.survivingFoamParticles);
+
         commandBuffer = new();
         blurManager = new();
 
@@ -83,6 +88,7 @@ public class ScreenSpaceWaterManager
         particle3DMaterial.SetFloat("_Radius", ParticleRadius);
         particleSphereDepthMaterial.SetFloat("_Radius", ParticleRadius);
         particleAdditiveDensityMaterial.SetFloat("_Radius", ParticleRadius);
+        foamParticle3DMaterial.SetFloat("_Radius", ParticleRadius);
 
         depthTextureToNormals.SetFloat("DepthDifferenceCutoff", DepthDifferenceCutoffForNormals);
 
@@ -119,8 +125,8 @@ public class ScreenSpaceWaterManager
 
         // Draw particle depths
         commandBuffer.SetRenderTarget(depthTex);
-        commandBuffer.ClearRenderTarget(true, true, Color.white * 100000.0f); // We're using distAlongCam so have to make initial depth very large
-        commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
+        commandBuffer.ClearRenderTarget(true, true, Color.black * 100000.0f);// commandBuffer.ClearRenderTarget(true, true, Color.white * 100000.0f); // We're using distAlongCam so have to make initial depth very large
+        GameManager.Ins.simFoamManager.Draw(commandBuffer, foamParticle3DMaterial);//commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
 
         // Draw thickness/density texture
         commandBuffer.SetRenderTarget(densityTex);
@@ -134,7 +140,7 @@ public class ScreenSpaceWaterManager
         commandBuffer.Blit(smoothedDepthTex, normalTex, depthTextureToNormals);
 
         //
-        commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
+        commandBuffer.Blit(depthTex, MainCamera.targetTexture);//commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
 
     }
 }

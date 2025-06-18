@@ -79,7 +79,8 @@ public static class ComputeHelper
         }
     }
 
-    public enum DepthMode {
+    public enum DepthMode
+    {
         DepthNone = 0,
         Depth16 = 16,
         Depth24 = 24,
@@ -131,5 +132,20 @@ public static class ComputeHelper
         {
             return oldTexture;
         }
+    }
+
+    public static ComputeBuffer CreateArgsBuffer(Mesh mesh, int subMeshIndex, uint initialIndexCount)
+    {
+        uint[] args = {
+            mesh.GetIndexCount(subMeshIndex),
+            initialIndexCount,
+            mesh.GetIndexStart(subMeshIndex),
+            mesh.GetBaseVertex(subMeshIndex),
+            0
+        };
+
+        ComputeBuffer buf = CreateBuffer<uint>(5);
+        buf.SetData(args);
+        return buf;
     }
 }

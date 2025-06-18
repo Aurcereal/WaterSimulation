@@ -82,6 +82,8 @@ public class SimulationParameters : MonoBehaviour
     public static float3 ScreenSpaceExtinctionCoefficients => Ins.screenSpaceExtinctionCoefficients;
     public static float ScreenSpaceLightMultiplier => Ins.screenSpaceLightMultiplier;
 
+    public static int MaxFoamParticleCount => Ins.maxFoamParticleCount;
+
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
@@ -158,6 +160,8 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float3 screenSpaceExtinctionCoefficients = 1.0f;
     [Range(0.005f, 100.0f)][SerializeField] float screenSpaceLightMultiplier = 1f;
 
+    [Header("Foam")]
+    [SerializeField] int maxFoamParticleCount = 1048576;
 
     [Header("Camera Controller Parameters")]
     [SerializeField] float2 cameraRotateSpeed;

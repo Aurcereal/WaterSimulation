@@ -64,6 +64,19 @@ public class SimulationUniformer
                 "CacheDensities"
                     });
         }
+
+        particleSimulatorShader.SetBuffer("positions", computeManager.positionBuffer, "SpawnFoamParticles");
+
+        particleSimulatorShader.SetBuffers(new (string, ComputeBuffer)[] {
+            ("updatingFoamParticles", computeManager.updatingFoamParticles),
+            ("survivingFoamParticles", computeManager.survivingFoamParticles),
+            ("foamParticleCounts", computeManager.foamParticleCounts)
+        },
+            new string[] {
+            "SpawnFoamParticles",
+            "UpdateFoamParticles",
+            "MoveSurvivingFoamParticlesToUpdatingBuffer"
+            });
     }
 
     public void UniformAllParameters()
@@ -101,10 +114,8 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("MaxStickDistance", MaxStickDistance);
         particleSimulatorShader.SetFloat("StickForceMultiplier", StickForceMultiplier);
 
-        // particleSimulatorShader.SetVector("ObstacleDimensions", (Vector2) ObstacleDimensions);
-        // particleSimulatorShader.SetVector("ObstaclePosition", (Vector2) ObstaclePosition);
-        // particleSimulatorShader.SetFloat("ObstacleRotation", ObstacleRotation);
-        // particleSimulatorShader.SetBool("IsObstacleBox", IsObstacleBox);
+        //
+        particleSimulatorShader.SetInt("MaxFoamParticleCount", MaxFoamParticleCount);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);
