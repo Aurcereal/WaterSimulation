@@ -1,29 +1,33 @@
 // Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
-Shader "Unlit/ParticleAdditiveDensity"
+Shader "Unlit/FoamParticle"
 {
     Properties
     {
-        _Radius ("Radius", Float) = 1.0
     }
     SubShader
     {
-        Tags { "Queue"="Transparent" "RenderType"="Transparent" "IgnoreProjector"="True" }
+        Tags { "Queue" = "Geometry" }
         LOD 100
-        ZWrite Off
+        ZWrite On 
 
         Pass
         {
-            Blend One One
-
             CGPROGRAM
             #pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_instancing
             #pragma editor_sync_compilation
 			#pragma target 4.5
+            #include "UnityCG.cginc" // debug no need
 
-            StructuredBuffer<float3> positionBuffer;
+            struct FoamParticle {
+                float3 position;
+                float3 velocity;
+                float remainingLifetime;
+            };
+
+            StructuredBuffer<FoamParticle> foamParticleBuffer;
 
             struct vIn
             {
@@ -38,8 +42,6 @@ Shader "Unlit/ParticleAdditiveDensity"
                 float3 worldPos : TEXCOORD1;
             };
 
-            float _Radius;
-
             vOut vert (vIn v, uint instanceID : SV_InstanceID)
             {
                 vOut o;
@@ -47,9 +49,9 @@ Shader "Unlit/ParticleAdditiveDensity"
                 float3 camRi = unity_CameraToWorld._m00_m10_m20; // Row major
                 float3 camUp = unity_CameraToWorld._m01_m11_m21;
 
-                float3 objectPos = v.vertex.xyz * _Radius;
+                float3 objectPos = v.vertex.xyz * 1.;
                 objectPos = objectPos.x * camRi + objectPos.y * camUp; // Orient towards cam
-                float3 worldPos = objectPos + positionBuffer[instanceID];
+                float3 worldPos = objectPos + foamParticleBuffer[instanceID].position;
                 o.worldPos = worldPos;
                 o.vertex = mul(UNITY_MATRIX_VP, float4(worldPos, 1.));
 
@@ -58,18 +60,26 @@ Shader "Unlit/ParticleAdditiveDensity"
                 return o;
             }
 
-            fixed4 frag(vOut i) : SV_Target
+            float LinearDepthToRawDepth(float distAlongCam)
+            {
+                // https://www.vertexfragment.com/ramblings/unity-custom-depth/
+                float linearDepth = (distAlongCam - _ProjectionParams.y) / (_ProjectionParams.z - _ProjectionParams.y); // .y is near plane .z is far plane
+                return (1.0f - (linearDepth * _ZBufferParams.y)) / (linearDepth * _ZBufferParams.x);
+            }
+
+            fixed4 frag(vOut i, out float Depth : SV_Depth) : SV_Target
             {
                 float2 p = i.uv*2.0-1.0;
                 float sqrDist = dot(p, p);
 
                 if(sqrDist >= 1.0) discard;
 
-                //
-                float sphereZ = _Radius * sqrt(1.-sqrDist);
+                // Depth
+                float distAlongCam = -mul(UNITY_MATRIX_V, float4(i.worldPos, 1.)).z;
+                Depth = LinearDepthToRawDepth(distAlongCam);
 
-                // maybe make spherical depth, like get the z val of sphere.. check seb lague mabe
-                return sphereZ*0.1; //0.001
+                //
+                return float4(1.,Depth,distAlongCam,1.);
             }
             ENDCG
         }

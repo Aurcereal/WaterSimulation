@@ -45,6 +45,7 @@ Shader "Unlit/CompositeIntoWater"
             sampler2D SmoothedDepthTex;
             sampler2D NormalTex;
             sampler2D DensityTex;
+            sampler2D FoamTex;
 
             const float FovY;
             const float Aspect;
@@ -71,10 +72,10 @@ Shader "Unlit/CompositeIntoWater"
                 return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
             }
 
-            float3 GetPosFromDepthTexture(float2 uv) {
+            float3 GetPosFromDepthTexture(float2 uv, out float distAlongRay) {
                 float3 rd = Raycast(uv);
                 float distAlongCam = tex2D(SmoothedDepthTex, uv).r;
-                float distAlongRay = distAlongCam / dot(rd, CamFo);
+                distAlongRay = distAlongCam / dot(rd, CamFo);
                 float3 pos = CamPos + rd*distAlongRay;
                 return pos;
             }
@@ -129,7 +130,11 @@ Shader "Unlit/CompositeIntoWater"
                 return baseReflectance + (1.0 - baseReflectance) * x*x*x*x*x;
             }
 
-            float3 ShadeWater(float3 rd, float3 pos, float3 norm, float densityAlongRd) {
+            float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam) {
+                const float3 FoamColor = 1.; // temp
+
+                if(distAlongRayToFoam < distAlongRayToWater) return FoamColor; // Foam before water
+
                 float ior = 1./IndexOfRefraction; // Screen Space Technique would only work outside water I think
 
                 float3 reflectRay = Reflect(-rd, norm);
@@ -146,10 +151,14 @@ Shader "Unlit/CompositeIntoWater"
                 float3 refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
 
                 float3 reflectExitPoint = pos + norm*0.0005;
-                float3 refractExitPoint = pos + refractRay * densityAlongRd; // Bad approx, can use a multiplier
+
+                float distToWaterEnd = densityAlongRd; // Bad approx, can use a multiplier
+                float distToFoam = distAlongRayToFoam - distAlongRayToWater;
+
+                float3 refractExitPoint = pos + refractRay * min(distToWaterEnd, distToFoam);
+                float3 refractLi = distAlongRayToFoam >= 100000.0 ? SampleEnvironment(refractExitPoint, refractRay) : FoamColor;
 
                 float3 reflectLi = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
-                float3 refractLi = SampleEnvironment(refractExitPoint, refractRay);
 
                 float3 lo = reflectTransmittance * reflectLi +
                             refractTransmittance * refractLi;
@@ -159,14 +168,17 @@ Shader "Unlit/CompositeIntoWater"
 
             fixed4 frag(vOut i) : SV_Target
             {
+                const float3 FoamColor = 1.; // temp
 
                 float3 rd = Raycast(i.uv);
-                float3 pos = GetPosFromDepthTexture(i.uv);
+                float distAlongRay;
+                float3 pos = GetPosFromDepthTexture(i.uv, distAlongRay);
                 float4 norm = tex2D(NormalTex, i.uv);
                 float accumDensityAlongRay = tex2D(DensityTex, i.uv).x;
-                if(norm.a == 0.) return float4(SampleSkybox(rd), 1.);
+                float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo);
+                if(norm.a == 0.) return float4(distAlongRayToFoam >= 100000.0 ? SampleSkybox(rd) : FoamColor, 1.);
 
-                float3 accumLight = ShadeWater(rd, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay);
+                float3 accumLight = ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam);
                 float3 col = accumLight;//pow(accumLight/(1.+accumLight),1./2.2);
 
                 return float4(col, 1.0);

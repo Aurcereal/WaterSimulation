@@ -229,7 +229,7 @@ MonoBehaviour:
   waterExistenceThreshold: 0.3
   waterExistenceEps: 0.01
   nextRayOffset: 0.01
-  environmentMap: {fileID: 8900000, guid: f4901bebe85413b4eb78ac7571f05385, type: 3}
+  environmentMap: {fileID: 8900000, guid: 91231629c1b2627498c11ce1f7109c97, type: 3}
   depthWorldBlurRadius: 70
   depthBlurBilteralFalloff: 1
   depthBlurIterationCount: 2
@@ -239,7 +239,7 @@ MonoBehaviour:
     x: 5
     y: 2
     z: 1
-  screenSpaceLightMultiplier: 1
+  screenSpaceLightMultiplier: 1.4
   maxFoamParticleCount: 1048576
   cameraRotateSpeed:
     x: 1
