@@ -84,7 +84,7 @@ public class ScreenSpaceWaterManager
         foamTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
 
         // TODO: take out depth tex see if it needs it
-        densityTex = ComputeHelper.CreateRenderTexture2D((int2) (densityTexResolutionPercentage * float2(Screen.width, Screen.height)), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
+        densityTex = ComputeHelper.CreateRenderTexture2D((int2)(densityTexResolutionPercentage * float2(Screen.width, Screen.height)), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
 
         UniformParametersAndTextures();
 
@@ -98,7 +98,7 @@ public class ScreenSpaceWaterManager
         particle3DMaterial.SetFloat("_Radius", ParticleRadius);
         particleSphereDepthMaterial.SetFloat("_Radius", ParticleRadius);
         particleAdditiveDensityMaterial.SetFloat("_Radius", ParticleRadius);
-        foamParticle3DMaterial.SetFloat("_Radius", ParticleRadius);
+        foamParticle3DMaterial.SetFloat("_Radius", ParticleRadius); // TODO: make radius global param
 
         depthTextureToNormals.SetFloat("DepthDifferenceCutoff", DepthDifferenceCutoffForNormals);
 
@@ -111,7 +111,7 @@ public class ScreenSpaceWaterManager
         //
         compositeIntoWater.SetFloat("DensityMultiplier", ScreenSpaceDensityMultiplier);
         compositeIntoWater.SetFloat("LightMultiplier", ScreenSpaceLightMultiplier);
-        compositeIntoWater.SetVector("ExtinctionCoefficients", (Vector3) ScreenSpaceExtinctionCoefficients);
+        compositeIntoWater.SetVector("ExtinctionCoefficients", (Vector3)ScreenSpaceExtinctionCoefficients);
         compositeIntoWater.SetFloat("IndexOfRefraction", IndexOfRefraction);
         //compositeIntoWater.SetVector("LightDir", (Vector3)LightDir);
         //compositeIntoWater.SetFloat("NextRayOffset", NextRayOffset);
@@ -159,5 +159,15 @@ public class ScreenSpaceWaterManager
         //
         commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
 
+    }
+
+    public void DebugDrawSpheres()
+    {
+        commandBuffer.Clear();
+
+        // Draw particle depths
+        commandBuffer.SetRenderTarget(MainCamera.targetTexture);
+        commandBuffer.ClearRenderTarget(true, true, Color.black);
+        commandBuffer.DrawMeshInstancedProcedural(SphereMesh, 0, particle3DMaterial, 0, ParticleCount);
     }
 }

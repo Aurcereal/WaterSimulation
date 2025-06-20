@@ -76,6 +76,15 @@ const float MouseForceSign;
 const float2 MousePosition;
 
 //
+const float TrappedAirPotentialRemapLow;
+const float TrappedAirPotentialRemapHigh;
+
+const float TrappedAirMultiplier;
+
+const float KineticPotentialRemapLow;
+const float KineticPotentialRemapHigh;
+
+//
 #include "./MathHelper.hlsl"
 #include "./ParticleMath3D.hlsl"
 #include "./SpatialHash3D.hlsl"
@@ -205,7 +214,7 @@ float NearDensityToPressure(float nearDensity)
 }
 
 // Pressure force is -PressureGradient since we'll flow from high pressure to low pressure
-float3 CalculatePressureForce(int i)
+float3 CalculatePressureForceAndAirPotential(int i, out float airPotential)
 {
     float3 totalForce = 0.;
 
@@ -214,6 +223,12 @@ float3 CalculatePressureForce(int i)
     int3 currCell;
     int otherParticleIndex;
 
+    float scaledVelocityDiff = 0.;
+
+    float3 vel = velocities[i];
+    float dens = densities[i];
+
+    /// TODO: make this unsafe with a sqrdist check to not do if unnecessary and more optimal math fewer sqrt calculations
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
             for(int z=-1; z<=1; z++) {
@@ -229,16 +244,24 @@ float3 CalculatePressureForce(int i)
 
                         if (i != otherParticleIndex)
                         {
+                            float3 otherPos = predictedPositions[otherParticleIndex];
+                            float dist = length(otherPos - pos);
+
                             totalForce +=
-                                //masses[otherParticleIndex] *
                                 (DensityToPressure(densities[i]) + DensityToPressure(densities[otherParticleIndex])) * 0.5f *
-                                (-SmoothingKernelPow2Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
-                                / densities[i];
+                                (-SmoothingKernelPow2Gradient(SmoothingRadius, otherPos - pos))
+                                / dens;
                             totalForce +=
-                                //masses[otherParticleIndex] *
                                 (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[otherParticleIndex])) * 0.5f *
-                                (-SmoothingKernelPow3Gradient(SmoothingRadius, predictedPositions[otherParticleIndex] - pos))
-                                / densities[i];
+                                (-SmoothingKernelPow3Gradient(SmoothingRadius, otherPos - pos))
+                                / dens;
+
+                            // For WhiteWater (Spray, Foam, Bubbles) - https://cg.informatik.uni-freiburg.de/publications/2012_CGI_sprayFoamBubbles.pdf
+                            float3 velDiff = velocities[otherParticleIndex] - vel;
+                            float velDiffLength = length(velDiff);
+                            float3 velDiffNormalize = velDiff / velDiffLength;
+                            float3 posDiffNormalize = (otherPos - pos) / dist;
+                            scaledVelocityDiff += velDiffLength * (1. - dot(velDiffNormalize, posDiffNormalize)) * max(0., 1. - dist/SmoothingRadius);
                         }
 
                         currIndex++;
@@ -247,6 +270,8 @@ float3 CalculatePressureForce(int i)
             }
         }
     }
+
+    airPotential = clamp((scaledVelocityDiff - TrappedAirPotentialRemapLow) / (TrappedAirPotentialRemapHigh - TrappedAirPotentialRemapLow), 0., 1.);
 
     return totalForce;
 }
@@ -418,6 +443,8 @@ float sdScene(float3 p) {
     return min(dBox, dObstacle);
 }
 
+#include "./FoamParticles.hlsl"
+
 [numthreads(THREADGROUPSIZE, 1,1)]
 void UpdateParticles (uint3 id : SV_DispatchThreadID)
 {
@@ -429,12 +456,21 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float3 vel = velocities[i];
     float dens = densities[i];
 
+    float airPotential;
+
     // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
-    float3 pressureAcceleration = CalculatePressureForce(i) / dens;
+    float3 pressureAcceleration = CalculatePressureForceAndAirPotential(i, airPotential) / dens;
     float3 viscosityAcceleration = CalculateViscosityForce(i) / dens;
     float3 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / dens : 0.;
     float3 stickinessAcceleration = EnableStickForce ? CalculateStickinessForce(i) / dens : 0.;
     float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + springAcceleration + Gravity;
+
+    // Handle Spawning WhiteWater
+    float kineticEnergy = 0.5 * dot(vel, vel);
+    float kineticPotential = clamp((kineticEnergy - KineticPotentialRemapLow) / (KineticPotentialRemapHigh - KineticPotentialRemapLow), 0., 1.);
+    float numSpawn = dt * kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
+    float spd = length(vel);
+    if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn, SmoothingRadius, spd * dt, vel/spd);
 
     vel += a * dt;
     pos += vel * dt;
@@ -448,7 +484,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     }
 
     positions[i] = pos;
-    colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0., 7.5, length(velocities[i])));//smoothstep(0.5, 1.5, length(EvaluateExistenceGradient(positions[i], -1))));//length(velocities[i])));
+    colors[i] = float4(hash31(pos) < frac(numSpawn) ? 0. : 1., 1., 0., 1.);//float4(kineticPotential * (TrappedAirMultiplier * airPotential), 1., 0.,1.);//colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0., 7.5, length(velocities[i])));//smoothstep(0.5, 1.5, length(EvaluateExistenceGradient(positions[i], -1))));//length(velocities[i])));
     velocities[i] = vel;
 }
 
@@ -500,8 +536,6 @@ void CacheDensities(uint3 id : SV_DispatchThreadID) {
     DensityTexture[id] = CalculateDensity(worldPos);
 }
 
-#include "./FoamParticles.hlsl"
-
 [numthreads(THREADGROUPSIZE, 1, 1)]
 void SpawnFoamParticles(uint3 id : SV_DispatchThreadID) {
     int i = id.x;
@@ -512,7 +546,7 @@ void SpawnFoamParticles(uint3 id : SV_DispatchThreadID) {
 
     // temp condition
     if(i >= 4 && i <= 20) {
-        SpawnFoamParticle(positions[i]);
+        //SpawnFoamParticle(positions[i], float3(0.,1.,0.));
     }
 }
 

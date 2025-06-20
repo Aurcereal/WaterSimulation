@@ -9,18 +9,53 @@ RWStructuredBuffer<FoamParticle> survivingFoamParticles;
 RWStructuredBuffer<uint> foamParticleCounts; // (updatingFoamParticleCount, survivingFoamParticleCount)
 const uint MaxFoamParticleCount;
 
-void SpawnFoamParticle(float3 pos) {
+void SpawnFoamParticle(float3 pos, float3 vel) {
     if(foamParticleCounts[0] >= MaxFoamParticleCount) return; 
 
     FoamParticle particle;
     particle.position = pos;
-    particle.velocity = float3(0.,100.,0.);
+    particle.velocity = vel;
     particle.remainingLifetime = 1.;
 
     int index;
     InterlockedAdd(foamParticleCounts[0], 1, index);
     updatingFoamParticles[index] = particle;
 
+}
+
+void CalculateOrthogonalBasis(float3 fo, out float3 ri, out float3 up) {
+    if (abs(fo.x) > abs(fo.y))
+            ri = float3(-fo.z, 0, fo.x) / sqrt(fo.x * fo.x + fo.z * fo.z);
+        else
+            ri = float3(0, fo.z, -fo.y) / sqrt(fo.y * fo.y + fo.z * fo.z);
+        up = cross(fo, ri);
+}
+
+void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fluidParticleVel, float count, float cylRadius, float cylHeight, float3 fo) {
+    // Fractional component of count will be treated as probability of spawning: count = 3.7 means 3 guaranteed particles and .7 chance of 4th particle
+    int spawnCount = int(floor(count));
+    float fracCount = frac(count);
+
+    float3 randomState = fluidParticlePos + fluidParticleVel + time;
+
+    if(hash31(randomState) < fracCount)
+        ++spawnCount;
+
+    //
+    float3 ri, up;
+    CalculateOrthogonalBasis(fo, ri, up);
+
+    for(int i=0; i<spawnCount; i++) {
+        // randomState = hash33(randomState*100.);
+        
+        // float3 polar = float3(randomState.x * cylRadius, randomState.y * TAU, randomState.z * cylHeight);
+        // float3 cylFloorPos = polar.x * (ri * cos(polar.y) + up * sin(polar.y));
+        // float3 spawnPos = fluidParticlePos + cylFloorPos + polar.z * fo;
+
+        // float3 spawnVel = fluidParticleVel + cylFloorPos;
+
+        SpawnFoamParticle(fluidParticlePos, fluidParticleVel);
+    }
 }
 
 void UpdateFoamParticle(int updatingIndex, float dt) {

@@ -8,7 +8,9 @@ write about optimizations to run in realtime
 
 Seb Lague Vid
 
-- Debug white borders on screen space
+- For Wave Crest we need easy access to normals i guess i can precompute it foreach... even though it'd be kinda expensive?
+	- Well it can be toggleable
+	- Do it all in one loop is nice multiple loops make things worse, can really calculate new normal in the same loop im using the prev normals
 
 - Maybe group water particle into struct with position and velocity
 - Group density and neardensity as a float2 (less reads and writes)
@@ -18,8 +20,9 @@ Seb Lague Vid
 	- count sort type of thing?
 	- Index pointers from particle index to its current index in the particle key pair array
 
+- Foam on Screenspace and Foam on Raymarch (can't refract into foam inside water tho)
 - Shadow
-- Caustics
+- Caustics (nvidia article scroll up)
 - God rays
 
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
@@ -32,6 +35,10 @@ Seb Lague Vid
 - tinted glass could also be really nice, prolly wouldn't be hard since it's just perfect reflect and perfect transmit.. like prolly is extremely similar to water actually mabe with different base reflectance
 
 - Flip fluid implementation mode? downloaded paper on it
+
+- Have presets to choose what type of fluid you want with presets affecting material and sim
+- Preset situations with SDF objects to play with (water slide stuff, fountain with artificial force and stuff would be really cool)
+- Could eventually move to SDY and have water interact with SDF objects there
 
 -=Ignore/Done for now=-
 

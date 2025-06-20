@@ -83,7 +83,6 @@ float SmoothingKernelPow3Unsafe(float dist)
     return val;
 }
 
-
 float3 SmoothingKernelPow3Gradient(float smoothingRadius, float3 fromSample)
 {
     float dist = length(fromSample);

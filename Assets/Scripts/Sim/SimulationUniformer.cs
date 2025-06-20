@@ -73,6 +73,7 @@ public class SimulationUniformer
             ("foamParticleCounts", computeManager.foamParticleCounts)
         },
             new string[] {
+            "UpdateParticles",
             "SpawnFoamParticles",
             "UpdateFoamParticles",
             "MoveSurvivingFoamParticlesToUpdatingBuffer"
@@ -116,6 +117,11 @@ public class SimulationUniformer
 
         //
         particleSimulatorShader.SetInt("MaxFoamParticleCount", MaxFoamParticleCount);
+        particleSimulatorShader.SetFloat("TrappedAirPotentialRemapLow", TrappedAirPotentialRemapLow);
+        particleSimulatorShader.SetFloat("TrappedAirPotentialRemapHigh", TrappedAirPotentialRemapHigh);
+        particleSimulatorShader.SetFloat("TrappedAirMultiplier", TrappedAirMultiplier);
+        particleSimulatorShader.SetFloat("KineticPotentialRemapLow", KineticPotentialRemapLow);
+        particleSimulatorShader.SetFloat("KineticPotentialRemapHigh", KineticPotentialRemapHigh);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);

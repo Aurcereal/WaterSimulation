@@ -14,6 +14,7 @@ public class SimulationParameters : MonoBehaviour
     public static float3 SpawnDimensions => new(Ins.spawnWidth, Ins.spawnHeight, Ins.spawnDepth);
 
     public static float SmoothingRadius => Ins.smoothingRadius;
+    public static Mesh SphereMesh => Ins.sphereMesh;
 
     public static Matrix4x4 ContainerTransform => Ins.containerTransform.transform.localToWorldMatrix;
     public static Matrix4x4 ContainerInverseTransform => Ins.containerTransform.transform.worldToLocalMatrix;
@@ -83,6 +84,11 @@ public class SimulationParameters : MonoBehaviour
     public static float ScreenSpaceLightMultiplier => Ins.screenSpaceLightMultiplier;
 
     public static int MaxFoamParticleCount => Ins.maxFoamParticleCount;
+    public static float TrappedAirPotentialRemapLow => Ins.trappedAirPotentialRemapLow;
+    public static float TrappedAirPotentialRemapHigh => Ins.trappedAirPotentialRemapHigh;
+    public static float TrappedAirMultiplier => Ins.trappedAirMultiplier;
+    public static float KineticPotentialRemapLow => Ins.kineticPotentialRemapLow;
+    public static float KineticPotentialRemapHigh => Ins.kineticPotentialRemapHigh;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -92,6 +98,7 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Misc Parameters")]
     [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
+    [SerializeField] Mesh sphereMesh;
 
     [Header("Box/Obstacle Parameters")]
     [SerializeField] Transform obstacleTransform;
@@ -160,8 +167,13 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float3 screenSpaceExtinctionCoefficients = 1.0f;
     [Range(0.005f, 100.0f)][SerializeField] float screenSpaceLightMultiplier = 1f;
 
-    [Header("Foam")]
+    [Header("Foam, Spray, Bubbles")] // not just foam technically, called the white particles..
     [SerializeField] int maxFoamParticleCount = 1048576;
+    [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapLow = 1.0f;
+    [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapHigh = 4.0f;
+    [Range(0.0f, 200.0f)] [SerializeField] float trappedAirMultiplier = 1.0f;
+    [Range(0.0f, 200.0f)] [SerializeField] float kineticPotentialRemapLow = 1.0f;
+    [Range(0.0f, 200.0f)] [SerializeField] float kineticPotentialRemapHigh = 4.0f;
 
     [Header("Camera Controller Parameters")]
     [SerializeField] float2 cameraRotateSpeed;
