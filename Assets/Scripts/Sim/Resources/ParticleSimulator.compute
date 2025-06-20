@@ -13,7 +13,6 @@
 
 #pragma kernel CacheDensities
 
-#pragma kernel SpawnFoamParticles
 #pragma kernel UpdateFoamParticles
 #pragma kernel MoveSurvivingFoamParticlesToUpdatingBuffer
 
@@ -83,6 +82,12 @@ const float TrappedAirMultiplier;
 
 const float KineticPotentialRemapLow;
 const float KineticPotentialRemapHigh;
+
+const float HighestSprayDensity;
+const float LowestBubbleDensity;
+
+const float BubbleGravityMultiplier;
+const float BubbleFluidConformingMultiplier;
 
 //
 #include "./MathHelper.hlsl"
@@ -443,6 +448,42 @@ float sdScene(float3 p) {
     return min(dBox, dObstacle);
 }
 
+float3 EstimateVelocity(float3 pos) {
+    float3 avgVel = 0.;
+
+    int3 centerCellPos = posToCell(pos);
+    int3 currCell;
+    int particleIndex;
+
+    for(int x=0; x<=0; x++) {
+        for(int y=0; y<=0; y++) {
+            for(int z=0; z<=0; z++) {
+                currCell = centerCellPos + int3(x, y, z);
+
+                int key = getCellKey(currCell);
+                int currIndex = getStartIndex(key);
+
+                if(currIndex != -1) {
+                    while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                        particleIndex = particleCellKeyEntries[currIndex].particleIndex;
+                        
+                        float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
+
+                        if(sqrDist <= SmoothingRadius*SmoothingRadius) {
+                            avgVel += velocities[particleIndex] * SmoothingKernelPow2Unsafe(sqrt(sqrDist)) / densities[particleIndex];
+                        }
+
+                        currIndex++;
+                    }
+                }
+            }
+        }
+    }
+
+    return avgVel;
+}
+
 #include "./FoamParticles.hlsl"
 
 [numthreads(THREADGROUPSIZE, 1,1)]
@@ -466,6 +507,9 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + springAcceleration + Gravity;
 
     // Handle Spawning WhiteWater
+    if(i == 0) 
+        foamParticleCounts[1] = 0; // Need to 'clear' survivor buffer
+
     float kineticEnergy = 0.5 * dot(vel, vel);
     float kineticPotential = clamp((kineticEnergy - KineticPotentialRemapLow) / (KineticPotentialRemapHigh - KineticPotentialRemapLow), 0., 1.);
     float numSpawn = dt * kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
@@ -536,26 +580,23 @@ void CacheDensities(uint3 id : SV_DispatchThreadID) {
     DensityTexture[id] = CalculateDensity(worldPos);
 }
 
-[numthreads(THREADGROUPSIZE, 1, 1)]
-void SpawnFoamParticles(uint3 id : SV_DispatchThreadID) {
-    int i = id.x;
-    if(i >= ParticleCount) return;
-
-    if(i == 0) 
-        foamParticleCounts[1] = 0;
-
-    // temp condition
-    if(i >= 4 && i <= 20) {
-        //SpawnFoamParticle(positions[i], float3(0.,1.,0.));
-    }
-}
-
+// TODO: rename cuz it's not just foam particles it's white particles comprised of spray, foam, bubbles
 [numthreads(THREADGROUPSIZE, 1, 1)]
 void UpdateFoamParticles(uint3 id : SV_DispatchThreadID) {
     uint i = id.x;
     if(i >= foamParticleCounts[0]) return;
 
-    UpdateFoamParticle(i, DeltaTime);
+    float3 pos = updatingFoamParticles[i].position;
+    float dens = CalculateDensity(pos);
+
+    // What type of particle is it this frame? TODO: To optimize could change classifications once every few frames or only do some particles per frame
+    if(dens <= HighestSprayDensity) {
+        UpdateSprayParticle(i, DeltaTime);
+    } else if(dens >= LowestBubbleDensity) {
+        UpdateBubbleParticle(i, DeltaTime);
+    } else {
+        UpdateFoamParticle(i, DeltaTime);
+    }
 }
 
 [numthreads(THREADGROUPSIZE, 1, 1)]

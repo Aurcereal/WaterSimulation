@@ -27,11 +27,6 @@ public class SimulationFoamParticleManager
         GameManager.Ins.computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("foamParticleCounts", GameManager.Ins.computeManager.foamParticleCounts, "CopyFoamParticleCountToArgsBuffer");
     }
 
-    public void SpawnFoamParticles()
-    {
-        ComputeHelper.Dispatch(GameManager.Ins.computeManager.particleSimulatorShader, ParticleCount, 1, 1, "SpawnFoamParticles");
-    }
-
     public void UpdateFoamParticles()
     {
         ComputeHelper.Dispatch(GameManager.Ins.computeManager.particleSimulatorShader, MaxFoamParticleCount, 1, 1, "UpdateFoamParticles");

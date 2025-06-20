@@ -61,11 +61,10 @@ public class SimulationUniformer
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
                 "UpdateParticles",
-                "CacheDensities"
+                "CacheDensities",
+                "UpdateFoamParticles"
                     });
         }
-
-        particleSimulatorShader.SetBuffer("positions", computeManager.positionBuffer, "SpawnFoamParticles");
 
         particleSimulatorShader.SetBuffers(new (string, ComputeBuffer)[] {
             ("updatingFoamParticles", computeManager.updatingFoamParticles),
@@ -74,7 +73,6 @@ public class SimulationUniformer
         },
             new string[] {
             "UpdateParticles",
-            "SpawnFoamParticles",
             "UpdateFoamParticles",
             "MoveSurvivingFoamParticlesToUpdatingBuffer"
             });
@@ -122,6 +120,10 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("TrappedAirMultiplier", TrappedAirMultiplier);
         particleSimulatorShader.SetFloat("KineticPotentialRemapLow", KineticPotentialRemapLow);
         particleSimulatorShader.SetFloat("KineticPotentialRemapHigh", KineticPotentialRemapHigh);
+        particleSimulatorShader.SetFloat("HighestSprayDensity", HighestSprayDensity);
+        particleSimulatorShader.SetFloat("LowestBubbleDensity", LowestBubbleDensity);
+        particleSimulatorShader.SetFloat("BubbleGravityMultiplier", BubbleGravityMultiplier);
+        particleSimulatorShader.SetFloat("BubbleFluidConformingMultiplier", BubbleFluidConformingMultiplier);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);

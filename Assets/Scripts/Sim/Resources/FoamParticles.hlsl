@@ -15,7 +15,7 @@ void SpawnFoamParticle(float3 pos, float3 vel) {
     FoamParticle particle;
     particle.position = pos;
     particle.velocity = vel;
-    particle.remainingLifetime = 1.;
+    particle.remainingLifetime = 1.; // TODO: parametrizeable or smth idk lifetime has more specifications
 
     int index;
     InterlockedAdd(foamParticleCounts[0], 1, index);
@@ -60,6 +60,41 @@ void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fl
 
 void UpdateFoamParticle(int updatingIndex, float dt) {
     FoamParticle particle = updatingFoamParticles[updatingIndex];
+
+    // Update velocity
+    particle.velocity = EstimateVelocity(particle.position);
+
+    particle.position += particle.velocity * dt;
+    particle.remainingLifetime -= dt;
+
+    if(particle.remainingLifetime > 0.) {
+        int index;
+        InterlockedAdd(foamParticleCounts[1], 1, index);
+        survivingFoamParticles[index] = particle;
+    }
+}
+
+void UpdateSprayParticle(int updatingIndex, float dt) {
+    FoamParticle particle = updatingFoamParticles[updatingIndex];
+
+    // Update velocity
+    particle.velocity += dt * Gravity; // Can add external forces too
+
+    particle.position += particle.velocity * dt;
+    particle.remainingLifetime -= dt;
+
+    if(particle.remainingLifetime > 0.) {
+        int index;
+        InterlockedAdd(foamParticleCounts[1], 1, index);
+        survivingFoamParticles[index] = particle;
+    }
+}
+
+void UpdateBubbleParticle(int updatingIndex, float dt) {
+    FoamParticle particle = updatingFoamParticles[updatingIndex];
+
+    // Update velocity
+    particle.velocity += dt * BubbleGravityMultiplier * (-Gravity) + BubbleFluidConformingMultiplier * (EstimateVelocity(particle.position) - particle.velocity);
 
     particle.position += particle.velocity * dt;
     particle.remainingLifetime -= dt;
