@@ -242,11 +242,12 @@ MonoBehaviour:
     z: 1
   screenSpaceLightMultiplier: 1.4
   maxFoamParticleCount: 1048576
-  trappedAirPotentialRemapLow: 0.4
-  trappedAirPotentialRemapHigh: 9
-  trappedAirMultiplier: 0.001
-  kineticPotentialRemapLow: 5
+  trappedAirPotentialRemapLow: 2
+  trappedAirPotentialRemapHigh: 14
+  trappedAirMultiplier: 5
+  kineticPotentialRemapLow: 17
   kineticPotentialRemapHigh: 31
+  foamScaleMultiplier: 0.05
   cameraRotateSpeed:
     x: 1
     y: 1

@@ -28,6 +28,7 @@ Shader "Unlit/FoamParticle"
             };
 
             StructuredBuffer<FoamParticle> foamParticleBuffer;
+            float FoamScaleMultiplier;
 
             struct vIn
             {
@@ -45,13 +46,15 @@ Shader "Unlit/FoamParticle"
             vOut vert (vIn v, uint instanceID : SV_InstanceID)
             {
                 vOut o;
+
+                FoamParticle foamParticle = foamParticleBuffer[instanceID];
                 
                 float3 camRi = unity_CameraToWorld._m00_m10_m20; // Row major
                 float3 camUp = unity_CameraToWorld._m01_m11_m21;
 
-                float3 objectPos = v.vertex.xyz * 1.;
+                float3 objectPos = v.vertex.xyz * foamParticle.remainingLifetime * FoamScaleMultiplier;
                 objectPos = objectPos.x * camRi + objectPos.y * camUp; // Orient towards cam
-                float3 worldPos = objectPos + foamParticleBuffer[instanceID].position;
+                float3 worldPos = objectPos + foamParticle.position;
                 o.worldPos = worldPos;
                 o.vertex = mul(UNITY_MATRIX_VP, float4(worldPos, 1.));
 

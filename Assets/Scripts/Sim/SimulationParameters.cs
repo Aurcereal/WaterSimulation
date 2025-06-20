@@ -89,6 +89,7 @@ public class SimulationParameters : MonoBehaviour
     public static float TrappedAirMultiplier => Ins.trappedAirMultiplier;
     public static float KineticPotentialRemapLow => Ins.kineticPotentialRemapLow;
     public static float KineticPotentialRemapHigh => Ins.kineticPotentialRemapHigh;
+    public static float FoamScaleMultiplier => Ins.foamScaleMultiplier;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -174,6 +175,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.0f, 200.0f)] [SerializeField] float trappedAirMultiplier = 1.0f;
     [Range(0.0f, 200.0f)] [SerializeField] float kineticPotentialRemapLow = 1.0f;
     [Range(0.0f, 200.0f)] [SerializeField] float kineticPotentialRemapHigh = 4.0f;
+    [Range(0.0f, 200.0f)][SerializeField] float foamScaleMultiplier = 1.0f;
 
     [Header("Camera Controller Parameters")]
     [SerializeField] float2 cameraRotateSpeed;

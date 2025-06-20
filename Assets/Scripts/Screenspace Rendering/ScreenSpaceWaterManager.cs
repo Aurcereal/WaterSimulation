@@ -113,8 +113,9 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetFloat("LightMultiplier", ScreenSpaceLightMultiplier);
         compositeIntoWater.SetVector("ExtinctionCoefficients", (Vector3)ScreenSpaceExtinctionCoefficients);
         compositeIntoWater.SetFloat("IndexOfRefraction", IndexOfRefraction);
-        //compositeIntoWater.SetVector("LightDir", (Vector3)LightDir);
-        //compositeIntoWater.SetFloat("NextRayOffset", NextRayOffset);
+
+        //
+        foamParticleBillboardMaterial.SetFloat("FoamScaleMultiplier", FoamScaleMultiplier);
     }
 
     public void OnEnable()

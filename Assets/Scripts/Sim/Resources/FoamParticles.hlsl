@@ -46,15 +46,15 @@ void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fl
     CalculateOrthogonalBasis(fo, ri, up);
 
     for(int i=0; i<spawnCount; i++) {
-        // randomState = hash33(randomState*100.);
+        randomState = hash33(randomState*100.);
         
-        // float3 polar = float3(randomState.x * cylRadius, randomState.y * TAU, randomState.z * cylHeight);
-        // float3 cylFloorPos = polar.x * (ri * cos(polar.y) + up * sin(polar.y));
-        // float3 spawnPos = fluidParticlePos + cylFloorPos + polar.z * fo;
+        float3 polar = float3(randomState.x * cylRadius, randomState.y * TAU, randomState.z * cylHeight);
+        float3 cylFloorPos = polar.x * (ri * cos(polar.y) + up * sin(polar.y));
+        float3 spawnPos = fluidParticlePos + cylFloorPos + polar.z * fo;
 
-        // float3 spawnVel = fluidParticleVel + cylFloorPos;
+        float3 spawnVel = fluidParticleVel + cylFloorPos;
 
-        SpawnFoamParticle(fluidParticlePos, fluidParticleVel);
+        SpawnFoamParticle(spawnPos, spawnVel);
     }
 }
 
