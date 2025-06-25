@@ -17,6 +17,7 @@ public class SimulationFoamParticleManager
         float3 position;
         float3 velocity;
         float remainingLifetime;
+        int debugType;
     }
 
     public SimulationFoamParticleManager()

@@ -24,6 +24,7 @@ Shader "Unlit/FoamParticleDebug"
                 float3 position;
                 float3 velocity;
                 float remainingLifetime;
+                int debugType;
             };
 
             StructuredBuffer<FoamParticle> foamParticleBuffer;

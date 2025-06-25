@@ -89,6 +89,10 @@ const float LowestBubbleDensity;
 const float BubbleGravityMultiplier;
 const float BubbleFluidConformingMultiplier;
 
+const float SprayAirDragMultiplier;
+
+const float TimeSinceStart;
+
 //
 #include "./MathHelper.hlsl"
 #include "./ParticleMath3D.hlsl"
@@ -470,7 +474,7 @@ float3 EstimateVelocity(float3 pos) {
                         
                         float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
 
-                        if(sqrDist <= SmoothingRadius*SmoothingRadius) {
+                        if(sqrDist <= SmoothingRadius*SmoothingRadius) { return velocities[particleIndex]; // TEMP TODO: TAKE OUT
                             avgVel += velocities[particleIndex] * SmoothingKernelPow2Unsafe(sqrt(sqrDist)) / densities[particleIndex];
                         }
 
@@ -514,7 +518,8 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float kineticPotential = clamp((kineticEnergy - KineticPotentialRemapLow) / (KineticPotentialRemapHigh - KineticPotentialRemapLow), 0., 1.);
     float numSpawn = dt * kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
     float spd = length(vel);
-    if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn, SmoothingRadius, spd * dt, vel/spd);
+    float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
+    if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
 
     vel += a * dt;
     pos += vel * dt;

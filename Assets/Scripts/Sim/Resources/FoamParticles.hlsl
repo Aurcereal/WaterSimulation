@@ -2,6 +2,7 @@ struct FoamParticle {
     float3 position;
     float3 velocity;
     float remainingLifetime;
+    int debugType;
 };
 
 RWStructuredBuffer<FoamParticle> updatingFoamParticles;
@@ -9,13 +10,14 @@ RWStructuredBuffer<FoamParticle> survivingFoamParticles;
 RWStructuredBuffer<uint> foamParticleCounts; // (updatingFoamParticleCount, survivingFoamParticleCount)
 const uint MaxFoamParticleCount;
 
-void SpawnFoamParticle(float3 pos, float3 vel) {
+void SpawnFoamParticle(float3 pos, float3 vel, float lifetime) {
     if(foamParticleCounts[0] >= MaxFoamParticleCount) return; 
 
     FoamParticle particle;
     particle.position = pos;
     particle.velocity = vel;
-    particle.remainingLifetime = 1.; // TODO: parametrizeable or smth idk lifetime has more specifications
+    particle.remainingLifetime = lifetime; // TODO: parametrizeable or smth idk lifetime has more specifications (prolly still const mabe)
+    particle.debugType = 1;
 
     int index;
     InterlockedAdd(foamParticleCounts[0], 1, index);
@@ -54,7 +56,7 @@ void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fl
 
         float3 spawnVel = fluidParticleVel + cylFloorPos;
 
-        SpawnFoamParticle(spawnPos, spawnVel);
+        SpawnFoamParticle(spawnPos, spawnVel, 5. + 5. * randomState.y);
     }
 }
 
@@ -62,10 +64,11 @@ void UpdateFoamParticle(int updatingIndex, float dt) {
     FoamParticle particle = updatingFoamParticles[updatingIndex];
 
     // Update velocity
-    particle.velocity = EstimateVelocity(particle.position);
+    particle.velocity = EstimateVelocity(particle.position);//particle.velocity += dt * (EstimateVelocity(particle.position) - particle.velocity);//
 
     particle.position += particle.velocity * dt;
     particle.remainingLifetime -= dt;
+    particle.debugType = 0;
 
     if(particle.remainingLifetime > 0.) {
         int index;
@@ -78,10 +81,11 @@ void UpdateSprayParticle(int updatingIndex, float dt) {
     FoamParticle particle = updatingFoamParticles[updatingIndex];
 
     // Update velocity
-    particle.velocity += dt * Gravity; // Can add external forces too
+    particle.velocity += dt * (Gravity - particle.velocity * SprayAirDragMultiplier); // Can add external forces too
 
     particle.position += particle.velocity * dt;
-    particle.remainingLifetime -= dt;
+    //particle.remainingLifetime -= dt;
+    particle.debugType = 1;
 
     if(particle.remainingLifetime > 0.) {
         int index;
@@ -97,7 +101,8 @@ void UpdateBubbleParticle(int updatingIndex, float dt) {
     particle.velocity += dt * BubbleGravityMultiplier * (-Gravity) + BubbleFluidConformingMultiplier * (EstimateVelocity(particle.position) - particle.velocity);
 
     particle.position += particle.velocity * dt;
-    particle.remainingLifetime -= dt;
+    //particle.remainingLifetime -= dt;
+    particle.debugType = 2;
 
     if(particle.remainingLifetime > 0.) {
         int index;

@@ -25,6 +25,7 @@ Shader "Unlit/FoamParticle"
                 float3 position;
                 float3 velocity;
                 float remainingLifetime;
+                int debugType;
             };
 
             StructuredBuffer<FoamParticle> foamParticleBuffer;
@@ -41,7 +42,12 @@ Shader "Unlit/FoamParticle"
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 worldPos : TEXCOORD1;
+                float a : TEXCOORD2;
             };
+
+            float CalculateFoamScale(float remainingLifetime) {
+                return min(1.,remainingLifetime) * FoamScaleMultiplier;
+            }
 
             vOut vert (vIn v, uint instanceID : SV_InstanceID)
             {
@@ -52,11 +58,12 @@ Shader "Unlit/FoamParticle"
                 float3 camRi = unity_CameraToWorld._m00_m10_m20; // Row major
                 float3 camUp = unity_CameraToWorld._m01_m11_m21;
 
-                float3 objectPos = v.vertex.xyz * foamParticle.remainingLifetime * FoamScaleMultiplier;
+                float3 objectPos = v.vertex.xyz * CalculateFoamScale(foamParticle.remainingLifetime);
                 objectPos = objectPos.x * camRi + objectPos.y * camUp; // Orient towards cam
                 float3 worldPos = objectPos + foamParticle.position;
                 o.worldPos = worldPos;
                 o.vertex = mul(UNITY_MATRIX_VP, float4(worldPos, 1.));
+                o.a = float(foamParticle.debugType)*.5;
 
                 o.uv = v.uv;
                 
@@ -82,7 +89,7 @@ Shader "Unlit/FoamParticle"
                 Depth = LinearDepthToRawDepth(distAlongCam);
 
                 //
-                return float4(1.,Depth,distAlongCam,1.);
+                return float4(i.a,Depth,distAlongCam,1.);
             }
             ENDCG
         }

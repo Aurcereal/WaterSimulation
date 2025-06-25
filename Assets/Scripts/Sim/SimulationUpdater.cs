@@ -11,11 +11,14 @@ using System.Threading.Tasks;
 public class SimulationUpdater
 {
 
+    float timeSinceStart;
+
     ComputeShader particleSimulator;
 
     public SimulationUpdater()
     {
         particleSimulator = GameManager.Ins.computeManager.particleSimulatorShader;
+        timeSinceStart = 0f;
     }
 
     public void Update(float dt)
@@ -26,7 +29,9 @@ public class SimulationUpdater
             dt = 1.0f / 60.0f;
         }
 
-        GameManager.Ins.simUniformer.UniformDeltaTime(dt);
+        timeSinceStart += dt;
+
+        GameManager.Ins.simUniformer.UniformDeltaTimeAndCurrentTime(dt, timeSinceStart);
         GameManager.Ins.simUniformer.UniformMouseInputData();
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculatePredictedPositions");

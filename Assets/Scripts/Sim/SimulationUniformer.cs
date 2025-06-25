@@ -124,6 +124,7 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("LowestBubbleDensity", LowestBubbleDensity);
         particleSimulatorShader.SetFloat("BubbleGravityMultiplier", BubbleGravityMultiplier);
         particleSimulatorShader.SetFloat("BubbleFluidConformingMultiplier", BubbleFluidConformingMultiplier);
+        particleSimulatorShader.SetFloat("SprayAirDragMultiplier", SprayAirDragMultiplier);
 
         //
         particleSimulatorShader.SetFloat("GridSize", GridSize);
@@ -131,9 +132,10 @@ public class SimulationUniformer
 
     }
 
-    public void UniformDeltaTime(float dt)
+    public void UniformDeltaTimeAndCurrentTime(float dt, float timeSinceStart)
     {
         GameManager.Ins.computeManager.particleSimulatorShader.SetFloat("DeltaTime", dt);
+        GameManager.Ins.computeManager.particleSimulatorShader.SetFloat("TimeSinceStart", timeSinceStart);
     }
 
     public void UniformMouseInputData()

@@ -130,10 +130,8 @@ Shader "Unlit/CompositeIntoWater"
                 return baseReflectance + (1.0 - baseReflectance) * x*x*x*x*x;
             }
 
-            float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam) {
-                const float3 FoamColor = 1.; // temp
-
-                if(distAlongRayToFoam < distAlongRayToWater) return FoamColor; // Foam before water
+            float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam, float3 foamCol) {
+                if(distAlongRayToFoam < distAlongRayToWater) return foamCol; // Foam before water
 
                 float ior = 1./IndexOfRefraction; // Screen Space Technique would only work outside water I think
 
@@ -156,7 +154,7 @@ Shader "Unlit/CompositeIntoWater"
                 float distToFoam = distAlongRayToFoam - distAlongRayToWater;
 
                 float3 refractExitPoint = pos + refractRay * min(distToWaterEnd, distToFoam);
-                float3 refractLi = distAlongRayToFoam >= 100000.0 ? SampleEnvironment(refractExitPoint, refractRay) : FoamColor;
+                float3 refractLi = distAlongRayToFoam >= 100000.0 ? SampleEnvironment(refractExitPoint, refractRay) : foamCol;
 
                 float3 reflectLi = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
 
@@ -168,7 +166,7 @@ Shader "Unlit/CompositeIntoWater"
 
             fixed4 frag(vOut i) : SV_Target
             {
-                const float3 FoamColor = 1.; // temp
+                float3 FoamColor = 1. * (tex2D(FoamTex, i.uv).r < 0.3 ? float3(1.,1.,1.) : (tex2D(FoamTex, i.uv).r < 0.6 ? float3(1.,0.,0.) : float3(0.,1.,0.))); // temp
 
                 float3 rd = Raycast(i.uv);
                 float distAlongRay;
@@ -178,7 +176,7 @@ Shader "Unlit/CompositeIntoWater"
                 float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo);
                 if(norm.a == 0.) return float4(distAlongRayToFoam >= 100000.0 ? SampleSkybox(rd) : FoamColor, 1.);
 
-                float3 accumLight = ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam);
+                float3 accumLight = ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam, FoamColor);
                 float3 col = accumLight;//pow(accumLight/(1.+accumLight),1./2.2);
 
                 return float4(col, 1.0);
