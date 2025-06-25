@@ -56,7 +56,7 @@ void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fl
 
         float3 spawnVel = fluidParticleVel + cylFloorPos;
 
-        SpawnFoamParticle(spawnPos, spawnVel, 5. + 5. * randomState.y);
+        SpawnFoamParticle(spawnPos, spawnVel, 5. + 5. * randomState.y + count*2.);
     }
 }
 
@@ -81,7 +81,7 @@ void UpdateSprayParticle(int updatingIndex, float dt) {
     FoamParticle particle = updatingFoamParticles[updatingIndex];
 
     // Update velocity
-    particle.velocity += dt * (Gravity - particle.velocity * SprayAirDragMultiplier); // Can add external forces too
+    particle.velocity += dt * (Gravity - dot(particle.velocity, particle.velocity) * normalize(particle.velocity) * SprayAirDragMultiplier); // Can add external forces too
 
     particle.position += particle.velocity * dt;
     //particle.remainingLifetime -= dt;

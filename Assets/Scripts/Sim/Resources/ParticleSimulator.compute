@@ -452,6 +452,7 @@ float sdScene(float3 p) {
     return min(dBox, dObstacle);
 }
 
+/// Just returns first velocity of nearby particle it finds (since particles could be sparse)
 float3 EstimateVelocity(float3 pos) {
     float3 avgVel = 0.;
 
@@ -459,9 +460,9 @@ float3 EstimateVelocity(float3 pos) {
     int3 currCell;
     int particleIndex;
 
-    for(int x=0; x<=0; x++) {
-        for(int y=0; y<=0; y++) {
-            for(int z=0; z<=0; z++) {
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            for(int z=-1; z<=1; z++) {
                 currCell = centerCellPos + int3(x, y, z);
 
                 int key = getCellKey(currCell);
@@ -474,8 +475,9 @@ float3 EstimateVelocity(float3 pos) {
                         
                         float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
 
-                        if(sqrDist <= SmoothingRadius*SmoothingRadius) { return velocities[particleIndex]; // TEMP TODO: TAKE OUT
-                            avgVel += velocities[particleIndex] * SmoothingKernelPow2Unsafe(sqrt(sqrDist)) / densities[particleIndex];
+                        if(sqrDist <= SmoothingRadius*SmoothingRadius) { 
+                            return velocities[particleIndex];
+                            //avgVel += velocities[particleIndex] * SmoothingKernelPow2Unsafe(sqrt(sqrDist)) / densities[particleIndex];
                         }
 
                         currIndex++;
