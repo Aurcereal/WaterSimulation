@@ -17,7 +17,7 @@ float3 sampleSceneColor(float3 p) {
 }
 
 // Material, Hit Params -> Li
-float3 shadeObject(float3 normal, float3 color) {
+float3 shadeScene(float3 normal, float3 color) {
     float diffuse = max(0., dot(normal, -LightDir));
     float3 diffuseCol = color * diffuse;
 
@@ -26,7 +26,7 @@ float3 shadeObject(float3 normal, float3 color) {
     return ambientCol + diffuseCol * 0.7;
 }
 
-float RayIntersectObjects(float3 ro, float3 rd) {
+float RayIntersectScene(float3 ro, float3 rd) {
     float d, sd = 0.;
     for(int i=0; i<MAXSTEPS; i++) {
         sd = sdScene(ro + rd*d);
@@ -44,15 +44,15 @@ float RayIntersectObjects(float3 ro, float3 rd) {
     return MAXDIST;
 }
 
-float3 SampleEnvironment(float3 rd);
+float3 SampleSkybox(float3 rd);
 
-float3 SampleObjectScene(float3 ro, float3 rd) {
-    float dist = RayIntersectObjects(ro, rd);
-    if(dist >= MAXDIST) return SampleEnvironment(rd);
+float3 SampleEnvironment(float3 ro, float3 rd) {
+    float dist = RayIntersectScene(ro, rd);
+    if(dist >= MAXDIST) return SampleSkybox(rd);
 
     float3 hitPos = ro+rd*dist;
     float3 norm = normal(hitPos);
     float3 material = sampleSceneColor(hitPos);
 
-    return shadeObject(norm, material);
+    return shadeScene(norm, material);
 }

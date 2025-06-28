@@ -217,6 +217,7 @@ public class SimulationParameters : MonoBehaviour
             GameManager.Ins?.simUniformer.UniformAllParameters();
             RaymarchManager.Ins.UpdateContainerData();
             RaymarchManager.Ins.UpdateObstacleData();
+            GameManager.Ins.screenSpaceManager.UpdateObstacleData();
             RaymarchManager.Ins.UniformAllParameters();
         }
     }

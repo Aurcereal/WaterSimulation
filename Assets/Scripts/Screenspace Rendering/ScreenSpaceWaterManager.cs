@@ -113,9 +113,18 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetFloat("LightMultiplier", ScreenSpaceLightMultiplier);
         compositeIntoWater.SetVector("ExtinctionCoefficients", (Vector3)ScreenSpaceExtinctionCoefficients);
         compositeIntoWater.SetFloat("IndexOfRefraction", IndexOfRefraction);
+        compositeIntoWater.SetVector("LightDir", (Vector3)LightDir);
+
+        compositeIntoWater.SetInt("ObstacleType", ObstacleType ? 1 : 0);
 
         //
         foamParticleBillboardMaterial.SetFloat("FoamScaleMultiplier", FoamScaleMultiplier);
+    }
+
+    public void UpdateObstacleData()
+    {
+        compositeIntoWater.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
+        compositeIntoWater.SetVector("ObstacleScale", (Vector3)ObstacleScale);
     }
 
     public void OnEnable()

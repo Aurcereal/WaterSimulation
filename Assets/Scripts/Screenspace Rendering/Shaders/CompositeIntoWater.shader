@@ -65,6 +65,14 @@ Shader "Unlit/CompositeIntoWater"
             const float3 ExtinctionCoefficients;
             const float IndexOfRefraction;
 
+            //
+            const float3 LightDir;
+
+            //
+            const float4x4 ObstacleInverseTransform;
+            const float3 ObstacleScale;
+            const bool ObstacleType;
+
             float3 Raycast(float2 uv) {
                 float2 p = uv*2.0-1.0;
 
@@ -88,10 +96,6 @@ Shader "Unlit/CompositeIntoWater"
 
             float3 SampleSkybox(float3 rd) {
                 return LightMultiplier*texCUBE(EnvironmentMap, rd).rgb;
-            }
-
-            float3 SampleEnvironment(float3 ro, float3 rd) {
-                return SampleSkybox(rd); // temp, bring in sdf later
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)
@@ -130,8 +134,19 @@ Shader "Unlit/CompositeIntoWater"
                 return baseReflectance + (1.0 - baseReflectance) * x*x*x*x*x;
             }
 
-            float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam, float3 foamCol) {
-                if(distAlongRayToFoam < distAlongRayToWater) return foamCol; // Foam before water
+            float AccountForSDFInDensityAlongRay(float densAlongRayWithFoam, float distFromWaterToSDFAlongRefract, float distFromWaterToEndAlongRefract) {
+                return min(1., distFromWaterToSDFAlongRefract / distFromWaterToEndAlongRefract) * densAlongRayWithFoam;
+            }
+
+            #define MAXDIST 1000.0
+            #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
+            #include "../../Raymarched Rendering/Shaders/SDFScene.hlsl"
+
+            float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam, float distAlongRayToSDF, float3 foamCol) {
+                if(min(distAlongRayToFoam, distAlongRayToSDF) < distAlongRayToWater) {
+                    // Foam or SDF Before Water
+                    return distAlongRayToFoam < distAlongRayToSDF ? foamCol : SampleEnvironment(CamPos, rd);
+                }
 
                 float ior = 1./IndexOfRefraction; // Screen Space Technique would only work outside water I think
 
@@ -146,17 +161,20 @@ Shader "Unlit/CompositeIntoWater"
                 float densAlongRefract = densityAlongRd; // Approximation since refracted ray is bent
 
                 float3 reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
-                float3 refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
 
                 float3 reflectExitPoint = pos + norm*0.0005;
-
-                float distToWaterEnd = densityAlongRd; // Bad approx, can use a multiplier
-                float distToFoam = distAlongRayToFoam - distAlongRayToWater;
-
-                float3 refractExitPoint = pos + refractRay * min(distToWaterEnd, distToFoam);
-                float3 refractLi = distAlongRayToFoam >= 100000.0 ? SampleEnvironment(refractExitPoint, refractRay) : foamCol;
-
                 float3 reflectLi = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
+
+                float distFromWaterToEnd = densityAlongRd; // TODO: Bad approx, can use a multiplier
+                float distFromWaterToFoam = distAlongRayToFoam - distAlongRayToWater;
+                float distFromWaterToSDF = RayIntersectScene(pos, refractRay);
+                
+                densAlongRefract = AccountForSDFInDensityAlongRay(densAlongRefract, distFromWaterToSDF, min(distFromWaterToEnd, distFromWaterToFoam));
+                float3 refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
+
+                float3 refractExitPoint = pos + refractRay * min(distFromWaterToSDF, min(distFromWaterToEnd, distFromWaterToFoam));
+                float3 refractLi = 
+                    distFromWaterToFoam <= min(distFromWaterToEnd, distFromWaterToSDF) ? foamCol : SampleEnvironment(refractExitPoint, refractRay); 
 
                 float3 lo = reflectTransmittance * reflectLi +
                             refractTransmittance * refractLi;
@@ -174,9 +192,12 @@ Shader "Unlit/CompositeIntoWater"
                 float4 norm = tex2D(NormalTex, i.uv);
                 float accumDensityAlongRay = tex2D(DensityTex, i.uv).x;
                 float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo);
-                if(norm.a == 0.) return float4(distAlongRayToFoam >= 100000.0 ? SampleSkybox(rd) : FoamColor, 1.);
+                float distAlongRayToSDF = RayIntersectScene(CamPos, rd);
+                if(norm.a == 0.) {
+                    return float4(distAlongRayToFoam >= 100000.0 || distAlongRayToSDF <= distAlongRayToFoam ? SampleEnvironment(CamPos, rd) : FoamColor, 1.);
+                }
 
-                float3 accumLight = ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam, FoamColor);
+                float3 accumLight = ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam, distAlongRayToSDF, FoamColor);
                 float3 col = accumLight;//pow(accumLight/(1.+accumLight),1./2.2);
 
                 return float4(col, 1.0);
