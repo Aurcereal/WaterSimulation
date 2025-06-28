@@ -75,6 +75,8 @@ const float MouseForceSign;
 const float2 MousePosition;
 
 //
+const float FoamScaleMultiplier;
+
 const float TrappedAirPotentialRemapLow;
 const float TrappedAirPotentialRemapHigh;
 

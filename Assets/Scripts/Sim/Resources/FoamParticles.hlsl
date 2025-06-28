@@ -70,6 +70,13 @@ void UpdateFoamParticle(int updatingIndex, float dt) {
     particle.remainingLifetime -= dt;
     particle.debugType = 0;
 
+    float dScene = sdScene(particle.position) - FoamScaleMultiplier; // We have FoamScaleMultiplier = MaxFoamScale just for keeping all foam frags completely within bounds
+    if(dScene < 0.) {
+        float3 norm = normal(particle.position);
+        particle.velocity -= 2. * norm * dot(norm, particle.velocity);
+        particle.position -= norm * dScene;
+    }
+
     if(particle.remainingLifetime > 0.) {
         int index;
         InterlockedAdd(foamParticleCounts[1], 1, index);
@@ -87,6 +94,13 @@ void UpdateSprayParticle(int updatingIndex, float dt) {
     //particle.remainingLifetime -= dt;
     particle.debugType = 1;
 
+    float dScene = sdScene(particle.position) - FoamScaleMultiplier; // We have FoamScaleMultiplier = MaxFoamScale just for keeping all foam frags completely within bounds
+    if(dScene < 0.) {
+        float3 norm = normal(particle.position);
+        particle.velocity -= 2. * norm * dot(norm, particle.velocity);
+        particle.position -= norm * dScene;
+    }
+
     if(particle.remainingLifetime > 0.) {
         int index;
         InterlockedAdd(foamParticleCounts[1], 1, index);
@@ -103,6 +117,13 @@ void UpdateBubbleParticle(int updatingIndex, float dt) {
     particle.position += particle.velocity * dt;
     //particle.remainingLifetime -= dt;
     particle.debugType = 2;
+
+    float dScene = sdScene(particle.position) - FoamScaleMultiplier; // We have FoamScaleMultiplier = MaxFoamScale just for keeping all foam frags completely within bounds
+    if(dScene < 0.) {
+        float3 norm = normal(particle.position);
+        particle.velocity -= 2. * norm * dot(norm, particle.velocity);
+        particle.position -= norm * dScene;
+    }
 
     if(particle.remainingLifetime > 0.) {
         int index;
