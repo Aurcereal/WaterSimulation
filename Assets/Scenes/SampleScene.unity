@@ -244,15 +244,15 @@ MonoBehaviour:
   maxFoamParticleCount: 1048576
   trappedAirPotentialRemapLow: 1
   trappedAirPotentialRemapHigh: 6
-  trappedAirMultiplier: 75
-  kineticPotentialRemapLow: 23
+  trappedAirMultiplier: 150
+  kineticPotentialRemapLow: 21
   kineticPotentialRemapHigh: 45
   foamScaleMultiplier: 0.04
   highestSprayDensity: 0.4
   lowestBubbleDensity: 40
   bubbleGravityMultiplier: 49
   bubbleFluidConformingMultiplier: 2
-  sprayAirDragMultiplier: 1
+  sprayAirDragMultiplier: 0.4
   cameraRotateSpeed:
     x: 1
     y: 1
