@@ -189,7 +189,7 @@ MonoBehaviour:
   sphereMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   obstacleTransform: {fileID: 1857617105}
   obstacleType: 0
-  obstacleSimInteraction: 0
+  obstacleSimInteraction: 1
   containerTransform: {fileID: 2036646829}
   gravity:
     x: 0
@@ -235,7 +235,7 @@ MonoBehaviour:
   depthBlurBilteralFalloff: 1
   depthBlurIterationCount: 2
   depthDifferenceCutoffForNormals: 0.5
-  screenSpaceDensityMultiplier: 0.2
+  screenSpaceDensityMultiplier: 0.5
   screenSpaceExtinctionCoefficients:
     x: 5
     y: 2

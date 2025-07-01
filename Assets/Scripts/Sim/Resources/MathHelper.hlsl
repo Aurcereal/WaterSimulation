@@ -1,6 +1,11 @@
 #define PI 3.141592
 #define TAU 6.283185
 
+float amod(float v, float m) {
+    float s = fmod(abs(v), m);
+    return s + (m - 2. * s) * step(v, 0.);
+}
+
 float3x3 rot2D(float o) {
     return float3x3(
         float3(cos(o), sin(o), 0.),

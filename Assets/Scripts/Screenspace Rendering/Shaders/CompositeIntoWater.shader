@@ -184,7 +184,7 @@ Shader "Unlit/CompositeIntoWater"
 
             fixed4 frag(vOut i) : SV_Target
             {
-                float3 FoamColor = 1. * (tex2D(FoamTex, i.uv).r < 0.3 ? float3(1.,1.,1.) : (tex2D(FoamTex, i.uv).r < 0.6 ? float3(1.,0.,0.) : float3(0.,1.,0.))); // temp
+                float3 FoamColor = 1.;//1. * (tex2D(FoamTex, i.uv).r < 0.3 ? float3(1.,1.,1.) : (tex2D(FoamTex, i.uv).r < 0.6 ? float3(1.,0.,0.) : float3(0.,1.,0.))); // temp
 
                 float3 rd = Raycast(i.uv);
                 float distAlongRay;

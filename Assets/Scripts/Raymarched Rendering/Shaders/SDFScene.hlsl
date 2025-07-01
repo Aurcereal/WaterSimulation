@@ -8,12 +8,25 @@ float sdScene(float3 p) {
     float dObstacle = ObstacleType ? 
         sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
-    return dObstacle;
+    float dFloor = sdBox(p - float3(0., -6.5, 0.), float3(50., 0.1, 20.));
+    return min(dObstacle, dFloor);
 }
 
 // Point -> Material (for now just color)
 float3 sampleSceneColor(float3 p) {
-    return float3(0.5,0.1,0.1);
+
+    float dObstacle = ObstacleType ? 
+        sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
+        sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
+    float dFloor = sdBox(p - float3(0., -6.5, 0.), float3(50., 0.1, 20.));
+
+    if(dObstacle <= dFloor) {
+        return float3(0.5, 0.1, 0.1);
+    } else {
+        float2 cp = floor(p.xz*0.25);
+        float alt = step(abs(amod(cp.x + cp.y, 2.)-1.), 0.5);
+        return float3(0.3, 0.3, 0.5) + alt * (float3(0.2, 0.8, 0.4) - float3(0.3, 0.3, 0.5));
+    }
 }
 
 // Material, Hit Params -> Li
