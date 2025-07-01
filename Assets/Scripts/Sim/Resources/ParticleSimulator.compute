@@ -169,6 +169,7 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
     int3 currCell;
     int particleIndex;
 
+    float3 diff; float sqrDist;
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
             for(int z=-1; z<=1; z++) {
@@ -182,8 +183,9 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
 
                         particleIndex = particleCellKeyEntries[currIndex].particleIndex;
                         
-                        float sqrDist = dot(predictedPositions[particleIndex] - pos, predictedPositions[particleIndex] - pos);
-                        if(sqrDist <= SmoothingRadius*SmoothingRadius) {
+                        diff = predictedPositions[particleIndex] - pos;
+                        sqrDist = dot(diff, diff);
+                        if(sqrDist <= SqrSmoothingRadius) {
                             totalDensity += /*masses[particleIndex] **/ SmoothingKernelPow2Unsafe(sqrt(sqrDist));
                             totalNearDensity += /*masses[particleIndex] **/ SmoothingKernelPow3Unsafe(sqrt(sqrDist));
                         }
@@ -210,7 +212,7 @@ void UpdateSpringLengths (uint3 id : SV_DispatchThreadID)
     UpdateSprings(i, DeltaTime);
 }
 
-float DensityToPressure(float density)
+inline float DensityToPressure(float density)
 {
     // TargetDensity kind of offsets pressure to determine what happens with empty space: 
     // if the result is high, our gradient will go from empty to wherever this is, 
@@ -218,7 +220,7 @@ float DensityToPressure(float density)
     return PressureMultiplier * (density - TargetDensity);
 }
 
-float NearDensityToPressure(float nearDensity)
+inline float NearDensityToPressure(float nearDensity)
 {
     // It's always a repelling force we 'want' the near density to be 0
     return NearDensityPressureMultiplier * nearDensity;
@@ -523,7 +525,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float numSpawn = dt * kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
     float spd = length(vel);
     float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
-    if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
+    //if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd); RVY
 
     vel += a * dt;
     pos += vel * dt;

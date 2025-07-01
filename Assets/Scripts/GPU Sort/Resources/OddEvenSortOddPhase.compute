@@ -1,0 +1,33 @@
+#pragma kernel SortPass
+
+struct ParticleEntry {
+    int particleIndex;
+    int key;
+};
+
+RWStructuredBuffer<ParticleEntry> ParticleEntries;
+RWStructuredBuffer<int> ParticleIndexToEntryIndex; // ParticleEntries[ParticleIndexToEntryIndex[i]] should hold the entry for the ith particle always, like pointers
+
+[numthreads(64,1,1)]
+void SortPass (uint3 id : SV_DispatchThreadID)
+{
+    int i = id.x;
+    if(i >= (ParticleCount-1)/2) return;
+
+    //
+    int thisIndex = 2*i+1;
+    int otherIndex = thisIndex+1;
+
+    ParticleEntry thisEntry = ParticleEntries[thisIndex];
+    ParticleEntry otherEntry = ParticleEntries[otherIndex];
+
+    if(thisEntry.key > otherEntry.key) {
+        // Swap
+        ParticleEntries[thisIndex] = otherEntry;
+        ParticleEntries[otherIndex] = thisEntry;
+
+        ParticleIndexToEntryIndex[otherEntry.particleIndex] = thisIndex;
+        ParticleIndexToEntryIndex[thisEntry.particleIndex] = otherIndex;
+    }
+
+}

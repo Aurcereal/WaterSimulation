@@ -57,3 +57,23 @@ Seb Lague Vid
 
 Different buttons linking to different parts of same page
 Emphasize compute shader stuff and graphics programming related stuff, optimizations and realtime gpu utilization stufff
+
+
+
+
+
+
+
+-=-=-=-=-
+
+Used these papers and this video
+
+The water is simulated using about one hundred thousand SPH fluid particles.  Interactions between water particles simulate the particles being radially 'blurred' so that the behavior is more smooth and water-like and less like a ton of discrete particles.  The most important factor for this simulation being water-like was computing a pressure gradient (for any given point, we calculate a vector that goes from high water density to low water density).  This allowed water to flow from high density to low density.  I also implemented some other forces from various papers to make the water behave more nicely: viscosity, spring forces between the water particles, and a stickiness force so that particles stuck to non-particle objects in the scene.
+
+I used compute shaders for updating the velocities and positions of the particles.  Each thread in a work group was designated to update a single particle.  For a given particle, to compute its interaction forces, we need to get all of the particles within a user-changeable 'particle interaction radius'.  To avoid having a single compute thread iterating over every other particle in the simulation and tanking performance, I used a spatial hashing method as described by this paper: (dont say 'this paper' also insert it here).  This method splits 3D space into grid cells and randomly assigns each cell an integer key (different cells can have the same key).  For each particle, we assign it the key of the cell it's in.  Then, in the array of particles, through sorting, we group particles with the same key so that all particles in the same grid cell are together.  The main idea of the method is that this grouping that allows us to iterate through all particles in a given cell, which allows us to search the grid cells around a given particle instead of iterating through every other particle.  Since some different cells will have the same key, searching for particles in a grid cell may result in unwanted particles from other cells, but this is okay since the important part is that we find the particles that we want, we can just ignore particles that aren't within the 'particle interaction radius'.
+
+For the sorting described in the spatial hashing above, I tried a Bitonic Sort using Compute Shaders, which worked pretty well, but I saw some people saying that using a convergent sort like Odd-Even was better since it's a convergent sort and the work can be split across multiple frames (with the downside of not always being completed sorted but that's probably okay in this case since the sim doesn't need to be exact).  I tried implemented Odd-Even sort and ...
+
+
+
+For rendering, I tried 2 methods: Raymarched Rendering and Screenspace Rendering (as described by this paper: INSERT HERE)

@@ -42,12 +42,12 @@ public class SimulationUpdater
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculateDensities");
-        if (EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths");
+        if (EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths"); // TODO: optimize springs space wise so we can use them
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
-        GameManager.Ins.simFoamManager.UpdateFoamParticles();
-        GameManager.Ins.simFoamManager.MoveSurvivingFoamParticlesToUpdatingBuffer();
-        GameManager.Ins.simFoamManager.UpdateFoamArgsBuffer();
+        // GameManager.Ins.simFoamManager.UpdateFoamParticles();
+        // GameManager.Ins.simFoamManager.MoveSurvivingFoamParticlesToUpdatingBuffer();
+        // GameManager.Ins.simFoamManager.UpdateFoamArgsBuffer(); RVY
     }
 
 }
