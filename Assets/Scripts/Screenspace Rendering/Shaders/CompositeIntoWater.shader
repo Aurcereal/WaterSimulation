@@ -174,7 +174,7 @@ Shader "Unlit/CompositeIntoWater"
 
                 float3 refractExitPoint = pos + refractRay * min(distFromWaterToSDF, min(distFromWaterToEnd, distFromWaterToFoam));
                 float3 refractLi = 
-                    distFromWaterToFoam <= min(distFromWaterToEnd, distFromWaterToSDF) ? foamCol : SampleEnvironment(refractExitPoint, refractRay); 
+                    distFromWaterToFoam <= distFromWaterToSDF ? foamCol : SampleEnvironment(refractExitPoint, refractRay); 
 
                 float3 lo = reflectTransmittance * reflectLi +
                             refractTransmittance * refractLi;
