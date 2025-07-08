@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour
         camController.SetGlobalUniformCameraData();
         RaymarchManager.Ins.UpdateContainerData();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
+        screenSpaceManager.UpdateObstacleData();
 
         if (EnableRaymarchShader)
             screenSpaceManager.OnDisable();

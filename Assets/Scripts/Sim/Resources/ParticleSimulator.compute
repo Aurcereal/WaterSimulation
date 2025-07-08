@@ -525,7 +525,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float numSpawn = dt * kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
     float spd = length(vel);
     float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
-    //if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd); RVY
+    if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
 
     vel += a * dt;
     pos += vel * dt;

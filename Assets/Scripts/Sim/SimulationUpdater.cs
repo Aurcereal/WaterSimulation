@@ -45,9 +45,9 @@ public class SimulationUpdater
         if (EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths"); // TODO: optimize springs space wise so we can use them
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
-        // GameManager.Ins.simFoamManager.UpdateFoamParticles();
-        // GameManager.Ins.simFoamManager.MoveSurvivingFoamParticlesToUpdatingBuffer();
-        // GameManager.Ins.simFoamManager.UpdateFoamArgsBuffer(); RVY
+        GameManager.Ins.simFoamManager.UpdateFoamParticles();
+        GameManager.Ins.simFoamManager.MoveSurvivingFoamParticlesToUpdatingBuffer();
+        GameManager.Ins.simFoamManager.UpdateFoamArgsBuffer();
     }
 
 }
