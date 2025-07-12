@@ -78,6 +78,16 @@ public class SimulationInitializer
 
         GameManager.Ins.computeManager.foamParticleCounts.SetData(foamParticleCounts);
 
+        if (UseOddEvenSort) // OES
+        {
+            var particleIDToEntryIndex = new int[ParticleCount];
+            for (int i = 0; i < ParticleCount; i++)
+            {
+                particleIDToEntryIndex[i] = i;
+            }
+            GameManager.Ins.computeManager.ParticleIDToEntryIndexBuffer.SetData(particleIDToEntryIndex);
+        }
+
     }
 
 }

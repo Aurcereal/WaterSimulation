@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     public SimulationTimeController simTimeController;
 
     public BitonicSortManager bitonicSorter;
+    public OddEvenSortManager oddEvenSorter;
 
     public CameraController camController;
 
@@ -49,8 +50,11 @@ public class GameManager : MonoBehaviour
 
         simUpdater = new();
         simTimeController = new();
+        simFoamManager = new();
 
         bitonicSorter = new();
+        if(UseOddEvenSort) // OES
+            oddEvenSorter = new();
 
         camController = new(MainCamera.transform.position, float3(0));
 
@@ -63,11 +67,15 @@ public class GameManager : MonoBehaviour
         screenSpaceManager.UpdateObstacleData();
 
         if (EnableRaymarchShader)
+        {
             screenSpaceManager.OnDisable();
+            RaymarchManager.Ins.OnEnable();
+        }
         else
+        {
+            RaymarchManager.Ins.OnDisable();
             screenSpaceManager.OnEnable();
-
-        simFoamManager = new();
+        }
     }
 
     int counter = 1;
@@ -104,12 +112,20 @@ public class GameManager : MonoBehaviour
         if (EnableRaymarchShader != prevEnableRaymarchShader)
         {
             if (EnableRaymarchShader)
+            {
                 screenSpaceManager.OnDisable();
+                RaymarchManager.Ins.OnEnable();
+            }
             else
+            {
+                RaymarchManager.Ins.OnDisable();
                 screenSpaceManager.OnEnable();
+            }
         }
 
-        if (!EnableRaymarchShader)
+        if (EnableRaymarchShader)
+            RaymarchManager.Ins.DrawFoam();
+        else
             screenSpaceManager.Draw();
 
         prevEnableRaymarchShader = EnableRaymarchShader;

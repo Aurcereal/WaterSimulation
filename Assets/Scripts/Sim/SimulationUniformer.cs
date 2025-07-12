@@ -31,6 +31,7 @@ public class SimulationUniformer
                 new string[] {
                 "CalculatePredictedPositions",
                 "UpdateSpatialHashEntries",
+                "UpdateSpatialHashEntriesOES",
                 "ResetSpatialHashOffsets",
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
@@ -57,6 +58,7 @@ public class SimulationUniformer
                 new string[] {
                 "CalculatePredictedPositions",
                 "UpdateSpatialHashEntries",
+                "UpdateSpatialHashEntriesOES",
                 "ResetSpatialHashOffsets",
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
@@ -76,6 +78,16 @@ public class SimulationUniformer
             "UpdateFoamParticles",
             "MoveSurvivingFoamParticlesToUpdatingBuffer"
             });
+
+        // OES
+        if (UseOddEvenSort)
+        {
+            particleSimulatorShader.SetBuffers(new (string, ComputeBuffer)[] {
+                ("ParticleIDToEntryIndex", computeManager.ParticleIDToEntryIndexBuffer)
+            }, new string[] {
+                "UpdateSpatialHashEntriesOES"
+            });
+        }
     }
 
     public void UniformAllParameters()

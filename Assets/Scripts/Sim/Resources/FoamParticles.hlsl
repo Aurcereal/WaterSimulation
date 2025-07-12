@@ -56,7 +56,7 @@ void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fl
 
         float3 spawnVel = fluidParticleVel + cylFloorPos;
 
-        SpawnFoamParticle(spawnPos, spawnVel, 5. + 5. * randomState.y + count*2.);
+        SpawnFoamParticle(spawnPos, spawnVel, 2. + 2. * randomState.y + count*1.);
     }
 }
 
@@ -91,7 +91,7 @@ void UpdateSprayParticle(int updatingIndex, float dt) {
     particle.velocity += dt * (Gravity - dot(particle.velocity, particle.velocity) * normalize(particle.velocity) * SprayAirDragMultiplier); // Can add external forces too
 
     particle.position += particle.velocity * dt;
-    //particle.remainingLifetime -= dt;
+    particle.remainingLifetime -= dt;
     particle.debugType = 1;
 
     float dScene = sdScene(particle.position) - FoamScaleMultiplier; // We have FoamScaleMultiplier = MaxFoamScale just for keeping all foam frags completely within bounds
@@ -115,7 +115,7 @@ void UpdateBubbleParticle(int updatingIndex, float dt) {
     particle.velocity += dt * BubbleGravityMultiplier * (-Gravity) + BubbleFluidConformingMultiplier * (EstimateVelocity(particle.position) - particle.velocity);
 
     particle.position += particle.velocity * dt;
-    //particle.remainingLifetime -= dt;
+    particle.remainingLifetime -= dt;
     particle.debugType = 2;
 
     float dScene = sdScene(particle.position) - FoamScaleMultiplier; // We have FoamScaleMultiplier = MaxFoamScale just for keeping all foam frags completely within bounds

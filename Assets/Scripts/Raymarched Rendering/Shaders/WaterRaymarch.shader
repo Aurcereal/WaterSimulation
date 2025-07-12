@@ -16,6 +16,7 @@ Shader "Unlit/WaterRaymarch"
         Pass
         {
             CGPROGRAM
+            #pragma editor_sync_compilation
             #pragma vertex vert
 			#pragma fragment frag
 			#pragma target 4.5
@@ -84,6 +85,9 @@ Shader "Unlit/WaterRaymarch"
             const float WaterExistenceThreshold;
             const float WaterExistenceEps;
             const float NextRayOffset;
+
+            //
+            sampler2D FoamTex;
 
             //
             const float3 LightDir;
@@ -346,74 +350,76 @@ Shader "Unlit/WaterRaymarch"
                 return SampleDensity(pos) >= WaterExistenceThreshold;
             }
 
-            float3 TraceWaterRay(float3 ro, float3 rd, float2 sp) {
-                float3 transmittance = 1.;
-                float3 li = 0.;
+            // float3 TraceWaterRay(float3 ro, float3 rd, float2 sp) {
+            //     float3 transmittance = 1.;
+            //     float3 li = 0.;
 
-                for(int i=0; i<min(NumBounces, MAXBOUNCECOUNT); i++) {
-                    bool isInsideLiquid = IsInsideLiquid(ro);
+            //     for(int i=0; i<2; i++) {//min(NumBounces, MAXBOUNCECOUNT); i++) {
+            //         bool isInsideLiquid = IsInsideLiquid(ro);
 
-                    int interType;
-                    float2 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
-                    float t = inter.x; float densityAlongRay = inter.y;
-                    float3 hitPos = ro + rd*t;
+            //         int interType;
+            //         float2 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
+            //         float t = inter.x; float densityAlongRay = inter.y;
+            //         float3 hitPos = ro + rd*t;
 
-                    if(interType != INTERTYPE_WATER) {
-                        if(i==0) return SampleEnvironment(hitPos, rd); // / LightMultiplier
-                        break;
-                    }
+            //         if(interType != INTERTYPE_WATER) {
+            //             if(i==0) return SampleEnvironment(hitPos, rd); // / LightMultiplier
+            //             break;
+            //         }
 
-                    float3 norm = CalculateNormal(hitPos);
-                    if(isInsideLiquid) norm *= -1.0;
+            //         float3 norm = CalculateNormal(hitPos);
+            //         if(isInsideLiquid) norm *= -1.0;
 
-                    transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
+            //         transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
-                    float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
+            //         float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
 
-                    float f = Fresnel(-rd, norm, ior);
-                    float kReflect = f;
-                    float kRefract = 1.-f;
+            //         float f = Fresnel(-rd, norm, ior);
+            //         float kReflect = f;
+            //         float kRefract = 1.-f;
 
-                    float3 reflectRay = Reflect(-rd, norm);
-                    float3 refractRay = Refract(-rd, norm, ior);
+            //         float3 reflectRay = Reflect(-rd, norm);
+            //         float3 refractRay = Refract(-rd, norm, ior);
 
-                    // Optimize, shouldn't have these 2 calculate densities and not stop at water when we use same intersection info in next loop
-                    float densAlongReflect = CalculateDensityAlongRayStopAtObject(hitPos+reflectRay*0.0005, reflectRay);
-                    float densAlongRefract = CalculateDensityAlongRayStopAtObject(hitPos+refractRay*0.0005, refractRay);
+            //         // Optimize, shouldn't have these 2 calculate densities and not stop at water when we use same intersection info in next loop
+            //         float densAlongReflect = CalculateDensityAlongRayStopAtObject(hitPos+reflectRay*0.0005, reflectRay);
+            //         float densAlongRefract = CalculateDensityAlongRayStopAtObject(hitPos+refractRay*0.0005, refractRay);
 
-                    float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
-                    float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
+            //         float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
+            //         float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
 
-                    if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
-                        rd = reflectRay;
-                        ro = hitPos + norm*NextRayOffset;
-                        transmittance *= f;
+            //         if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
+            //             rd = reflectRay;
+            //             ro = hitPos + norm*NextRayOffset;
+            //             transmittance *= f;
 
-                        li += transmittance * refractTransmittance * SampleEnvironment(ro, refractRay);
-                    } else {
-                        rd = refractRay;
-                        ro = hitPos + norm*NextRayOffset;
-                        transmittance *= 1.-f;
+            //             li += transmittance * refractTransmittance * SampleEnvironment(ro, refractRay);
+            //         } else {
+            //             rd = refractRay;
+            //             ro = hitPos + norm*NextRayOffset;
+            //             transmittance *= 1.-f;
 
-                        li += transmittance * reflectTransmittance * SampleEnvironment(ro, reflectRay);
-                    }
+            //             li += transmittance * reflectTransmittance * SampleEnvironment(ro, reflectRay);
+            //         }
 
-                }
+            //     }
 
-                // We already calculate this density in case of t >= MAXDIST..
-                float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRayStopAtObject(ro, rd)); // Can use big step sizefor this one
-                li += transmittance * transmittanceToLight * SampleEnvironment(ro, rd);
+            //     // We already calculate this density in case of t >= MAXDIST..
+            //     float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRayStopAtObject(ro, rd)); // Can use big step sizefor this one
+            //     li += transmittance * transmittanceToLight * SampleEnvironment(ro, rd);
 
-                return li;
-            }
+            //     return li;
+            // }
 
-            float3 TraceWaterRayOverride(float3 ro, float3 rd, float2 sp, bool firstFollowReflect) {
+            float3 TraceWaterRayOverride(float3 ro, float3 rd, float2 sp, bool firstFollowReflect, float foamT) {
                 float3 transmittance = 1.;
                 float3 li = 0.;
 
                 bool isInsideLiquid = IsInsideLiquid(ro);
+                
+                float ft = foamT;
 
-                for(int i=0; i<min(NumBounces, MAXBOUNCECOUNT); i++) {
+                for(int i=0; i<2; i++) { //min(NumBounces, MAXBOUNCECOUNT); i++) {
 
                     int interType;
                     float2 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
@@ -421,13 +427,21 @@ Shader "Unlit/WaterRaymarch"
                     float3 hitPos = ro + rd*t;
                     float3 norm = CalculateNormal(hitPos);
                     if(isInsideLiquid) norm *= -1.0;
+
+                    // Moved this above inter break
+                    transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
+
+                    //
+                    if(!firstFollowReflect && i <= 1 && ft <= t) {
+                        const float3 FoamColor = 1.; // TODO: temp
+                        return li + FoamColor;// * transmittance
+                    }
+                    ft -= t;
 
                     if(interType != INTERTYPE_WATER) {
                         if(i==0) return 0.5*SampleEnvironment(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier);
                         break;
                     }
-
-                    transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
                     float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
 
@@ -477,14 +491,19 @@ Shader "Unlit/WaterRaymarch"
                 float2 sp = (i.uv*2.0-1.0)*float2(1.3, 1.0);
                 
                 //
+                float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo);
+
+                //
                 float3 accumLight;
 
                 if(!TraceReflectAndRefract) {
-                    accumLight = TraceWaterRay(ro, rd, sp);
+                    accumLight = 0.;//TraceWaterRay(ro, rd, sp);
                 } else {
-                    // Can optimize more like so many repeated intersection and density marching calculations idk if they're bottleneck tho
-                    float3 accumReflectLight = TraceWaterRayOverride(ro, rd, sp, true);
-                    float3 accumRefractLight = TraceWaterRayOverride(ro, rd, sp, false);
+                    // TODO: Foam partial transparency? Well more like just the raymarched foam I can do later with spatial hashing and better sort
+                    // TODO: Separate reflect and refract into different funcs for performance
+                    // TODO: Can optimize more like so many repeated intersection and density marching calculations idk if they're bottleneck tho
+                    float3 accumReflectLight = TraceWaterRayOverride(ro, rd, sp, true, distAlongRayToFoam);
+                    float3 accumRefractLight = TraceWaterRayOverride(ro, rd, sp, false, distAlongRayToFoam);
                     accumLight = accumReflectLight + accumRefractLight;
                 }
 

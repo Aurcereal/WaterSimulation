@@ -23,9 +23,6 @@ public class ScreenSpaceWaterManager
     Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
     Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
 
-    Material foamParticle3DMaterial = new Material(Shader.Find("Unlit/FoamParticleDebug"));
-    Material foamParticleBillboardMaterial = new Material(Shader.Find("Unlit/FoamParticle"));
-
     Material copyDepthMaterial = new Material(Shader.Find("Unlit/CopyDepth"));
 
     //
@@ -43,8 +40,6 @@ public class ScreenSpaceWaterManager
 
     RenderTexture densityTex;
     float densityTexResolutionPercentage => 1f; // .25
-
-    RenderTexture foamTex;
 
     void UpdateGlobalScreenSizeUniform(int2 newSize)
     {
@@ -66,12 +61,6 @@ public class ScreenSpaceWaterManager
         particleAdditiveDensityMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
         particleAdditiveDensityMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
 
-        foamParticle3DMaterial.enableInstancing = true;
-        foamParticle3DMaterial.SetBuffer("foamParticleBuffer", GameManager.Ins.computeManager.survivingFoamParticles);
-
-        foamParticleBillboardMaterial.enableInstancing = true;
-        foamParticleBillboardMaterial.SetBuffer("foamParticleBuffer", GameManager.Ins.computeManager.survivingFoamParticles);
-
         commandBuffer = new();
         blurManager = new();
 
@@ -80,8 +69,6 @@ public class ScreenSpaceWaterManager
         scratchScreenRGBATex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
         smoothedDepthTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
         normalTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
-
-        foamTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
 
         // TODO: take out depth tex see if it needs it
         densityTex = ComputeHelper.CreateRenderTexture2D((int2)(densityTexResolutionPercentage * float2(Screen.width, Screen.height)), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
@@ -98,14 +85,14 @@ public class ScreenSpaceWaterManager
         particle3DMaterial.SetFloat("_Radius", ParticleRadius);
         particleSphereDepthMaterial.SetFloat("_Radius", ParticleRadius);
         particleAdditiveDensityMaterial.SetFloat("_Radius", ParticleRadius);
-        foamParticle3DMaterial.SetFloat("_Radius", ParticleRadius); // TODO: make radius global param
+
 
         depthTextureToNormals.SetFloat("DepthDifferenceCutoff", DepthDifferenceCutoffForNormals);
 
         compositeIntoWater.SetTexture("SmoothedDepthTex", smoothedDepthTex);
         compositeIntoWater.SetTexture("NormalTex", normalTex);
         compositeIntoWater.SetTexture("DensityTex", densityTex);
-        compositeIntoWater.SetTexture("FoamTex", foamTex);
+        compositeIntoWater.SetTexture("FoamTex", GameManager.Ins.simFoamManager.FoamTex);
         compositeIntoWater.SetTexture("EnvironmentMap", EnvironmentMap);
 
         //
@@ -118,7 +105,8 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetInt("ObstacleType", ObstacleType ? 1 : 0);
 
         //
-        foamParticleBillboardMaterial.SetFloat("FoamScaleMultiplier", FoamScaleMultiplier);
+        GameManager.Ins.simFoamManager.UniformParameters();
+
     }
 
     public void UpdateObstacleData()
@@ -150,14 +138,12 @@ public class ScreenSpaceWaterManager
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
 
         // Draw foam particles
-        commandBuffer.SetRenderTarget(foamTex);
-        commandBuffer.ClearRenderTarget(true, true, new Color(0, 0, 100000)); // ~ 0 color, 0 Unity Depth (i think its reversed), 100000 Linear Depth
-        GameManager.Ins.simFoamManager.Draw(commandBuffer, foamParticleBillboardMaterial);
+        GameManager.Ins.simFoamManager.DrawFoamTex(commandBuffer);
 
         // Draw thickness/density texture
         commandBuffer.SetRenderTarget(densityTex);
         commandBuffer.ClearRenderTarget(true, true, Color.black);
-        commandBuffer.Blit(foamTex, densityTex, copyDepthMaterial);
+        commandBuffer.Blit(GameManager.Ins.simFoamManager.FoamTex, densityTex, copyDepthMaterial);
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleAdditiveDensityMaterial, 0, ParticleCount);
 
         // Blur depth tex

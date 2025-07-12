@@ -6,12 +6,14 @@ struct ParticleEntry {
 };
 
 RWStructuredBuffer<ParticleEntry> ParticleEntries;
-RWStructuredBuffer<int> ParticleIndexToEntryIndex; // ParticleEntries[ParticleIndexToEntryIndex[i]] should hold the entry for the ith particle always, like pointers
+RWStructuredBuffer<int> ParticleIDToEntryIndex; // ParticleEntries[ParticleIDToEntryIndex[i]] should hold the entry for the ith particle (particle id i), like pointers
+
+const uint ParticleCount;
 
 [numthreads(64,1,1)]
 void SortPass (uint3 id : SV_DispatchThreadID)
 {
-    int i = id.x;
+    uint i = id.x;
     if(i >= (ParticleCount-1)/2) return;
 
     //
@@ -26,8 +28,8 @@ void SortPass (uint3 id : SV_DispatchThreadID)
         ParticleEntries[thisIndex] = otherEntry;
         ParticleEntries[otherIndex] = thisEntry;
 
-        ParticleIndexToEntryIndex[otherEntry.particleIndex] = thisIndex;
-        ParticleIndexToEntryIndex[thisEntry.particleIndex] = otherIndex;
+        ParticleIDToEntryIndex[otherEntry.particleIndex] = thisIndex;
+        ParticleIDToEntryIndex[thisEntry.particleIndex] = otherIndex;
     }
 
 }

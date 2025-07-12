@@ -15,6 +15,7 @@ public class SimulationParameters : MonoBehaviour
 
     public static float SmoothingRadius => Ins.smoothingRadius;
     public static Mesh SphereMesh => Ins.sphereMesh;
+    public static bool UseOddEvenSort => Ins.useOddEvenSort;
 
     public static Matrix4x4 ContainerTransform => Ins.containerTransform.transform.localToWorldMatrix;
     public static Matrix4x4 ContainerInverseTransform => Ins.containerTransform.transform.worldToLocalMatrix;
@@ -105,6 +106,7 @@ public class SimulationParameters : MonoBehaviour
     [Header("Misc Parameters")]
     [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
     [SerializeField] Mesh sphereMesh;
+    [SerializeField] bool useOddEvenSort;
 
     [Header("Box/Obstacle Parameters")]
     [SerializeField] Transform obstacleTransform;

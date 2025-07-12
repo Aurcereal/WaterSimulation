@@ -38,6 +38,9 @@ public class ComputeManager
     public ComputeBuffer survivingFoamParticles;
     public ComputeBuffer foamParticleCounts;
 
+    // Odd-Even Sort OES
+    public ComputeBuffer ParticleIDToEntryIndexBuffer;
+
     public ComputeManager()
     {
         particleSimulatorShader = ComputeHelper.FindInResourceFolder("ParticleSimulator");
@@ -63,6 +66,12 @@ public class ComputeManager
         updatingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
         survivingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
         foamParticleCounts = ComputeHelper.CreateBuffer<uint>(2);
+
+        // OES
+        if (UseOddEvenSort)
+        {
+            ParticleIDToEntryIndexBuffer = ComputeHelper.CreateBuffer<int>(ParticleCount);
+        }
     }
 
     public void Destructor()

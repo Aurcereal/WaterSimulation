@@ -4,6 +4,7 @@
 #pragma kernel CalculatePredictedPositions
 
 #pragma kernel UpdateSpatialHashEntries
+#pragma kernel UpdateSpatialHashEntriesOES // OES
 #pragma kernel ResetSpatialHashOffsets
 #pragma kernel UpdateSpatialHashOffsets // Must be sorted at this point
 
@@ -125,6 +126,22 @@ void UpdateSpatialHashEntries (uint3 id : SV_DispatchThreadID)
     e.key = key;
 
     particleCellKeyEntries[i] = e;
+}
+
+[numthreads(THREADGROUPSIZE, 1,1)]
+void UpdateSpatialHashEntriesOES (uint3 id : SV_DispatchThreadID) // OES
+{
+    int i = id.x;
+    if(i >= ParticleCount) return;
+
+    int3 cell = posToCell(predictedPositions[i]);
+    int key = getCellKey(cell);
+
+    ParticleEntry e;
+    e.particleIndex = i;
+    e.key = key;
+
+    particleCellKeyEntries[ParticleIDToEntryIndex[i]] = e;
 }
 
 [numthreads(THREADGROUPSIZE, 1, 1)]
@@ -522,7 +539,8 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
 
     float kineticEnergy = 0.5 * dot(vel, vel);
     float kineticPotential = clamp((kineticEnergy - KineticPotentialRemapLow) / (KineticPotentialRemapHigh - KineticPotentialRemapLow), 0., 1.);
-    float numSpawn = dt * kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
+    float spawnRate = kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
+    float numSpawn = dt * spawnRate * spawnRate;
     float spd = length(vel);
     float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
     if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);

@@ -5,16 +5,25 @@ using UnityEngine;
 using static SimulationParameters;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
+using UnityEngine.Rendering;
 
 public class RaymarchManager : MonoBehaviour
 {
     public static RaymarchManager Ins { get; private set; }
     Material waterRaymarchMat;
+
     RenderTexture densityTexture;
+
+    CommandBuffer commandBuffer;
+
     void Awake()
     {
         Ins = this;
         waterRaymarchMat = new(Shader.Find("Unlit/WaterRaymarch"));
+
+        //
+        commandBuffer = new ();
+
     }
 
     public void UniformAllParameters()
@@ -38,6 +47,10 @@ public class RaymarchManager : MonoBehaviour
 
         //
         waterRaymarchMat.SetTexture("EnvironmentMap", EnvironmentMap);
+        waterRaymarchMat.SetTexture("FoamTex", GameManager.Ins.simFoamManager.FoamTex);
+
+        //
+        GameManager.Ins.simFoamManager.UniformParameters();
 
     }
 
@@ -54,9 +67,28 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat.SetVector("ObstacleScale", (Vector3)ObstacleScale);
     }
 
+    public void OnEnable()
+    {
+        MainCamera.RemoveAllCommandBuffers();
+        MainCamera.AddCommandBuffer(CameraEvent.AfterEverything, commandBuffer);
+        MainCamera.depthTextureMode = DepthTextureMode.Depth;
+    }
+
+    public void OnDisable()
+    {
+        MainCamera.RemoveAllCommandBuffers();
+    }
+
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         Graphics.Blit(null, dest, waterRaymarchMat);
+    }
+
+    public void DrawFoam()
+    {
+        commandBuffer.Clear();
+        
+        GameManager.Ins.simFoamManager.DrawFoamTex(commandBuffer);
     }
 
     public void CacheDensities()
