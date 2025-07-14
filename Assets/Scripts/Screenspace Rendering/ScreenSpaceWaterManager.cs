@@ -18,7 +18,7 @@ public class ScreenSpaceWaterManager
     //
     Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
     Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
-    Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity"));
+    public Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity")); // RVS TODO make material manager that sets all buffers and enable instancing and stuff
 
     Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
     Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
@@ -94,6 +94,7 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetTexture("DensityTex", densityTex);
         compositeIntoWater.SetTexture("FoamTex", GameManager.Ins.simFoamManager.FoamTex);
         compositeIntoWater.SetTexture("EnvironmentMap", EnvironmentMap);
+        compositeIntoWater.SetTexture("DensityFromSunTex", GameManager.Ins.shadowMapManager.DensityFromSunTex);
 
         //
         compositeIntoWater.SetFloat("DensityMultiplier", ScreenSpaceDensityMultiplier);
@@ -103,6 +104,10 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetVector("LightDir", (Vector3)LightDir);
 
         compositeIntoWater.SetInt("ObstacleType", ObstacleType ? 1 : 0);
+
+        // TODO: maybe make it so we can change shadowcam view during sim
+        compositeIntoWater.SetMatrix("ShadowCamVP", GameManager.Ins.shadowMapManager.ShadowCamVP);
+        compositeIntoWater.SetInteger("UseShadowMapping", UseShadowMapping ? 1 : 0);
 
         //
         GameManager.Ins.simFoamManager.UniformParameters();
@@ -154,7 +159,6 @@ public class ScreenSpaceWaterManager
 
         //
         commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
-
     }
 
     public void DebugDrawSpheres()

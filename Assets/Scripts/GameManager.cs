@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
 
     public ScreenSpaceWaterManager screenSpaceManager;
     public SimulationFoamParticleManager simFoamManager;
+    public ShadowMapManager shadowMapManager;
 
     void Start()
     {
@@ -51,6 +52,7 @@ public class GameManager : MonoBehaviour
         simUpdater = new();
         simTimeController = new();
         simFoamManager = new();
+        shadowMapManager = new();
 
         bitonicSorter = new();
         if(UseOddEvenSort) // OES
@@ -124,9 +126,14 @@ public class GameManager : MonoBehaviour
         }
 
         if (EnableRaymarchShader)
+        {
             RaymarchManager.Ins.DrawFoam();
+        }
         else
+        {
+            if(UseShadowMapping) shadowMapManager.DrawShadows();
             screenSpaceManager.Draw();
+        }
 
         prevEnableRaymarchShader = EnableRaymarchShader;
     }

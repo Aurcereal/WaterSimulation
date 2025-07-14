@@ -213,6 +213,14 @@ Shader "Unlit/WaterRaymarch"
                 return LightMultiplier * accumLight;
             }
 
+            const bool UseShadowMapping;
+
+            float GetShadowOcclusion(float3 pos) {
+                if(!UseShadowMapping) return 1.;
+                return 1.;
+                // TODO: implement
+            }
+
             samplerCUBE EnvironmentMap;
 
             float3 SampleSkybox(float3 rd) {
@@ -349,67 +357,6 @@ Shader "Unlit/WaterRaymarch"
             bool IsInsideLiquid(float3 pos) {
                 return SampleDensity(pos) >= WaterExistenceThreshold;
             }
-
-            // float3 TraceWaterRay(float3 ro, float3 rd, float2 sp) {
-            //     float3 transmittance = 1.;
-            //     float3 li = 0.;
-
-            //     for(int i=0; i<2; i++) {//min(NumBounces, MAXBOUNCECOUNT); i++) {
-            //         bool isInsideLiquid = IsInsideLiquid(ro);
-
-            //         int interType;
-            //         float2 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
-            //         float t = inter.x; float densityAlongRay = inter.y;
-            //         float3 hitPos = ro + rd*t;
-
-            //         if(interType != INTERTYPE_WATER) {
-            //             if(i==0) return SampleEnvironment(hitPos, rd); // / LightMultiplier
-            //             break;
-            //         }
-
-            //         float3 norm = CalculateNormal(hitPos);
-            //         if(isInsideLiquid) norm *= -1.0;
-
-            //         transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
-
-            //         float ior = isInsideLiquid ? IndexOfRefraction : 1./IndexOfRefraction;
-
-            //         float f = Fresnel(-rd, norm, ior);
-            //         float kReflect = f;
-            //         float kRefract = 1.-f;
-
-            //         float3 reflectRay = Reflect(-rd, norm);
-            //         float3 refractRay = Refract(-rd, norm, ior);
-
-            //         // Optimize, shouldn't have these 2 calculate densities and not stop at water when we use same intersection info in next loop
-            //         float densAlongReflect = CalculateDensityAlongRayStopAtObject(hitPos+reflectRay*0.0005, reflectRay);
-            //         float densAlongRefract = CalculateDensityAlongRayStopAtObject(hitPos+refractRay*0.0005, refractRay);
-
-            //         float reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
-            //         float refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
-
-            //         if(reflectTransmittance >= refractTransmittance) { // f >= 0.5
-            //             rd = reflectRay;
-            //             ro = hitPos + norm*NextRayOffset;
-            //             transmittance *= f;
-
-            //             li += transmittance * refractTransmittance * SampleEnvironment(ro, refractRay);
-            //         } else {
-            //             rd = refractRay;
-            //             ro = hitPos + norm*NextRayOffset;
-            //             transmittance *= 1.-f;
-
-            //             li += transmittance * reflectTransmittance * SampleEnvironment(ro, reflectRay);
-            //         }
-
-            //     }
-
-            //     // We already calculate this density in case of t >= MAXDIST..
-            //     float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRayStopAtObject(ro, rd)); // Can use big step sizefor this one
-            //     li += transmittance * transmittanceToLight * SampleEnvironment(ro, rd);
-
-            //     return li;
-            // }
 
             float3 TraceWaterRayOverride(float3 ro, float3 rd, float2 sp, bool firstFollowReflect, float foamT) {
                 float3 transmittance = 1.;

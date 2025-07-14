@@ -16,6 +16,7 @@ public class SimulationParameters : MonoBehaviour
     public static float SmoothingRadius => Ins.smoothingRadius;
     public static Mesh SphereMesh => Ins.sphereMesh;
     public static bool UseOddEvenSort => Ins.useOddEvenSort;
+    public static bool UseShadowMapping => Ins.useShadowMapping;
 
     public static Matrix4x4 ContainerTransform => Ins.containerTransform.transform.localToWorldMatrix;
     public static Matrix4x4 ContainerInverseTransform => Ins.containerTransform.transform.worldToLocalMatrix;
@@ -83,6 +84,8 @@ public class SimulationParameters : MonoBehaviour
     public static float ScreenSpaceDensityMultiplier => Ins.screenSpaceDensityMultiplier;
     public static float3 ScreenSpaceExtinctionCoefficients => Ins.screenSpaceExtinctionCoefficients;
     public static float ScreenSpaceLightMultiplier => Ins.screenSpaceLightMultiplier;
+    public static int ShadowMapResolution => Ins.shadowMapResolution;
+    public static Camera ShadowCam => Ins.shadowCam;
 
     public static int MaxFoamParticleCount => Ins.maxFoamParticleCount;
     public static float TrappedAirPotentialRemapLow => Ins.trappedAirPotentialRemapLow;
@@ -107,6 +110,7 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
     [SerializeField] Mesh sphereMesh;
     [SerializeField] bool useOddEvenSort;
+    [SerializeField] bool useShadowMapping = false;
 
     [Header("Box/Obstacle Parameters")]
     [SerializeField] Transform obstacleTransform;
@@ -174,6 +178,8 @@ public class SimulationParameters : MonoBehaviour
     [Range(0.00005f, 10.0f)][SerializeField] float screenSpaceDensityMultiplier = 0.118f;
     [SerializeField] float3 screenSpaceExtinctionCoefficients = 1.0f;
     [Range(0.005f, 100.0f)][SerializeField] float screenSpaceLightMultiplier = 1f;
+    [SerializeField] int shadowMapResolution = 1000;
+    [SerializeField] Camera shadowCam;
 
     [Header("Foam, Spray, Bubbles")] // not just foam technically, called the white particles..
     [SerializeField] int maxFoamParticleCount = 1048576;

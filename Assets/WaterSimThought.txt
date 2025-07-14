@@ -16,9 +16,9 @@ Seb Lague Vid
 - Group density and neardensity as a float2 (less reads and writes)
 - Probably just take out masses for now?
 - Implement linked list method for springs (detailed below)
-- People in Seb Lague video comments talking about how full bitonic sort doesn't gotta be run every frame, odd even sort? like swapping odd and even entries maybe and just doing that every frame but how can iteratively sorting work when the whole hash system is reset every frame?  though it shouldnt have to be reset since only a few entries change every frame prolly 
-	- count sort type of thing?
-	- Index pointers from particle index to its current index in the particle key pair array
+
+https://www.eecs.umich.edu/courses/eecs570/hw/parprefix.pdf
+For count sort we need an efficient way to do prefix sum cuz like we can get how many of each key there are that's ez but then we need to discrete integral the array soo this paper describes that but looks scary so not rn
 
 - Foam on Screenspace and Foam on Raymarch (can't refract into foam inside water tho)
 - Shadow
@@ -77,3 +77,5 @@ For the sorting described in the spatial hashing above, I tried a Bitonic Sort u
 
 
 For rendering, I tried 2 methods: Raymarched Rendering and Screenspace Rendering (as described by this paper: INSERT HERE)
+
+Talk about bitonic sort and if you do prefix sum on gpu cuz these are like gpu programming algos

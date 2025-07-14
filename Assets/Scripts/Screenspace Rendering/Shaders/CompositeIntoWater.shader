@@ -46,6 +46,7 @@ Shader "Unlit/CompositeIntoWater"
             sampler2D NormalTex;
             sampler2D DensityTex;
             sampler2D FoamTex;
+            sampler2D DensityFromSunTex;
 
             const float FovY;
             const float Aspect;
@@ -72,6 +73,29 @@ Shader "Unlit/CompositeIntoWater"
             const float4x4 ObstacleInverseTransform;
             const float3 ObstacleScale;
             const bool ObstacleType;
+
+            const float4x4 ShadowCamVP;
+
+            const bool UseShadowMapping;
+
+            float GetShadowOcclusion(float3 pos) {
+                if(!UseShadowMapping) return 1.;
+
+                float4 clipSpacePos = mul(ShadowCamVP, float4(pos, 1.));
+                clipSpacePos /= clipSpacePos.w;
+
+                float2 uv = clipSpacePos.xy*0.5+0.5;
+                if(uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.) return 1.;
+
+                // TODO: Use a very low res depth tex from shadow cam to check whether we're being occluded at all
+                float fragDepth = dot(pos - CamPos, CamFo);
+
+                //
+                float densityAlongSunRay = tex2D(DensityFromSunTex, uv).r;
+                float transmittance = exp(-0.05 * densityAlongSunRay * ExtinctionCoefficients);
+
+                return transmittance;
+            }
 
             float3 Raycast(float2 uv) {
                 float2 p = uv*2.0-1.0;

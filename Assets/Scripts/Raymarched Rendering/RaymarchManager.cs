@@ -50,6 +50,9 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat.SetTexture("FoamTex", GameManager.Ins.simFoamManager.FoamTex);
 
         //
+        waterRaymarchMat.SetInteger("UseShadowMapping", UseShadowMapping ? 1 : 0);
+
+        //
         GameManager.Ins.simFoamManager.UniformParameters();
 
     }
