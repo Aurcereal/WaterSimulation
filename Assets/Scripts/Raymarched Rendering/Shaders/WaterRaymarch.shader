@@ -183,43 +183,37 @@ Shader "Unlit/WaterRaymarch"
                 return accumDensity;
             }
 
-            float3 AccumLightAlongRay(float3 ro, float3 rd) {
+            // float3 AccumLightAlongRay(float3 ro, float3 rd) {
                 
-                // Bounding Box Intersection
-                float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
-                float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
+            //     // Bounding Box Intersection
+            //     float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
+            //     float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
 
-                float2 boxTs = rayBoxIntersect(lro, lrd);
-                if(boxTs.x > boxTs.y) return 0.;
+            //     float2 boxTs = rayBoxIntersect(lro, lrd);
+            //     if(boxTs.x > boxTs.y) return 0.;
 
-                //
-                float tCurr = max(0., boxTs.x);
-                float tEnd = boxTs.y;
+            //     //
+            //     float tCurr = max(0., boxTs.x);
+            //     float tEnd = boxTs.y;
 
-                float3 accumLight = 0.;
-                float3 transmittance = 1.;
+            //     float3 accumLight = 0.;
+            //     float3 transmittance = 1.;
 
-                while(tCurr <= tEnd) {
-                    float3 pos = ro + rd * tCurr;
+            //     while(tCurr <= tEnd) {
+            //         float3 pos = ro + rd * tCurr;
 
-                    float densityAlongStep = STEPSIZE * SampleDensity(pos);
-                    transmittance *= exp(-densityAlongStep * ExtinctionCoefficients);
-                    float3 Li = exp(- ExtinctionCoefficients * CalculateDensityAlongRay(pos, -LightDir)); // Directional light
-                    accumLight += transmittance * densityAlongStep * ExtinctionCoefficients * Li;
+            //         float densityAlongStep = STEPSIZE * SampleDensity(pos);
+            //         transmittance *= exp(-densityAlongStep * ExtinctionCoefficients);
+            //         float3 Li = exp(- ExtinctionCoefficients * CalculateDensityAlongRay(pos, -LightDir)); // Directional light
+            //         accumLight += transmittance * densityAlongStep * ExtinctionCoefficients * Li;
 
-                    tCurr += STEPSIZE;
-                }
+            //         tCurr += STEPSIZE;
+            //     }
 
-                return LightMultiplier * accumLight;
-            }
+            //     return LightMultiplier * accumLight;
+            // }
 
             const bool UseShadowMapping;
-
-            float GetShadowOcclusion(float3 pos) {
-                if(!UseShadowMapping) return 1.;
-                return 1.;
-                // TODO: implement
-            }
 
             samplerCUBE EnvironmentMap;
 
@@ -356,6 +350,28 @@ Shader "Unlit/WaterRaymarch"
 
             bool IsInsideLiquid(float3 pos) {
                 return SampleDensity(pos) >= WaterExistenceThreshold;
+            }
+
+            float GetShadowOcclusion(float3 pos) {
+                if(!UseShadowMapping) return 1.;
+
+                pos += normal(pos)*0.07;
+
+                // Occluded by object
+                float objDist = RayIntersectScene(pos, -LightDir);
+                if(objDist < MAXDIST-0.001) return 0.;
+
+                // Get to the liquid
+                if(!IsInsideLiquid(pos)) {
+                    float2 waterInter = RayIntersectWater(pos, -LightDir, MAXDIST, false);
+                    if(waterInter.x >= MAXDIST) return 1.;
+                    pos += waterInter.x * (-LightDir);
+                }
+
+                float densAlongRay = RayIntersectWater(pos, -LightDir, MAXDIST, true);
+                float transmittance = exp(-1. * ExtinctionCoefficients * densAlongRay);
+
+                return transmittance;
             }
 
             float3 TraceWaterRayOverride(float3 ro, float3 rd, float2 sp, bool firstFollowReflect, float foamT) {
