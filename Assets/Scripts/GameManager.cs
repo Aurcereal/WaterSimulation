@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour
         shadowMapManager = new();
 
         bitonicSorter = new();
-        if(UseOddEvenSort) // OES
+        if (UseOddEvenSort) // OES
             oddEvenSorter = new();
 
         camController = new(MainCamera.transform.position, float3(0));

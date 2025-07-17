@@ -57,6 +57,7 @@ public static class ComputeHelper
 
     public static void SetBuffer(this ComputeShader shader, string name, ComputeBuffer buffer, params string[] kernelNames)
     {
+        if (kernelNames.Length == 0) Debug.LogError("SetBuffer called with no kernels");
         foreach (string kernelName in kernelNames)
         {
             shader.SetBuffer(shader.FindKernel(kernelName), name, buffer);

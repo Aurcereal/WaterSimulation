@@ -1,0 +1,37 @@
+#pragma kernel ExpandWindows
+#pragma kernel CopySrcToDst
+
+struct ParticleEntry {
+    int particleIndex;
+    int key;
+};
+
+RWStructuredBuffer<int> IntegrateBufferSrc;
+RWStructuredBuffer<int> IntegrateBufferDst;
+
+const uint Length;
+const uint WindowSize;
+
+[numthreads(64,1,1)]
+void ExpandWindows(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if(i >= Length) return;
+
+    int grabIndex = i-WindowSize;
+    if(grabIndex >= 0) {
+        IntegrateBufferDst[i] = IntegrateBufferSrc[i] + IntegrateBufferSrc[grabIndex];
+    } else {
+        IntegrateBufferDst[i] = IntegrateBufferSrc[i];
+    }
+}
+
+[numthreads(64,1,1)]
+void CopySrcToDst(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if(i >= Length) return;
+
+    IntegrateBufferDst[i] = IntegrateBufferSrc[i];
+}
+
