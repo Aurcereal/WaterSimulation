@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     public SimulationTimeController simTimeController;
 
     public BitonicSortManager bitonicSorter;
+    public CountSortManager countSorter;
     public OddEvenSortManager oddEvenSorter;
 
     public CameraController camController;
@@ -57,6 +58,7 @@ public class GameManager : MonoBehaviour
         bitonicSorter = new();
         if (UseOddEvenSort) // OES
             oddEvenSorter = new();
+        countSorter = new();
 
         camController = new(MainCamera.transform.position, float3(0));
 
@@ -141,6 +143,7 @@ public class GameManager : MonoBehaviour
     void OnDisable()
     {
         computeManager?.Destructor();
+        countSorter?.Destructor();
     }
 
 }

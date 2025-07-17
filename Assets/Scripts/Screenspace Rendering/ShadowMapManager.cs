@@ -21,10 +21,10 @@ public class ShadowMapManager
 
         cmd = new();
         ShadowCam.RemoveAllCommandBuffers();
-        ShadowCam.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, cmd); // before opaque RVS
+        ShadowCam.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, cmd);
         ShadowCam.depthTextureMode = DepthTextureMode.Depth;
 
-        // TODO: see if it functions ok without depth map RVS
+        // TODO: see if it functions ok without depth map
         DensityFromSunTex = ComputeHelper.CreateRenderTexture2D(int2(ShadowMapResolution), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
     }
 

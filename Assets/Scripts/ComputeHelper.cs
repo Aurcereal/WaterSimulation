@@ -64,6 +64,15 @@ public static class ComputeHelper
         }
     }
 
+    public static void SetBuffer(this ComputeShader shader, string name, ComputeBuffer buffer, params int[] kernels)
+    {
+        if (kernels.Length == 0) Debug.LogError("SetBuffer called with no kernels");
+        foreach (int kernel in kernels)
+        {
+            shader.SetBuffer(kernel, name, buffer);
+        }
+    }
+
     public static void SetBuffers(this ComputeShader shader, (string, ComputeBuffer)[] nameBufferPairs, string[] kernelNames)
     {
         foreach (var nbp in nameBufferPairs)

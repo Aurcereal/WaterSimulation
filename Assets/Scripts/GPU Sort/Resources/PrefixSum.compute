@@ -1,4 +1,5 @@
 #pragma kernel ExpandWindows
+#pragma kernel CopyDiffToDst
 #pragma kernel CopySrcToDst
 
 struct ParticleEntry {
@@ -25,6 +26,16 @@ void ExpandWindows(uint3 id : SV_DispatchThreadID)
         IntegrateBufferDst[i] = IntegrateBufferSrc[i];
     }
 }
+
+[numthreads(64,1,1)]
+void CopyDiffToDst(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if(i >= Length) return;
+
+    IntegrateBufferDst[i] = IntegrateBufferSrc[i] - IntegrateBufferDst[i];
+}
+
 
 [numthreads(64,1,1)]
 void CopySrcToDst(uint3 id : SV_DispatchThreadID)

@@ -18,7 +18,7 @@ public class ScreenSpaceWaterManager
     //
     Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
     Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
-    public Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity")); // RVS TODO make material manager that sets all buffers and enable instancing and stuff
+    public Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity")); // TODO make material manager that sets all buffers and enable instancing and stuff
 
     Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
     Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
@@ -165,9 +165,8 @@ public class ScreenSpaceWaterManager
     {
         commandBuffer.Clear();
 
-        // Draw particle depths
         commandBuffer.SetRenderTarget(MainCamera.targetTexture);
         commandBuffer.ClearRenderTarget(true, true, Color.black);
-        commandBuffer.DrawMeshInstancedProcedural(SphereMesh, 0, particle3DMaterial, 0, ParticleCount);
+        commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particle3DMaterial, 0, ParticleCount);
     }
 }

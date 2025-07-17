@@ -50,8 +50,8 @@ public class SimulationUpdater
         else
         {
             ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashEntries");
-            GameManager.Ins.bitonicSorter.SortParticleEntries();
-            // TODO: remove reset spatial offsets code unnecessary (like in compute shader and the kernel)
+            GameManager.Ins.countSorter.SortParticleEntries(); //GameManager.Ins.bitonicSorter.SortParticleEntries();
+            // // TODO: remove reset spatial offsets code unnecessary (like in compute shader and the kernel)
             ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
         }
 

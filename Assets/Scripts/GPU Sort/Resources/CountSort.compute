@@ -1,0 +1,57 @@
+#pragma kernel ResetCounts
+#pragma kernel SetCounts
+#pragma kernel SortParticles
+#pragma kernel CopyFromSortedBufferToEntryBuffer
+
+struct ParticleEntry {
+    int particleIndex;
+    int key;
+};
+
+RWStructuredBuffer<ParticleEntry> ParticleEntries;
+RWStructuredBuffer<ParticleEntry> ParticleEntriesSorted;
+RWStructuredBuffer<int> KeyCounts;
+
+const uint ParticleCount;
+const uint SpatialLookupSize;
+
+[numthreads(64,1,1)]
+void ResetCounts (uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if(i >= SpatialLookupSize) return;
+
+    KeyCounts[i] = 0;
+}
+
+[numthreads(64,1,1)]
+void SetCounts (uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if(i >= ParticleCount) return;
+
+    InterlockedAdd(KeyCounts[ParticleEntries[i].key], 1);
+}
+
+[numthreads(64,1,1)]
+void SortParticles (uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if(i >= ParticleCount) return;
+
+    ParticleEntry entry = ParticleEntries[i];
+
+    uint placementIndex;
+    InterlockedAdd(KeyCounts[entry.key], 1, placementIndex);
+    ParticleEntriesSorted[placementIndex] = entry;
+}
+
+[numthreads(64,1,1)]
+void CopyFromSortedBufferToEntryBuffer (uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if(i >= ParticleCount) return;
+
+    ParticleEntries[i] = ParticleEntriesSorted[i];
+}
+

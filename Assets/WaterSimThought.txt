@@ -80,3 +80,5 @@ For rendering, I tried 2 methods: Raymarched Rendering and Screenspace Rendering
 
 Talk about bitonic sort and if you do prefix sum on gpu cuz these are like gpu programming algos
 Implemented bitonic sort and count sort on GPU O(lgn+1) for count sort and like O(lg^2n) for bitonic
+
+emphasize all the optimization effort
