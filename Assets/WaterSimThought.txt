@@ -79,6 +79,6 @@ For the sorting described in the spatial hashing above, I tried a Bitonic Sort u
 For rendering, I tried 2 methods: Raymarched Rendering and Screenspace Rendering (as described by this paper: INSERT HERE)
 
 Talk about bitonic sort and if you do prefix sum on gpu cuz these are like gpu programming algos
-Implemented bitonic sort and count sort on GPU O(lgn+1) for count sort and like O(lg^2n) for bitonic
+Implemented bitonic sort and count sort on GPU O(lgn) for count sort and like O(lg^2n) for bitonic
 
 emphasize all the optimization effort

@@ -181,14 +181,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleCount: 180000
-  spawnWidth: 9.5
+  particleCount: 38046
+  spawnWidth: 19.5
   spawnHeight: 5.1
   spawnDepth: 4.2
   smoothingRadius: 0.4
   sphereMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   useOddEvenSort: 0
-  useShadowMapping: 1
+  useShadowMapping: 0
   obstacleTransform: {fileID: 1857617105}
   obstacleType: 0
   obstacleSimInteraction: 1
@@ -215,7 +215,7 @@ MonoBehaviour:
   particleLowColorSpeed: 1
   particleHighColorSpeed: 7.5
   mainCamera: {fileID: 963194227}
-  enableRaymarchShader: 1
+  enableRaymarchShader: 0
   densityCacheStepSize: 0.25
   densityCacheSampleCount: 256
   useDensityStepSize: 0
@@ -598,8 +598,8 @@ Transform:
   m_GameObject: {fileID: 2036646828}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 53.699043, y: 13.35878, z: 14}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 20, y: 4.9754257, z: 5.214246}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
