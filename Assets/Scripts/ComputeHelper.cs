@@ -34,7 +34,7 @@ public static class ComputeHelper
     public static ComputeShader FindInResourceFolder(string name)
     {
         // Must be in Resources folder
-        return Resources.Load<ComputeShader>(name);
+        return GameObject.Instantiate(Resources.Load<ComputeShader>(name));
     }
 
     public static ComputeBuffer CreateBuffer<T>(T[] data)

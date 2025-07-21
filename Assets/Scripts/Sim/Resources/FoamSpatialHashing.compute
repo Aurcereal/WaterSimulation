@@ -60,10 +60,10 @@ void UpdateSpatialHashEntries (uint3 id : SV_DispatchThreadID)
     e.particleIndex = i;
     e.key = key;
 
-    particleCellKeyEntries[i] = e;
+    foamCellKeyEntries[i] = e;
 }
 
-[numthreads(THREADGROUPSIZE, 1,1)]
+[numthreads(256, 1,1)]
 void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
 {
     int i = id.x;
@@ -71,11 +71,11 @@ void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
 
     // Check if the current index in the Particle Array is a start index
     if(i==0) { // TODO: i == 0 check causing bad performance??? probably not.
-        ParticleEntry e = particleCellKeyEntries[0];
+        ParticleEntry e = foamCellKeyEntries[0];
         cellKeyToStartCoord[e.key] = i;
     } else {
-        ParticleEntry eCurr = particleCellKeyEntries[i];
-        ParticleEntry ePrev = particleCellKeyEntries[i-1];
+        ParticleEntry eCurr = foamCellKeyEntries[i];
+        ParticleEntry ePrev = foamCellKeyEntries[i-1];
 
         if(eCurr.key != ePrev.key) {
             cellKeyToStartCoord[eCurr.key] = i;

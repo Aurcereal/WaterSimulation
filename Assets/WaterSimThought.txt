@@ -8,6 +8,8 @@ write about optimizations to run in realtime
 
 Seb Lague Vid
 
+THE FOAM ISNT DISAPPEARING FAST ENOUGH
+
 - Maybe group water particle into struct with position and velocity
 - Group density and neardensity as a float2 (less reads and writes)
 - Probably just take out masses for now?

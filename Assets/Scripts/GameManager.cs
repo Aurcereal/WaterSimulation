@@ -59,8 +59,9 @@ public class GameManager : MonoBehaviour
         bitonicSorter = new();
         if (UseOddEvenSort) // OES
             oddEvenSorter = new();
+        
         waterParticleCountSorter = new(ParticleCount, SpatialLookupSize, computeManager.particleCellKeyEntryBuffer);
-        //foamParticleCountSorter = new(MaxFoamParticleCount, FoamSpatialLookupSize, computeManager.foamParticleCellKeyEntryBuffer, true, computeManager.foamParticleCounts);
+        foamParticleCountSorter = new(MaxFoamParticleCount, FoamSpatialLookupSize, computeManager.foamParticleCellKeyEntryBuffer, true, computeManager.foamParticleCounts);
 
         camController = new(MainCamera.transform.position, float3(0));
 

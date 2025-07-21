@@ -61,6 +61,7 @@ public class SimulationUpdater
         GameManager.Ins.simFoamManager.UpdateFoamParticles();
         GameManager.Ins.simFoamManager.MoveSurvivingFoamParticlesToUpdatingBuffer();
         GameManager.Ins.simFoamManager.UpdateFoamArgsBuffer();
+        GameManager.Ins.simFoamManager.RunSpatialHash();
     }
 
 }

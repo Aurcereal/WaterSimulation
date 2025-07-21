@@ -22,7 +22,7 @@ public class CountSortManager
         prefixSumManager = new(k);
 
         //
-        countSortShader = ComputeHelper.FindInResourceFolder("CountSort");
+        countSortShader = ComputeHelper.FindInResourceFolder("CountSort"); //bufferCount ? "CountSort" : "CountSortTempCopy");
 
         //
         keyCountsBuffer = ComputeHelper.CreateBuffer<int>(k);
