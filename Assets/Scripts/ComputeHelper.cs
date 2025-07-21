@@ -73,7 +73,7 @@ public static class ComputeHelper
         }
     }
 
-    public static void SetBuffers(this ComputeShader shader, (string, ComputeBuffer)[] nameBufferPairs, string[] kernelNames)
+    public static void SetBuffers(this ComputeShader shader, (string, ComputeBuffer)[] nameBufferPairs, params string[] kernelNames)
     {
         foreach (var nbp in nameBufferPairs)
         {

@@ -3,6 +3,8 @@
 #pragma kernel SortParticles
 #pragma kernel CopyFromSortedBufferToEntryBuffer
 
+#pragma multi_compile BUFFER_COUNT __ //RVS
+
 struct ParticleEntry {
     int particleIndex;
     int key;
@@ -12,14 +14,22 @@ RWStructuredBuffer<ParticleEntry> ParticleEntries;
 RWStructuredBuffer<ParticleEntry> ParticleEntriesSorted;
 RWStructuredBuffer<int> KeyCounts;
 
+#ifdef BUFFER_COUNT
+RWStructuredBuffer<uint> CountBuffer; // Make sure Count is in index 0
+#else
 const uint ParticleCount;
+#endif
 const uint SpatialLookupSize;
 
 [numthreads(64,1,1)]
 void ResetCounts (uint3 id : SV_DispatchThreadID)
 {
     uint i = id.x;
+    #ifdef BUFFER_COUNT
+    if(i >= CountBuffer[0]) return;
+    #else
     if(i >= SpatialLookupSize) return;
+    #endif
 
     KeyCounts[i] = 0;
 }
@@ -28,7 +38,11 @@ void ResetCounts (uint3 id : SV_DispatchThreadID)
 void SetCounts (uint3 id : SV_DispatchThreadID)
 {
     uint i = id.x;
-    if(i >= ParticleCount) return;
+    #ifdef BUFFER_COUNT
+    if(i >= CountBuffer[0]) return;
+    #else
+    if(i >= SpatialLookupSize) return;
+    #endif
 
     InterlockedAdd(KeyCounts[ParticleEntries[i].key], 1);
 }
@@ -37,7 +51,11 @@ void SetCounts (uint3 id : SV_DispatchThreadID)
 void SortParticles (uint3 id : SV_DispatchThreadID)
 {
     uint i = id.x;
-    if(i >= ParticleCount) return;
+    #ifdef BUFFER_COUNT
+    if(i >= CountBuffer[0]) return;
+    #else
+    if(i >= SpatialLookupSize) return;
+    #endif
 
     ParticleEntry entry = ParticleEntries[i];
 
@@ -50,7 +68,11 @@ void SortParticles (uint3 id : SV_DispatchThreadID)
 void CopyFromSortedBufferToEntryBuffer (uint3 id : SV_DispatchThreadID)
 {
     uint i = id.x;
-    if(i >= ParticleCount) return;
+    #ifdef BUFFER_COUNT
+    if(i >= CountBuffer[0]) return;
+    #else
+    if(i >= SpatialLookupSize) return;
+    #endif
 
     ParticleEntries[i] = ParticleEntriesSorted[i];
 }

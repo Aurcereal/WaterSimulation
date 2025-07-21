@@ -13,9 +13,7 @@ Seb Lague Vid
 - Probably just take out masses for now?
 - Implement linked list method for springs (detailed below)
 
-https://www.eecs.umich.edu/courses/eecs570/hw/parprefix.pdf
-https://developers.redhat.com/articles/2024/08/15/your-first-gpu-algorithm-scanprefix-sum#prefix_sum rly good explanation
-For count sort we need an efficient way to do prefix sum this article has good explanation
+- Maybe remove OES
 
 - Better foam rendering with volumetric raymarching as described by first foam paper (neighbor search terminates at first find so not so bad)
 - Caustics (nvidia article scroll up)
@@ -35,6 +33,10 @@ For count sort we need an efficient way to do prefix sum this article has good e
 - Could eventually move to SDY and have water interact with SDF objects there
 
 -=Ignore/Done for now=-
+
+https://www.eecs.umich.edu/courses/eecs570/hw/parprefix.pdf
+https://developers.redhat.com/articles/2024/08/15/your-first-gpu-algorithm-scanprefix-sum#prefix_sum rly good explanation
+For count sort we need an efficient way to do prefix sum this article has good explanation
 
 - For Wave Crest we need easy access to normals i guess i can precompute it foreach... even though it'd be kinda expensive?
 	- Well it can be toggleable

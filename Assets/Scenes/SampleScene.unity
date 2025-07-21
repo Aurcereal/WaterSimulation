@@ -186,7 +186,7 @@ MonoBehaviour:
   spawnHeight: 5.1
   spawnDepth: 4.2
   smoothingRadius: 0.4
-  sphereMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  sphereMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 3}
   useOddEvenSort: 0
   useShadowMapping: 0
   obstacleTransform: {fileID: 1857617105}
@@ -199,7 +199,7 @@ MonoBehaviour:
     z: 0
   mouseForceRadius: 2.31
   mouseForceStrength: 826
-  targetDensity: 50
+  targetDensity: 60
   nearDensityPressureMultiplier: 12
   pressureMultiplier: 215
   viscosityStrength: 42
@@ -598,8 +598,8 @@ Transform:
   m_GameObject: {fileID: 2036646828}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 20, y: 4.9754257, z: 5.214246}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 30, y: 4.9754257, z: 5.214246}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4

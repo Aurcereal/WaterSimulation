@@ -33,10 +33,13 @@ public class ComputeManager
     public ComputeBuffer particleCellKeyEntryBuffer;
     public ComputeBuffer cellKeyToStartCoordBuffer;
 
-    //
+    // Foam
     public ComputeBuffer updatingFoamParticles;
     public ComputeBuffer survivingFoamParticles;
     public ComputeBuffer foamParticleCounts;
+
+    public ComputeBuffer foamParticleCellKeyEntryBuffer;
+    public ComputeBuffer foamCellKeyToStartCoordBuffer;
 
     // Odd-Even Sort OES
     public ComputeBuffer ParticleIDToEntryIndexBuffer;
@@ -66,6 +69,9 @@ public class ComputeManager
         updatingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
         survivingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
         foamParticleCounts = ComputeHelper.CreateBuffer<uint>(2);
+
+        foamParticleCellKeyEntryBuffer = ComputeHelper.CreateBuffer<ParticleEntry>(MaxFoamParticleCount);
+        foamCellKeyToStartCoordBuffer = ComputeHelper.CreateBuffer<int>(FoamSpatialLookupSize);
 
         // OES
         if (UseOddEvenSort)

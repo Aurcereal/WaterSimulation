@@ -17,6 +17,8 @@ public class SimulationFoamParticleManager
 
     public RenderTexture FoamTex { get; private set; }
 
+    ComputeShader foamSpatialHashingShader;
+
     public struct FoamParticle
     {
         float3 position;
@@ -27,18 +29,33 @@ public class SimulationFoamParticleManager
 
     public SimulationFoamParticleManager()
     {
+        ComputeManager computeManager = GameManager.Ins.computeManager;
+
         argsBuffer = ComputeHelper.CreateArgsBuffer(MeshUtils.QuadMesh, 0, 0);
 
-        GameManager.Ins.computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("argsBuffer", argsBuffer, "CopyFoamParticleCountToArgsBuffer");
-        GameManager.Ins.computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("foamParticleCounts", GameManager.Ins.computeManager.foamParticleCounts, "CopyFoamParticleCountToArgsBuffer");
+        computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("argsBuffer", argsBuffer, "CopyFoamParticleCountToArgsBuffer");
+        computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("foamParticleCounts", GameManager.Ins.computeManager.foamParticleCounts, "CopyFoamParticleCountToArgsBuffer");
 
         foamParticle3DMaterial.enableInstancing = true;
-        foamParticle3DMaterial.SetBuffer("foamParticleBuffer", GameManager.Ins.computeManager.survivingFoamParticles);
+        foamParticle3DMaterial.SetBuffer("foamParticleBuffer", computeManager.survivingFoamParticles);
 
         foamParticleBillboardMaterial.enableInstancing = true;
-        foamParticleBillboardMaterial.SetBuffer("foamParticleBuffer", GameManager.Ins.computeManager.survivingFoamParticles);
+        foamParticleBillboardMaterial.SetBuffer("foamParticleBuffer", computeManager.survivingFoamParticles);
 
         FoamTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
+
+        //
+        foamSpatialHashingShader = ComputeHelper.FindInResourceFolder("FoamSpatialHashing");
+        foamSpatialHashingShader.SetBuffers(new[] {
+            ("foamCellKeyEntries", computeManager.foamParticleCellKeyEntryBuffer),
+            ("cellKeyToStartCoord", computeManager.foamCellKeyToStartCoordBuffer),
+            ("updatingFoamParticles", computeManager.updatingFoamParticles),
+            ("foamParticleCounts", computeManager.foamParticleCounts)
+            },
+            "UpdateSpatialHashEntries", "UpdateSpatialHashOffsets");
+        foamSpatialHashingShader.SetInt("MaxFoamParticleCount", MaxFoamParticleCount);
+        foamSpatialHashingShader.SetInt("FoamSpatialLookupSize", FoamSpatialLookupSize);
+        foamSpatialHashingShader.SetFloat("FoamGridSize", FoamGridSize);
     }
 
     // TODO: mustt be called
@@ -61,6 +78,16 @@ public class SimulationFoamParticleManager
     public void UpdateFoamArgsBuffer()
     {
         ComputeHelper.Dispatch(GameManager.Ins.computeManager.copyFoamParticleCountToArgsBufferShader, 1, 1, 1, "CopyFoamParticleCountToArgsBuffer");
+    }
+
+    public void RunSpatialHash()
+    {
+        // 1. Update keys
+        ComputeHelper.Dispatch(foamSpatialHashingShader, MaxFoamParticleCount, 1, 1, "UpdateSpatialHashEntries");
+        // 2. Sort
+        //GameManager.Ins.foamParticleCountSorter.SortParticleEntries(); 
+        // 3. Set offsets
+        ComputeHelper.Dispatch(foamSpatialHashingShader, MaxFoamParticleCount, 1, 1, "UpdateSpatialHashOffsets");
     }
 
     public void DrawFoamTex(CommandBuffer cmd)

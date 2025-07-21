@@ -13,33 +13,48 @@ public class CountSortManager
     ComputeBuffer keyCountsBuffer;
     ComputeBuffer particleCellKeyEntrySortedBuffer;
 
-    public CountSortManager()
+    int n, k;
+
+    public CountSortManager(int n, int k, ComputeBuffer entryBuffer, bool bufferCount = false, ComputeBuffer countBuffer = null)
     {
-        prefixSumManager = new(SpatialLookupSize);
+        this.n = n; this.k = k;
+
+        prefixSumManager = new(k);
 
         //
         countSortShader = ComputeHelper.FindInResourceFolder("CountSort");
 
         //
-        keyCountsBuffer = ComputeHelper.CreateBuffer<int>(SpatialLookupSize);
-        particleCellKeyEntrySortedBuffer = ComputeHelper.CreateBuffer<ParticleEntry>(ParticleCount);
+        keyCountsBuffer = ComputeHelper.CreateBuffer<int>(k);
+        particleCellKeyEntrySortedBuffer = ComputeHelper.CreateBuffer<ParticleEntry>(n);
 
         //
         countSortShader.SetBuffer("KeyCounts", keyCountsBuffer, "ResetCounts", "SetCounts", "SortParticles");
-        countSortShader.SetBuffer("ParticleEntries", GameManager.Ins.computeManager.particleCellKeyEntryBuffer, "SetCounts", "SortParticles", "CopyFromSortedBufferToEntryBuffer");
+        countSortShader.SetBuffer("ParticleEntries", entryBuffer, "SetCounts", "SortParticles", "CopyFromSortedBufferToEntryBuffer");
         countSortShader.SetBuffer("ParticleEntriesSorted", particleCellKeyEntrySortedBuffer, "SortParticles", "CopyFromSortedBufferToEntryBuffer");
-        countSortShader.SetInt("ParticleCount", ParticleCount);
-        countSortShader.SetInt("SpatialLookupSize", SpatialLookupSize);
+        countSortShader.SetInt("SpatialLookupSize", k);
+
+        if (bufferCount)
+        {
+            if (countBuffer == null) Debug.LogError("Count Sort: Count Buffer is Null when Buffer Count is on");
+            countSortShader.SetBuffer("CountBuffer", countBuffer, 0, 1, 2, 3);
+            countSortShader.EnableKeyword("BUFFER_COUNT"); //RVS
+        }
+        else
+        {
+            countSortShader.SetInt("ParticleCount", n);
+            countSortShader.DisableKeyword("BUFFER_COUNT");
+        }
     }
 
     public void SortParticleEntries()
     {
-        ComputeHelper.Dispatch(countSortShader, SpatialLookupSize, 1, 1, "ResetCounts");
-        ComputeHelper.Dispatch(countSortShader, ParticleCount, 1, 1, "SetCounts");
+        ComputeHelper.Dispatch(countSortShader, k, 1, 1, "ResetCounts");
+        ComputeHelper.Dispatch(countSortShader, n, 1, 1, "SetCounts");
         //logKeyCounts();
         prefixSumManager.IntegrateBuffer(keyCountsBuffer, true);
-        ComputeHelper.Dispatch(countSortShader, ParticleCount, 1, 1, "SortParticles");
-        ComputeHelper.Dispatch(countSortShader, ParticleCount, 1, 1, "CopyFromSortedBufferToEntryBuffer");
+        ComputeHelper.Dispatch(countSortShader, n, 1, 1, "SortParticles");
+        ComputeHelper.Dispatch(countSortShader, n, 1, 1, "CopyFromSortedBufferToEntryBuffer");
     }
 
     public void Destructor()
