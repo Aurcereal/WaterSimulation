@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     public CameraController camController;
 
     public ScreenSpaceWaterManager screenSpaceManager;
-    public SimulationFoamParticleManager simFoamManager;
+    public SimulationFoamManager simFoamManager;
     public ShadowMapManager shadowMapManager;
 
     void Start()

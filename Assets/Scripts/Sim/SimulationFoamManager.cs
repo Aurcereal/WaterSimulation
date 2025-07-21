@@ -8,7 +8,7 @@ using static Unity.Mathematics.math;
 using static SimulationParameters;
 using UnityEngine.Rendering;
 
-public class SimulationFoamParticleManager
+public class SimulationFoamManager
 {
     ComputeBuffer argsBuffer;
 
@@ -27,7 +27,7 @@ public class SimulationFoamParticleManager
         int debugType;
     }
 
-    public SimulationFoamParticleManager()
+    public SimulationFoamManager()
     {
         ComputeManager computeManager = GameManager.Ins.computeManager;
 

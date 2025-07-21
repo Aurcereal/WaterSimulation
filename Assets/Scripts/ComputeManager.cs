@@ -66,8 +66,8 @@ public class ComputeManager
         cellKeyToStartCoordBuffer = ComputeHelper.CreateBuffer<int>(SpatialLookupSize);
 
         //
-        updatingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
-        survivingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamParticleManager.FoamParticle>(MaxFoamParticleCount);
+        updatingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamManager.FoamParticle>(MaxFoamParticleCount);
+        survivingFoamParticles = ComputeHelper.CreateBuffer<SimulationFoamManager.FoamParticle>(MaxFoamParticleCount);
         foamParticleCounts = ComputeHelper.CreateBuffer<uint>(2);
 
         foamParticleCellKeyEntryBuffer = ComputeHelper.CreateBuffer<ParticleEntry>(MaxFoamParticleCount);
