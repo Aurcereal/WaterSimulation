@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-using Unity.Mathematics;
 using static Unity.Mathematics.math;
 using UnityEngine.Rendering;
 

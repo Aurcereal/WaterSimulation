@@ -55,6 +55,15 @@ public class RaymarchManager : MonoBehaviour
         //
         GameManager.Ins.simFoamManager.UniformParameters();
 
+        ///
+        waterRaymarchMat.SetBuffer("cellKeyToStartCoord", GameManager.Ins.computeManager.cellKeyToStartCoordBuffer);
+        waterRaymarchMat.SetBuffer("foamParticleEntries", GameManager.Ins.computeManager.foamParticleCellKeyEntryBuffer);
+        waterRaymarchMat.SetBuffer("updatingFoamParticles", GameManager.Ins.computeManager.updatingFoamParticles);
+
+        waterRaymarchMat.SetFloat("FoamVolumeRadius", FoamVolumeRadius);
+        waterRaymarchMat.SetInt("FoamSpatialLookupSize", FoamSpatialLookupSize);
+        waterRaymarchMat.SetFloat("FoamGridSize", FoamGridSize);
+
     }
 
     public void UpdateContainerData()

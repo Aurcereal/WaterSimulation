@@ -213,6 +213,8 @@ Shader "Unlit/WaterRaymarch"
             //     return LightMultiplier * accumLight;
             // }
 
+            //#include "./FoamSpace.hlsl"
+
             const bool UseShadowMapping;
 
             samplerCUBE EnvironmentMap;

@@ -27,8 +27,15 @@ float3 sampleSceneColor(float3 p) {
     if(dObstacle <= dFloor) {
         return float3(0.5, 0.1, 0.1);
     } else {
-        float2 cp = floor(p.xz*0.25);
-        float alt = step(abs(amod(cp.x + cp.y, 2.)-1.), 0.5);
+        // float2 cp = floor(p.xz*0.25);
+        // float alt = step(abs(amod(cp.x + cp.y, 2.)-1.), 0.5);
+        //return col1 + alt * (col2 - col1);
+
+        const float lineThick = 1.8;
+        float2 fp = p.xz;
+        fp = rot2D(fp, PI*.25);
+        float ly = amod(fp.y+sin(fp.x*.5), lineThick*2.)-lineThick;
+        float alt = step(abs(ly), lineThick*.5);
         return col1 + alt * (col2 - col1);
     }
 }
