@@ -25,11 +25,7 @@ const uint SpatialLookupSize;
 void ResetCounts (uint3 id : SV_DispatchThreadID)
 {
     uint i = id.x;
-    #ifdef BUFFER_COUNT
-    if(i >= CountBuffer[0]) return;
-    #else
     if(i >= SpatialLookupSize) return;
-    #endif
 
     KeyCounts[i] = 0;
 }
@@ -41,7 +37,7 @@ void SetCounts (uint3 id : SV_DispatchThreadID)
     #ifdef BUFFER_COUNT
     if(i >= CountBuffer[0]) return;
     #else
-    if(i >= SpatialLookupSize) return;
+    if(i >= ParticleCount) return;
     #endif
 
     InterlockedAdd(KeyCounts[ParticleEntries[i].key], 1);
@@ -54,7 +50,7 @@ void SortParticles (uint3 id : SV_DispatchThreadID)
     #ifdef BUFFER_COUNT
     if(i >= CountBuffer[0]) return;
     #else
-    if(i >= SpatialLookupSize) return;
+    if(i >= ParticleCount) return;
     #endif
 
     ParticleEntry entry = ParticleEntries[i];
@@ -71,7 +67,7 @@ void CopyFromSortedBufferToEntryBuffer (uint3 id : SV_DispatchThreadID)
     #ifdef BUFFER_COUNT
     if(i >= CountBuffer[0]) return;
     #else
-    if(i >= SpatialLookupSize) return;
+    if(i >= ParticleCount) return;
     #endif
 
     ParticleEntries[i] = ParticleEntriesSorted[i];
