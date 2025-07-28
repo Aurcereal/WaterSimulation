@@ -213,7 +213,7 @@ Shader "Unlit/WaterRaymarch"
             //     return LightMultiplier * accumLight;
             // }
 
-            //#include "./FoamSpace.hlsl"
+            #include "./FoamSpace.hlsl"
 
             const bool UseShadowMapping;
 
@@ -327,23 +327,81 @@ Shader "Unlit/WaterRaymarch"
                 return float2(MAXDIST, accumDensity);
             }
 
+            float3 RayIntersectWaterFoam(float3 ro, float3 rd, float objDist, bool isInsideLiquid) { // ~ (t, densityAlongRay, foamAlongRay)
+                // First do bounding box, then step for water existence threshold, possibly doing binary search later
+                // keep in mind that we can do larger steps if density is small, we wanna do much smaller steps when we're in water than when we're in air
+
+                // Bounding Box Intersection
+                float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
+                float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
+
+                float2 boxTs = rayBoxIntersect(lro, lrd);
+                if(boxTs.x > boxTs.y) return float3(MAXDIST, 0., 1.);
+
+                // Bring to Local Rot Trans space
+                lro *= ContainerScale;
+                lrd *= ContainerScale; 
+
+                //
+                float tStart = max(0., boxTs.x);
+                float tCurr = tStart;
+                float tEnd = min(objDist, boxTs.y);
+
+                float accumDensity = 0.;
+                float transmittanceThroughFoam = 1.;
+
+                //
+                if(isInsideLiquid) {
+                    while(tCurr <= tEnd) {
+                        float3 lpos = lro + lrd * tCurr;
+                        float dens = SampleLocalDensity(lpos);
+                        if(dens < WaterExistenceThreshold - WaterExistenceEps) {
+                            return float3(tCurr, accumDensity, transmittanceThroughFoam);
+                        }
+                        accumDensity += STEPSIZE * dens;
+                        tCurr += STEPSIZE;
+                        transmittanceThroughFoam *= exp(-CheckFoamInsideVolumeRadius(ro+rd*tCurr) * 0.1 * STEPSIZE);
+                    }
+                } else {
+                    while(tCurr <= tEnd) {
+                        float3 lpos = lro + lrd * tCurr;
+
+                        float dens = SampleLocalDensity(lpos);
+                        if(dens > WaterExistenceThreshold + WaterExistenceEps) {
+                            while(dens >= WaterExistenceThreshold + WaterExistenceEps && tCurr >= tStart) {
+                                tCurr -= STEPSIZE;
+                                float3 lpos = lro + lrd * tCurr;
+                                dens = SampleLocalDensity(lpos);
+                            }
+                            tCurr += STEPSIZE;
+                            return float3(tCurr, accumDensity, transmittanceThroughFoam);
+                        }
+
+                        accumDensity += BIGSTEPSIZE * dens;
+                        tCurr += BIGSTEPSIZE;
+                    }
+                }
+                
+                return float3(MAXDIST, accumDensity, transmittanceThroughFoam);
+            }
+
             #define INTERTYPE_OBJECT 0
             #define INTERTYPE_WATER 1
             #define INTERTYPE_SKYBOX 2
 
-            float2 RayIntersectEnvironment(float3 ro, float3 rd, bool isInsideLiquid, out int intersectionType) {
+            float3 RayIntersectEnvironment(float3 ro, float3 rd, bool isInsideLiquid, out int intersectionType) {
                 float objDist = RayIntersectScene(ro, rd);
-                float2 waterInter = RayIntersectWater(ro, rd, objDist, isInsideLiquid);
+                float3 waterInter = RayIntersectWaterFoam(ro, rd, objDist, isInsideLiquid);
                 float waterDist = waterInter.x; float accumDensity = waterInter.y;
 
                 if(objDist + waterDist >= 2. * MAXDIST) {
                     intersectionType = INTERTYPE_SKYBOX;
-                    return float2(MAXDIST, 0.);
+                    return float3(MAXDIST, 0., 1.);
                 }
 
                 if(objDist <= waterDist) {
                     intersectionType = INTERTYPE_OBJECT;
-                    return float2(objDist, accumDensity);
+                    return float3(objDist, accumDensity, waterInter.z);
                 } else {
                     intersectionType = INTERTYPE_WATER;
                     return waterInter;
@@ -383,12 +441,13 @@ Shader "Unlit/WaterRaymarch"
                 bool isInsideLiquid = IsInsideLiquid(ro);
                 
                 float ft = foamT;
+                float foamTransmittance = 1.;
 
                 for(int i=0; i<2; i++) { //min(NumBounces, MAXBOUNCECOUNT); i++) {
 
                     int interType;
-                    float2 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
-                    float t = inter.x; float densityAlongRay = inter.y;
+                    float3 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
+                    float t = inter.x; float densityAlongRay = inter.y; foamTransmittance *= inter.z;
                     float3 hitPos = ro + rd*t;
                     float3 norm = CalculateNormal(hitPos);
                     if(isInsideLiquid) norm *= -1.0;
@@ -442,7 +501,7 @@ Shader "Unlit/WaterRaymarch"
 
                 // We already calculate this density in case of t >= MAXDIST..
                 float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
-                li += transmittance * transmittanceToLight * SampleEnvironment(ro, rd);
+                li += lerp(transmittance * transmittanceToLight * SampleEnvironment(ro, rd), float3(1.,0.,0.), 1.-foamTransmittance);
 
                 return li;
             }
@@ -456,7 +515,7 @@ Shader "Unlit/WaterRaymarch"
                 float2 sp = (i.uv*2.0-1.0)*float2(1.3, 1.0);
                 
                 //
-                float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo);
+                float distAlongRayToFoam = 1000.+tex2D(FoamTex, i.uv).b/dot(rd, CamFo);
 
                 //
                 float3 accumLight;
