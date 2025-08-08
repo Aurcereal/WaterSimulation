@@ -157,6 +157,7 @@ public class SimulationFoamManager
         }
 
         Debug.Log($"Found: {found}, Count: {counts[0]}");
+        Debug.Log($"Entry 0 key: {entries[0].cellKey} Position: {entries[0].particleIndex}, Offset 123: {offsets[123]}");
 
     }
 }

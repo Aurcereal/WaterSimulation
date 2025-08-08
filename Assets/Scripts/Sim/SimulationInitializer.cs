@@ -77,6 +77,9 @@ public class SimulationInitializer
         GameManager.Ins.computeManager.cellKeyToStartCoordBuffer.SetData(keyToStartCoord);
 
         GameManager.Ins.computeManager.foamParticleCounts.SetData(foamParticleCounts);
+        var foamKeyToStartCoord = new int[FoamSpatialLookupSize];
+        for (int i = 0; i < FoamSpatialLookupSize; i++) foamKeyToStartCoord[i] = -1;
+        GameManager.Ins.computeManager.foamCellKeyToStartCoordBuffer.SetData(foamKeyToStartCoord);
 
         if (UseOddEvenSort) // OES
         {

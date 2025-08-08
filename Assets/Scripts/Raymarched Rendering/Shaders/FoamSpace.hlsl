@@ -13,6 +13,7 @@ struct FoamParticle {
 StructuredBuffer<int> cellKeyToStartCoord;
 StructuredBuffer<ParticleEntry> foamParticleEntries;
 StructuredBuffer<FoamParticle> updatingFoamParticles; // TODO: Would be nice if actual foam particles were sorted not entries,we don't need ids to stay unique anyways, we could keep swapping them doesn't really work with water particles where there's lot sof parallel buffers
+StructuredBuffer<int> foamParticleCounts;
 
 float FoamVolumeRadius; //
 
@@ -36,7 +37,7 @@ int getStartIndex(int key) {
 }
 
 int getCellKey(int3 cellPos) {
-    return hash31(cellPos);
+    return hash31(cellPos); //RVS
 }
 
 int3 posToCell(float3 pos) {
@@ -46,13 +47,15 @@ int3 posToCell(float3 pos) {
 
 // TODO: try tex it might be faster
 float CheckFoamInsideVolumeRadius(float3 pos) {
-
     int3 centerCellPos = posToCell(pos);
     int3 currCellPos;
     int currIndex;
     int key;
 
     float SqrVolumeRadius = FoamVolumeRadius*FoamVolumeRadius;
+    float foundFoam = 0.;
+
+    bool allowContinue = true;
 
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
@@ -60,18 +63,20 @@ float CheckFoamInsideVolumeRadius(float3 pos) {
                 currCellPos = centerCellPos + int3(x, y, z);
                 int key = getCellKey(currCellPos);
                 currIndex = getStartIndex(key);
+                if(currIndex < 0) continue;
 
-                while(foamParticleEntries[currIndex].key == key) {
-                    return 1000.;
+                while(allowContinue && currIndex < foamParticleCounts[0] && foamParticleEntries[currIndex].key == key) {
                     float3 oPos = updatingFoamParticles[foamParticleEntries[currIndex].particleIndex].position;
                     float3 diff = pos - oPos;
-                    if(dot(diff, diff) <= SqrVolumeRadius) return 1.;
+                    if(dot(diff, diff) <= SqrVolumeRadius) {
+                        foundFoam = 1.; return foundFoam; break; allowContinue = false;
+                    }
                     ++currIndex;
                 }
             }
         }
     }
 
-    return 0.;
+    return foundFoam;
 
 }

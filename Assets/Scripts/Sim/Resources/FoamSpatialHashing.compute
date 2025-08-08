@@ -40,7 +40,7 @@ int getStartIndex(int key) {
 }
 
 int getCellKey(int3 cellPos) {
-    return hash31(cellPos);
+    return hash31(cellPos); // RVS
 }
 
 int3 posToCell(float3 pos) {
