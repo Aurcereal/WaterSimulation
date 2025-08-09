@@ -56,7 +56,7 @@ void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fl
 
         float3 spawnVel = fluidParticleVel + cylFloorPos;
 
-        SpawnFoamParticle(spawnPos, spawnVel, 2. + 2. * randomState.y + count*1.);
+        SpawnFoamParticle(spawnPos, spawnVel, 2. + 2. * randomState.y + count*.04);
     }
 }
 

@@ -231,7 +231,7 @@ MonoBehaviour:
   numBounces: 2
   traceReflectAndRefract: 1
   waterExistenceThreshold: 0.3
-  waterExistenceEps: 0.01
+  waterExistenceEps: 0.02
   nextRayOffset: 0.01
   environmentMap: {fileID: 8900000, guid: 91231629c1b2627498c11ce1f7109c97, type: 3}
   depthWorldBlurRadius: 136
@@ -249,10 +249,10 @@ MonoBehaviour:
   maxFoamParticleCount: 1048576
   trappedAirPotentialRemapLow: 1
   trappedAirPotentialRemapHigh: 6
-  trappedAirMultiplier: 100
-  kineticPotentialRemapLow: 32
-  kineticPotentialRemapHigh: 51
-  foamScaleMultiplier: 0.04
+  trappedAirMultiplier: 20
+  kineticPotentialRemapLow: 20
+  kineticPotentialRemapHigh: 40
+  foamScaleMultiplier: 0.08
   highestSprayDensity: 0.4
   lowestBubbleDensity: 40
   bubbleGravityMultiplier: 49
@@ -599,7 +599,7 @@ Transform:
   m_GameObject: {fileID: 2036646828}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 35, y: 6, z: 4}
+  m_LocalScale: {x: 35, y: 8, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

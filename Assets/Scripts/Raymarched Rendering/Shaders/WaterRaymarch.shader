@@ -351,9 +351,19 @@ Shader "Unlit/WaterRaymarch"
                 float transmittanceThroughFoam = 1.;
 
                 //
+                float foamSamplePeriod = 40.; float currFoamSampleTime = 0.;
+                float outsideWaterFoamSamplePeriod = 4.;
                 if(isInsideLiquid) {
                     while(tCurr <= tEnd) {
-                        transmittanceThroughFoam *= exp(-CheckFoamInsideVolumeRadius(ro+rd*tCurr) * 100. * 0.1 * STEPSIZE / (1.+15.*accumDensity));
+                        // CheckFoamInsideVolumeRadius is an expensive call so DO IT LESS larger step size skipping areas youknowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwyeahhhhhhhh
+                        if(currFoamSampleTime >= foamSamplePeriod) {
+                            float foamSample = CheckFoamInsideVolumeRadius(ro+rd*tCurr);
+                            //foamSamplePeriod += -4. * (foamSample*2.-1.); foamSamplePeriod = max(foamSamplePeriod, 10.);
+                            transmittanceThroughFoam *= exp(-foamSample * 60. * 0.1 * STEPSIZE * (foamSamplePeriod+1.) / (1.+4.*accumDensity));
+                            currFoamSampleTime = 0.;
+                        } else {
+                            currFoamSampleTime += 1.;
+                        }
                         float3 lpos = lro + lrd * tCurr;
                         float dens = SampleLocalDensity(lpos);
                         if(dens < WaterExistenceThreshold - WaterExistenceEps) {
@@ -365,7 +375,15 @@ Shader "Unlit/WaterRaymarch"
                 } else {
                     while(tCurr <= tEnd) {
                         float3 lpos = lro + lrd * tCurr;
-                        //if(CheckFoamInsideVolumeRadius(ro+rd*tCurr) >= 1.) transmittanceThroughFoam = 0.; // RVS
+
+                        // if(currFoamSampleTime >= outsideWaterFoamSamplePeriod) {
+                        //     float foamSample = CheckFoamInsideVolumeRadius(ro+rd*tCurr);
+                        //     //foamSamplePeriod += -4. * (foamSample*2.-1.); foamSamplePeriod = max(foamSamplePeriod, 10.);
+                        //     transmittanceThroughFoam *= exp(-foamSample * 100. * 0.1 * BIGSTEPSIZE * (foamSamplePeriod+1.) / (1.+0.*15.*accumDensity));
+                        //     currFoamSampleTime = 0.;
+                        // } else {
+                        //     currFoamSampleTime += 1.;
+                        // }
 
                         float dens = SampleLocalDensity(lpos);
                         if(dens > WaterExistenceThreshold + WaterExistenceEps) {
@@ -392,12 +410,31 @@ Shader "Unlit/WaterRaymarch"
 
             float3 RayIntersectEnvironment(float3 ro, float3 rd, bool isInsideLiquid, out int intersectionType) {
                 float objDist = RayIntersectScene(ro, rd);
+                float2 waterInter = RayIntersectWater(ro, rd, objDist, isInsideLiquid);
+                float waterDist = waterInter.x; float accumDensity = waterInter.y;
+
+                if(objDist + waterDist >= 2. * MAXDIST) {
+                    intersectionType = INTERTYPE_SKYBOX;
+                    return float3(MAXDIST, 0., 1.);
+                }
+
+                if(objDist <= waterDist) {
+                    intersectionType = INTERTYPE_OBJECT;
+                    return float3(objDist, accumDensity, 1.);
+                } else {
+                    intersectionType = INTERTYPE_WATER;
+                    return float3(waterInter.x, waterInter.y, 1.);
+                }
+            }
+
+            float3 RayIntersectEnvironmentFoam(float3 ro, float3 rd, bool isInsideLiquid, out int intersectionType) {
+                float objDist = RayIntersectScene(ro, rd);
                 float3 waterInter = RayIntersectWaterFoam(ro, rd, objDist, isInsideLiquid);
                 float waterDist = waterInter.x; float accumDensity = waterInter.y;
 
                 if(objDist + waterDist >= 2. * MAXDIST) {
                     intersectionType = INTERTYPE_SKYBOX;
-                    return float3(MAXDIST, 0., waterInter.z); // RVS last component should be able to always be 0
+                    return float3(MAXDIST, 0., waterInter.z); // RVS last component should be able to always be 1
                 }
 
                 if(objDist <= waterDist) {
@@ -447,7 +484,7 @@ Shader "Unlit/WaterRaymarch"
                 for(int i=0; i<2; i++) { //min(NumBounces, MAXBOUNCECOUNT); i++) {
 
                     int interType;
-                    float3 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
+                    float3 inter = !firstFollowReflect ? RayIntersectEnvironmentFoam(ro, rd, isInsideLiquid, interType) : RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
                     float t = inter.x; float densityAlongRay = inter.y; foamTransmittance *= inter.z;
                     float3 hitPos = ro + rd*t;
                     float3 norm = CalculateNormal(hitPos);
@@ -457,11 +494,11 @@ Shader "Unlit/WaterRaymarch"
                     transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
                     //
-                    // if(!firstFollowReflect && i <= 1 && ft <= t) {
-                    //     const float3 FoamColor = 1.; // TODO: temp
-                    //     return li + FoamColor;// * transmittance
-                    // }
-                    // ft -= t; RVS old billboard foam
+                    if(!firstFollowReflect && i <= 1 && ft <= t) {
+                        const float3 FoamColor = 1.; // TODO: temp
+                        return li + FoamColor;// * transmittance
+                    }
+                    ft -= t; //RVS old billboard foam
 
                     if(interType != INTERTYPE_WATER) {
                         if(i==0) return 0.5*SampleEnvironment(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier); //RVS
@@ -516,7 +553,7 @@ Shader "Unlit/WaterRaymarch"
                 float2 sp = (i.uv*2.0-1.0)*float2(1.3, 1.0);
                 
                 //
-                float distAlongRayToFoam = 1000.+tex2D(FoamTex, i.uv).b/dot(rd, CamFo); // RVS
+                float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo); // RVS
 
                 //
                 float3 accumLight;
@@ -528,6 +565,7 @@ Shader "Unlit/WaterRaymarch"
                     // TODO: Foam partial transparency? Well more like just the raymarched foam I can do later with spatial hashing and better sort
                     // TODO: Separate reflect and refract into different funcs for performance
                     // TODO: Can optimize more like so many repeated intersection and density marching calculations idk if they're bottleneck tho
+                    // TOOD: reflect and refract rays have exact same sequence up until first intersection so can avoid doing same thing twice
                     float3 accumReflectLight = TraceWaterRayOverride(ro, rd, sp, true, distAlongRayToFoam);
                     float3 accumRefractLight = TraceWaterRayOverride(ro, rd, sp, false, distAlongRayToFoam);
                     accumLight = accumReflectLight + accumRefractLight;

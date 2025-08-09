@@ -88,7 +88,7 @@ public class SimulationParameters : MonoBehaviour
     public static Camera ShadowCam => Ins.shadowCam;
 
     public const int FoamSpatialLookupSize = 1048576;
-    public static float FoamGridSize => FoamVolumeRadius; // TODO: Try makign it smaller
+    public static float FoamGridSize => 5f*FoamVolumeRadius; // TODO: Try makign it smaller
     public static float FoamVolumeRadius => Ins.foamVolumeRadius;
     public static int MaxFoamParticleCount => Ins.maxFoamParticleCount;
     public static float TrappedAirPotentialRemapLow => Ins.trappedAirPotentialRemapLow;

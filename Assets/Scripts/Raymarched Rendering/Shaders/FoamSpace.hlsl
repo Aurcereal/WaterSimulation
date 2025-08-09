@@ -57,13 +57,13 @@ float CheckFoamInsideVolumeRadius(float3 pos) {
 
     bool allowContinue = true;
 
-    for(int x=-1; x<=1; x++) {
-        for(int y=-1; y<=1; y++) {
-            for(int z=-1; z<=1; z++) {
-                currCellPos = centerCellPos + int3(x, y, z);
-                int key = getCellKey(currCellPos);
+    // for(int x=-1; x<=1; x++) {
+    //     for(int y=-1; y<=1; y++) {
+    //         for(int z=-1; z<=1; z++) {
+                currCellPos = centerCellPos;// + int3(x, y, z);
+                key = getCellKey(currCellPos);
                 currIndex = getStartIndex(key);
-                if(currIndex < 0) continue;
+                if(currIndex < 0) return foundFoam;//continue;
 
                 while(allowContinue && currIndex < foamParticleCounts[0] && foamParticleEntries[currIndex].key == key) {
                     float3 oPos = updatingFoamParticles[foamParticleEntries[currIndex].particleIndex].position;
@@ -73,9 +73,9 @@ float CheckFoamInsideVolumeRadius(float3 pos) {
                     }
                     ++currIndex;
                 }
-            }
-        }
-    }
+    //         }
+    //     }
+    // }
 
     return foundFoam;
 
