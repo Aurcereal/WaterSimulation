@@ -34,11 +34,12 @@ void CalculateOrthogonalBasis(float3 fo, out float3 ri, out float3 up) {
 }
 
 void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fluidParticleVel, float count, float cylRadius, float cylHeight, float3 fo) {
+    float3 randomState = fluidParticlePos + fluidParticleVel + time;
+    count *= .2+.8*hash31(randomState*10.);
+    
     // Fractional component of count will be treated as probability of spawning: count = 3.7 means 3 guaranteed particles and .7 chance of 4th particle
     int spawnCount = int(floor(count));
     float fracCount = frac(count);
-
-    float3 randomState = fluidParticlePos + fluidParticleVel + time;
 
     if(hash31(randomState) < fracCount)
         ++spawnCount;
@@ -56,7 +57,7 @@ void SpawnFoamParticlesInCylinder(float time, float3 fluidParticlePos, float3 fl
 
         float3 spawnVel = fluidParticleVel + cylFloorPos;
 
-        SpawnFoamParticle(spawnPos, spawnVel, 2. + 2. * randomState.y + count*.04);
+        SpawnFoamParticle(spawnPos, spawnVel, 3.5 + 3.5 * randomState.y + count*.04);
     }
 }
 

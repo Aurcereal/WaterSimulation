@@ -359,7 +359,7 @@ Shader "Unlit/WaterRaymarch"
                         if(currFoamSampleTime >= foamSamplePeriod) {
                             float foamSample = CheckFoamInsideVolumeRadius(ro+rd*tCurr);
                             //foamSamplePeriod += -4. * (foamSample*2.-1.); foamSamplePeriod = max(foamSamplePeriod, 10.);
-                            transmittanceThroughFoam *= exp(-foamSample * 60. * 0.1 * STEPSIZE * (foamSamplePeriod+1.) / (1.+4.*accumDensity));
+                            transmittanceThroughFoam *= exp(-foamSample * 80. * 0.1 * STEPSIZE * (foamSamplePeriod+1.) / (1.+0.1*accumDensity));
                             currFoamSampleTime = 0.;
                         } else {
                             currFoamSampleTime += 1.;

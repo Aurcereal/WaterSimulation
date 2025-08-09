@@ -191,7 +191,7 @@ MonoBehaviour:
   useShadowMapping: 0
   obstacleTransform: {fileID: 1857617105}
   obstacleType: 0
-  obstacleSimInteraction: 0
+  obstacleSimInteraction: 1
   containerTransform: {fileID: 2036646829}
   gravity:
     x: 0
@@ -250,7 +250,7 @@ MonoBehaviour:
   trappedAirPotentialRemapLow: 1
   trappedAirPotentialRemapHigh: 6
   trappedAirMultiplier: 20
-  kineticPotentialRemapLow: 20
+  kineticPotentialRemapLow: 10
   kineticPotentialRemapHigh: 40
   foamScaleMultiplier: 0.08
   highestSprayDensity: 0.4

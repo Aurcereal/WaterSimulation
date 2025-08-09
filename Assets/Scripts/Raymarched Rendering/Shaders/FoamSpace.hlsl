@@ -67,8 +67,10 @@ float CheckFoamInsideVolumeRadius(float3 pos) {
 
                 while(allowContinue && currIndex < foamParticleCounts[0] && foamParticleEntries[currIndex].key == key) {
                     float3 oPos = updatingFoamParticles[foamParticleEntries[currIndex].particleIndex].position;
+                    float oLife = updatingFoamParticles[foamParticleEntries[currIndex].particleIndex].remainingLifetime;
+                    float oScale = min(1., oLife);
                     float3 diff = pos - oPos;
-                    if(dot(diff, diff) <= SqrVolumeRadius) {
+                    if(dot(diff, diff) <= SqrVolumeRadius * oScale * oScale) {
                         foundFoam = 1.; return foundFoam; break; allowContinue = false;
                     }
                     ++currIndex;
