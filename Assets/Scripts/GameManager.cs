@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
     public SimulationFoamManager simFoamManager;
     public ShadowMapManager shadowMapManager;
 
+    public CausticsManager causticsManager;
+
     void Start()
     {
         Ins = this;
@@ -55,11 +57,12 @@ public class GameManager : MonoBehaviour
         simTimeController = new();
         simFoamManager = new();
         shadowMapManager = new();
+        causticsManager = new();
 
         bitonicSorter = new();
         if (UseOddEvenSort) // OES
             oddEvenSorter = new();
-        
+
         waterParticleCountSorter = new(ParticleCount, SpatialLookupSize, computeManager.particleCellKeyEntryBuffer);
         foamParticleCountSorter = new(MaxFoamParticleCount, FoamSpatialLookupSize, computeManager.foamParticleCellKeyEntryBuffer, true, computeManager.foamParticleCounts);
 
@@ -82,6 +85,16 @@ public class GameManager : MonoBehaviour
         {
             RaymarchManager.Ins.OnDisable();
             screenSpaceManager.OnEnable();
+        }
+
+        if (UseCaustics)
+        {
+            // Since it's on startup right now will only change on restart, can add listener
+            causticsManager.OnEnable();
+        }
+        else
+        {
+            causticsManager.OnDisable();
         }
     }
 
@@ -130,13 +143,18 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (UseCaustics)
+        {
+            causticsManager.DrawTextures();
+        }
+
         if (EnableRaymarchShader)
         {
             RaymarchManager.Ins.DrawFoam();
         }
         else
         {
-            if(UseShadowMapping) shadowMapManager.DrawShadows();
+            if (UseShadowMapping) shadowMapManager.DrawShadows();
             screenSpaceManager.Draw();
         }
 

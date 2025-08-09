@@ -81,3 +81,14 @@ float3 SampleEnvironment(float3 ro, float3 rd) {
 
     return shadeScene(hitPos, norm, material);
 }
+
+float3 SampleEnvironmentDist(float3 ro, float3 rd, out float dist) {
+    dist = RayIntersectScene(ro, rd);
+    if(dist >= MAXDIST) return SampleSkybox(rd);
+
+    float3 hitPos = ro+rd*dist;
+    float3 norm = normal(hitPos);
+    float3 material = sampleSceneColor(hitPos);
+
+    return shadeScene(hitPos, norm, material);
+}

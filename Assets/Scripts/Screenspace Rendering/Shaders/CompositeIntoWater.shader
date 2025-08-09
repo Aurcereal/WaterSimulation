@@ -46,7 +46,6 @@ Shader "Unlit/CompositeIntoWater"
             sampler2D NormalTex;
             sampler2D DensityTex;
             sampler2D FoamTex;
-            sampler2D DensityFromSunTex;
 
             const float FovY;
             const float Aspect;
@@ -74,9 +73,17 @@ Shader "Unlit/CompositeIntoWater"
             const float3 ObstacleScale;
             const bool ObstacleType;
 
+            // Shadow Mapping
             const float4x4 ShadowCamVP;
-
             const bool UseShadowMapping;
+            sampler2D DensityFromSunTex;
+            
+            // Caustics
+            const bool UseCaustics;
+            const float3 CausticCamPosition;
+            const float4x4 CausticCamVP;
+            sampler2D DepthFromCausticCam;
+            sampler2D NormalFromCausticCam;
 
             float GetShadowOcclusion(float3 pos) {
                 if(!UseShadowMapping) return 1.;
@@ -189,7 +196,7 @@ Shader "Unlit/CompositeIntoWater"
                 float3 reflectExitPoint = pos + norm*0.0005;
                 float3 reflectLi = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
 
-                float distFromWaterToEnd = densityAlongRd; // TODO: Bad approx, can use a multiplier
+                float distFromWaterToEnd = 6.*densityAlongRd; // TODO: Bad approx, can use a multiplier
                 float distFromWaterToFoam = distAlongRayToFoam - distAlongRayToWater;
                 float distFromWaterToSDF = RayIntersectScene(pos, refractRay);
                 
@@ -198,7 +205,30 @@ Shader "Unlit/CompositeIntoWater"
 
                 float3 refractExitPoint = pos + refractRay * min(distFromWaterToSDF, min(distFromWaterToEnd, distFromWaterToFoam));
                 float3 refractLi = 
-                    distFromWaterToFoam <= distFromWaterToSDF ? foamCol : SampleEnvironment(refractExitPoint, refractRay); 
+                    distFromWaterToFoam <= distFromWaterToSDF ? foamCol : SampleEnvironment(refractExitPoint, refractRay);
+
+                // Caustics
+                float3 causticLi = 0.;
+                if(distFromWaterToSDF <= min(distFromWaterToEnd, distFromWaterToFoam)) {
+                    float3 floorPoint = refractExitPoint;
+                    const float3 causticWi = float3(0.,1.,0.);
+
+                    float4 clipSpace = mul(CausticCamVP, float4(floorPoint, 1.));
+                    float2 causticUV = (clipSpace.xy / clipSpace.w)*0.5+0.5;
+
+                    if(!(causticUV.x < 0. || causticUV.x > 1. || causticUV.y < 0. || causticUV.y > 1.)) {
+                        float causticDepth = tex2D(DepthFromCausticCam, causticUV).r;
+                        float waterExitY = CausticCamPosition.y - causticDepth;
+
+                        float3 waterExitPosition = float3(floorPoint.x, waterExitY, floorPoint.z);
+                        float3 waterExitNormal = tex2D(NormalFromCausticCam, causticUV).xyz;
+
+                        float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, 1./IndexOfRefraction);
+                        //return causticRefractRay;
+                        causticLi = 1. * pow(causticRefractRay.y, 32.); // dot y
+                    }
+                }
+                refractLi += causticLi;
 
                 float3 lo = reflectTransmittance * reflectLi +
                             refractTransmittance * refractLi;

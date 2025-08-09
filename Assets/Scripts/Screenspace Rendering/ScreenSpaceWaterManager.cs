@@ -16,10 +16,10 @@ public class ScreenSpaceWaterManager
 
     //
     Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
-    Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
+    public Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
     public Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity")); // TODO make material manager that sets all buffers and enable instancing and stuff
 
-    Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
+    public Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
     Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
 
     Material copyDepthMaterial = new Material(Shader.Find("Unlit/CopyDepth"));
@@ -93,7 +93,6 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetTexture("DensityTex", densityTex);
         compositeIntoWater.SetTexture("FoamTex", GameManager.Ins.simFoamManager.FoamTex);
         compositeIntoWater.SetTexture("EnvironmentMap", EnvironmentMap);
-        compositeIntoWater.SetTexture("DensityFromSunTex", GameManager.Ins.shadowMapManager.DensityFromSunTex);
 
         //
         compositeIntoWater.SetFloat("DensityMultiplier", ScreenSpaceDensityMultiplier);
@@ -105,8 +104,16 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetInt("ObstacleType", ObstacleType ? 1 : 0);
 
         // TODO: maybe make it so we can change shadowcam view during sim
-        compositeIntoWater.SetMatrix("ShadowCamVP", GameManager.Ins.shadowMapManager.ShadowCamVP);
         compositeIntoWater.SetInteger("UseShadowMapping", UseShadowMapping ? 1 : 0);
+        compositeIntoWater.SetMatrix("ShadowCamVP", GameManager.Ins.shadowMapManager.ShadowCamVP);
+        compositeIntoWater.SetTexture("DensityFromSunTex", GameManager.Ins.shadowMapManager.DensityFromSunTex);
+
+        // Caustics
+        compositeIntoWater.SetInt("UseCaustics", UseCaustics ? 1 : 0);
+        compositeIntoWater.SetVector("CausticCamPosition", (Vector3) GameManager.Ins.causticsManager.CausticCamPosition);
+        compositeIntoWater.SetMatrix("CausticCamVP", GameManager.Ins.causticsManager.CausticsCamVP);
+        compositeIntoWater.SetTexture("DepthFromCausticCam", GameManager.Ins.causticsManager.SmoothedDepthTex);
+        compositeIntoWater.SetTexture("NormalFromCausticCam", GameManager.Ins.causticsManager.NormalTex);
 
         //
         GameManager.Ins.simFoamManager.UniformParameters();

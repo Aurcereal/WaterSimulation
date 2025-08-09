@@ -12,7 +12,7 @@ struct FoamParticle {
 
 StructuredBuffer<int> cellKeyToStartCoord;
 StructuredBuffer<ParticleEntry> foamParticleEntries;
-StructuredBuffer<FoamParticle> updatingFoamParticles; // TODO: Would be nice if actual foam particles were sorted not entries,we don't need ids to stay unique anyways, we could keep swapping them doesn't really work with water particles where there's lot sof parallel buffers
+StructuredBuffer<FoamParticle> updatingFoamParticles; // TODO: Would be nice if actual foam particles were sorted not entries,we don't need ids to stay unique anyways, we could keep swapping them doesn't really work with water particles where there's lot sof parallel buffers, well this probably isn't a performance bottleneck
 StructuredBuffer<int> foamParticleCounts;
 
 float FoamVolumeRadius; //

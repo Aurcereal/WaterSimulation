@@ -9,6 +9,7 @@ using UnityEngine.Rendering;
 public class GaussianBlurManager
 {
 
+    // Make DepthWorldBlurRadius and DepthBlurIterationCount editable per instance but for testing don't have to since i mean it can be same
     static Material GaussianBlur1DMaterial = new Material(Shader.Find("Unlit/BilateralDepthBlur1D"));
     float kernelRadius = -1;
 

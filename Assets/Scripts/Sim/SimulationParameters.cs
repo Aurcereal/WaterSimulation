@@ -103,6 +103,10 @@ public class SimulationParameters : MonoBehaviour
     public static float BubbleFluidConformingMultiplier => Ins.bubbleFluidConformingMultiplier;
     public static float SprayAirDragMultiplier => Ins.sprayAirDragMultiplier;
 
+    public static bool UseCaustics => Ins.useCaustics;
+    public static Camera CausticsVerticalCamera => Ins.causticsVerticalCamera;
+    public static int CausticsDepthNormalResolution => Ins.causticsDepthNormalResolution;
+
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
@@ -186,6 +190,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] Camera shadowCam;
 
     [Header("Foam, Spray, Bubbles")] // not just foam technically, called the white particles..
+    // TODO: can turn on particle foam, raymarch foam (for raymarch water) and justt urn it off, have multiple checkboxes
     [SerializeField] int maxFoamParticleCount = 1048576;
     [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapLow = 1.0f;
     [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapHigh = 4.0f;
@@ -203,6 +208,11 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float2 cameraRotateSpeed;
     [SerializeField] float2 cameraPanSpeed;
     [SerializeField] float cameraZoomSpeed;
+
+    [Header("Caustics Parameters")]
+    [SerializeField] bool useCaustics;
+    [SerializeField] Camera causticsVerticalCamera;
+    [SerializeField] int causticsDepthNormalResolution = 1000;
 
     private static SimulationParameters Ins;
     void Awake()
