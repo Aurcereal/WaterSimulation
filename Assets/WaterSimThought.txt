@@ -23,9 +23,6 @@ THE FOAM ISNT DISAPPEARING FAST ENOUGH
 - Caustics (nvidia article scroll up)
 - God rays??
 
-- 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
-- Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals
-
 - Extreme viscosity so like a fluid box will stay together (very very strong springs?)
 - Can turn a arb mesh into fluid so it'd be kinda like soft body sim lol
 
@@ -34,7 +31,18 @@ THE FOAM ISNT DISAPPEARING FAST ENOUGH
 
 - Have presets to choose what type of fluid you want with presets affecting material and sim
 - Preset situations with SDF objects to play with (water slide stuff, fountain with artificial force and stuff would be really cool)
+- potential scenes:
+	Water slide spiral
+	Fountain with artificial force.. what if the water was like actually recycled and went back up the elevator... like cylindrical container open top oc and inner radial force as you get closer to edge of container and closer to floor, then upward force drastically goes up when u get close to sdf cylinder in middle (invisible cylinder), we don't need any geometry for the fountain, or just like very minimal geometry
+	Pouring water glass (or cup cuz i dont wanna write glass material for 1 scene)
+	Filling up bath with SDF toys around to splash inside
+	Hamburger ketchup very viscous on simple hamburger with bun (since it's all SDF) and mabe hamburger closes.. very little ketchup needed
+	Honey
+- 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
+- Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals
 - Could eventually move to SDY and have water interact with SDF objects there
+- Make a new branch where you're fixing stuff/adding preset stuff and can use scriptable objects for presets of scenes and another set of scriptable objects for presets of materials
+- Maybe 3 SOs: Scene, Fluid Visual Material, Fluid Behavior Preset
 
 -=Ignore/Done for now=-
 

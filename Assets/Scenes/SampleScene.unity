@@ -234,7 +234,7 @@ MonoBehaviour:
   waterExistenceEps: 0.02
   nextRayOffset: 0.01
   environmentMap: {fileID: 8900000, guid: 91231629c1b2627498c11ce1f7109c97, type: 3}
-  depthWorldBlurRadius: 136
+  depthWorldBlurRadius: 180
   depthBlurBilteralFalloff: 1
   depthBlurIterationCount: 2
   depthDifferenceCutoffForNormals: 0.5

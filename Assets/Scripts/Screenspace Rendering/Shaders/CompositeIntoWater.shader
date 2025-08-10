@@ -220,6 +220,9 @@ Shader "Unlit/CompositeIntoWater"
                         float causticDepth = tex2D(DepthFromCausticCam, causticUV).r;
                         float waterExitY = CausticCamPosition.y - causticDepth;
 
+                        float lightTravelDist = max(0., waterExitY - floorPoint.y);
+                        float transmittanceToWaterExit = exp(-ExtinctionCoefficients * lightTravelDist * 0.05);
+
                         float3 waterExitPosition = float3(floorPoint.x, waterExitY, floorPoint.z);
                         float3 waterExitNormal = tex2D(NormalFromCausticCam, causticUV).xyz;
 
@@ -227,7 +230,7 @@ Shader "Unlit/CompositeIntoWater"
                         float causticRefractSceneDist = RayIntersectScene(waterExitPosition, causticRefractRay);
                         if(causticRefractSceneDist >= MAXDIST) {
                             //return waterExitNormal*.5+.5;
-                            causticLi = 0.2*(
+                            causticLi = transmittanceToWaterExit * exp(-ExtinctionCoefficients * .8) *( // * .2 instead of exp
                                 smoothstep(0.98, 1.0, pow(causticRefractRay.y, 16.)) +
                                 smoothstep(0.99, 1.0, pow(causticRefractRay.y, 32.)) +
                                 smoothstep(0.996, 1.0, pow(causticRefractRay.y, 64.))
