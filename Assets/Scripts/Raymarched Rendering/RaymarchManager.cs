@@ -65,6 +65,9 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat.SetInt("FoamSpatialLookupSize", FoamSpatialLookupSize);
         waterRaymarchMat.SetFloat("FoamGridSize", FoamGridSize);
 
+        //
+        waterRaymarchMat.SetInt("UseCaustics", UseCaustics ? 1 : 0);
+
     }
 
     public void UpdateContainerData()

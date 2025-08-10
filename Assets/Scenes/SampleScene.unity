@@ -215,7 +215,7 @@ MonoBehaviour:
   particleLowColorSpeed: 1
   particleHighColorSpeed: 7.5
   mainCamera: {fileID: 963194227}
-  enableRaymarchShader: 0
+  enableRaymarchShader: 1
   foamVolumeRadius: 0.2
   densityCacheStepSize: 0.25
   densityCacheSampleCount: 128

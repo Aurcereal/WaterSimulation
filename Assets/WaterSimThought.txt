@@ -42,7 +42,8 @@ THE FOAM ISNT DISAPPEARING FAST ENOUGH
 - Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals
 - Could eventually move to SDY and have water interact with SDF objects there
 - Make a new branch where you're fixing stuff/adding preset stuff and can use scriptable objects for presets of scenes and another set of scriptable objects for presets of materials
-- Maybe 3 SOs: Scene, Fluid Visual Material, Fluid Behavior Preset
+- Maybe 5 SOs: Scene (includes floor pattern), Fluid Visual Material, Fluid Behavior Preset, Foam Material/Behavior in 1 SO, Caustics Material?
+	Need a toggle for Foam, Caustics, Shadow Mapping/Occlusion, 3 Render Modes: (Balls, Raymarched, Screenspace)
 
 -=Ignore/Done for now=-
 

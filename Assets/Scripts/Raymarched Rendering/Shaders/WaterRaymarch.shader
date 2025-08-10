@@ -183,39 +183,12 @@ Shader "Unlit/WaterRaymarch"
                 return accumDensity;
             }
 
-            // float3 AccumLightAlongRay(float3 ro, float3 rd) {
-                
-            //     // Bounding Box Intersection
-            //     float3 lro = mul(ContainerInverseTransform, float4(ro, 1.));
-            //     float3 lrd = mul(ContainerInverseTransform, float4(rd, 0.));
-
-            //     float2 boxTs = rayBoxIntersect(lro, lrd);
-            //     if(boxTs.x > boxTs.y) return 0.;
-
-            //     //
-            //     float tCurr = max(0., boxTs.x);
-            //     float tEnd = boxTs.y;
-
-            //     float3 accumLight = 0.;
-            //     float3 transmittance = 1.;
-
-            //     while(tCurr <= tEnd) {
-            //         float3 pos = ro + rd * tCurr;
-
-            //         float densityAlongStep = STEPSIZE * SampleDensity(pos);
-            //         transmittance *= exp(-densityAlongStep * ExtinctionCoefficients);
-            //         float3 Li = exp(- ExtinctionCoefficients * CalculateDensityAlongRay(pos, -LightDir)); // Directional light
-            //         accumLight += transmittance * densityAlongStep * ExtinctionCoefficients * Li;
-
-            //         tCurr += STEPSIZE;
-            //     }
-
-            //     return LightMultiplier * accumLight;
-            // }
-
             #include "./FoamSpace.hlsl"
 
             const bool UseShadowMapping;
+
+            //
+            const bool UseCaustics;
 
             samplerCUBE EnvironmentMap;
 
@@ -259,9 +232,21 @@ Shader "Unlit/WaterRaymarch"
                 return baseReflectance + (1.0 - baseReflectance) * x*x*x*x*x;
             }
 
-            float3 CalculateNormal(float3 pos) {
+            float3 CalculateWaterNormal(float3 pos) {
                 // -Gradient of Density
                 const float2 eps = float2(WATERNORMEPS, 0.);
+
+                // Can turn it to SampleLocalDensity later by transforming the normal direction and stuff
+                return -normalize(float3(
+                    SampleDensity(pos+eps.xyy) - SampleDensity(pos-eps.xyy),
+                    SampleDensity(pos+eps.yxy) - SampleDensity(pos-eps.yxy),
+                    SampleDensity(pos+eps.yyx) - SampleDensity(pos-eps.yyx)
+                ));
+            }
+
+            float3 CalculateWaterNormal(float3 pos, float epsDist) {
+                // -Gradient of Density
+                const float2 eps = float2(epsDist, 0.);
 
                 // Can turn it to SampleLocalDensity later by transforming the normal direction and stuff
                 return -normalize(float3(
@@ -487,7 +472,7 @@ Shader "Unlit/WaterRaymarch"
                     float3 inter = !firstFollowReflect ? RayIntersectEnvironmentFoam(ro, rd, isInsideLiquid, interType) : RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
                     float t = inter.x; float densityAlongRay = inter.y; foamTransmittance *= inter.z;
                     float3 hitPos = ro + rd*t;
-                    float3 norm = CalculateNormal(hitPos);
+                    float3 norm = CalculateWaterNormal(hitPos);
                     if(isInsideLiquid) norm *= -1.0;
 
                     // Moved this above inter break
@@ -502,6 +487,27 @@ Shader "Unlit/WaterRaymarch"
 
                     if(interType != INTERTYPE_WATER) {
                         if(i==0) return 0.5*SampleEnvironment(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier); //RVS
+                        // TODO: need to fix the white edges probably come from full transmittance sampling ca ustics when there's like no water
+                        if(UseCaustics && interType == INTERTYPE_OBJECT && i==1 && !firstFollowReflect) {
+                            // Caustics
+                            float3 floorPoint = hitPos + normal(hitPos)*.02; // Escape SDEps
+                            float distUpToScene = RayIntersectScene(floorPoint+float3(0.,1.,0.), float3(0.,1.,0.));
+                            if(/*IsInsideLiquid(floorPoint) && */distUpToScene >= MAXDIST) { // No object blocking sun.. could soften caustics? TODO ?
+                                float2 causticWaterInter = RayIntersectWater(floorPoint, float3(0.,1.,0.), MAXDIST, true);
+
+                                float3 waterExitPos = floorPoint + float3(0.,causticWaterInter.x, 0.);
+                                float3 waterExitNormal = CalculateWaterNormal(waterExitPos, 0.3);
+                                float3 transmittanceToWaterExit = exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * max(0.2, causticWaterInter.y) * 3.);
+
+                                float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, IndexOfRefraction);
+
+                                li += transmittanceToWaterExit * exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * 1.4) * ( 
+                                    smoothstep(0.97, 1.0, pow(causticRefractRay.y, 4.)) +
+                                    smoothstep(0.98, 1.0, pow(causticRefractRay.y, 8.)) +
+                                    smoothstep(0.992, 1.0, pow(causticRefractRay.y, 16.))
+                                );
+                            }
+                        }
                         break;
                     }
 
