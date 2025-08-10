@@ -223,9 +223,16 @@ Shader "Unlit/CompositeIntoWater"
                         float3 waterExitPosition = float3(floorPoint.x, waterExitY, floorPoint.z);
                         float3 waterExitNormal = tex2D(NormalFromCausticCam, causticUV).xyz;
 
-                        float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, 1./IndexOfRefraction);
-                        //return causticRefractRay;
-                        causticLi = 1. * pow(causticRefractRay.y, 32.); // dot y
+                        float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, IndexOfRefraction);
+                        float causticRefractSceneDist = RayIntersectScene(waterExitPosition, causticRefractRay);
+                        if(causticRefractSceneDist >= MAXDIST) {
+                            //return waterExitNormal*.5+.5;
+                            causticLi = 0.2*(
+                                smoothstep(0.98, 1.0, pow(causticRefractRay.y, 16.)) +
+                                smoothstep(0.99, 1.0, pow(causticRefractRay.y, 32.)) +
+                                smoothstep(0.996, 1.0, pow(causticRefractRay.y, 64.))
+                            );
+                        }
                     }
                 }
                 refractLi += causticLi;
@@ -238,7 +245,7 @@ Shader "Unlit/CompositeIntoWater"
 
             fixed4 frag(vOut i) : SV_Target
             {
-                float3 FoamColor = 1.;//1. * (tex2D(FoamTex, i.uv).r < 0.3 ? float3(1.,1.,1.) : (tex2D(FoamTex, i.uv).r < 0.6 ? float3(1.,0.,0.) : float3(0.,1.,0.))); // temp
+                float3 FoamColor = 1.;//1. * (tex2D(FoamTex, i.uv).r < 0.3 ? float3(1.,1.,1.) : (tex2D(FoamTex, i.uv).r < 0.6 ? float3(1.,0.,0.) : float3(0.,1.,0.))); // temp TODO take out this and foam debug attrib
 
                 float3 rd = Raycast(i.uv);
                 float distAlongRay;

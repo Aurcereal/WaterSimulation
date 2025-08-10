@@ -226,6 +226,7 @@ public class SimulationParameters : MonoBehaviour
         GameManager.Ins?.simUniformer.UniformAllParameters();
         RaymarchManager.Ins?.UniformAllParameters();
         GameManager.Ins?.screenSpaceManager.UniformParametersAndTextures();
+        GameManager.Ins?.causticsManager.UniformParameters();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
         GameManager.Ins?.screenSpaceManager.blurManager.CreateAndSetupGaussianKernel();
         GameManager.Ins?.screenSpaceManager.blurManager.UniformAllParameters();
