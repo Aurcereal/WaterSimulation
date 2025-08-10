@@ -496,7 +496,7 @@ Shader "Unlit/WaterRaymarch"
                     //
                     if(!firstFollowReflect && i <= 1 && ft <= t) {
                         const float3 FoamColor = 1.; // TODO: temp
-                        return li + FoamColor;// * transmittance
+                        return li + 0.9*FoamColor;// * transmittance
                     }
                     ft -= t; //RVS old billboard foam
 
@@ -539,7 +539,7 @@ Shader "Unlit/WaterRaymarch"
 
                 // We already calculate this density in case of t >= MAXDIST..
                 float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
-                li += lerp(transmittance * transmittanceToLight * SampleEnvironment(ro, rd), float3(1.,1.,1.), 1.-foamTransmittance);
+                li += lerp(transmittance * transmittanceToLight * SampleEnvironment(ro, rd), float3(1.,1.,1.), .9*(1.-foamTransmittance));
 
                 return li; //RVS
             }
