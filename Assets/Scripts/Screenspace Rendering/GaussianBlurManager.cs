@@ -9,43 +9,43 @@ using UnityEngine.Rendering;
 public class GaussianBlurManager
 {
 
-    // Make DepthWorldBlurRadius and DepthBlurIterationCount editable per instance but for testing don't have to since i mean it can be same
-    static Material GaussianBlur1DMaterial = new Material(Shader.Find("Unlit/BilateralDepthBlur1D"));
+    Material gaussianBlur1DMaterial;
     float kernelRadius = -1;
 
-    public GaussianBlurManager()
+    public GaussianBlurManager(float kernelRadius)
     {
-        CreateAndSetupGaussianKernel();
+        gaussianBlur1DMaterial = new Material(Shader.Find("Unlit/BilateralDepthBlur1D"));
+        CreateAndSetupGaussianKernel(kernelRadius);
     }
 
-    public void Blur(CommandBuffer cmd, RenderTexture src, RenderTexture firstPassRT, RenderTexture dest)
+    public void Blur(CommandBuffer cmd, RenderTexture src, RenderTexture firstPassRT, RenderTexture dest, int iterCount)
     {
-        for (int i = 0; i < DepthBlurIterationCount; i++)
+        for (int i = 0; i < iterCount; i++)
         {
-            cmd.Blit(src, firstPassRT, GaussianBlur1DMaterial, 0);
-            cmd.Blit(firstPassRT, dest, GaussianBlur1DMaterial, 1);
+            cmd.Blit(src, firstPassRT, gaussianBlur1DMaterial, 0);
+            cmd.Blit(firstPassRT, dest, gaussianBlur1DMaterial, 1);
 
             src = dest;
         }        
     }
 
-    public void CreateAndSetupGaussianKernel()
+    public void CreateAndSetupGaussianKernel(float newRadius)
     {
-        if (kernelRadius == DepthWorldBlurRadius)
+        if (kernelRadius == newRadius)
         {
             Debug.Log("Aborting Gaussian Kernel Creation since SimulationParameters.WorldDepthBlurRadius is same as current radius");
             return;
         }
 
-        kernelRadius = DepthWorldBlurRadius;
-        CreateGaussianKernelTexture1D((int) ceil(DepthWorldBlurRadius));
-        GaussianBlur1DMaterial.SetTexture("GaussianKernel", gaussianKernel1D);
+        kernelRadius = newRadius;
+        CreateGaussianKernelTexture1D((int) ceil(newRadius));
+        gaussianBlur1DMaterial.SetTexture("GaussianKernel", gaussianKernel1D);
         UniformAllParameters();
     }
 
     public void UniformAllParameters() {
-        GaussianBlur1DMaterial.SetFloat("WorldKernelRadius", DepthWorldBlurRadius);
-        GaussianBlur1DMaterial.SetFloat("DepthBlurBilateralFalloff", DepthBlurBilateralFalloff);
+        gaussianBlur1DMaterial.SetFloat("WorldKernelRadius", kernelRadius);
+        gaussianBlur1DMaterial.SetFloat("DepthBlurBilateralFalloff", DepthBlurBilateralFalloff);
     }
 
     Texture2D gaussianKernel1D;

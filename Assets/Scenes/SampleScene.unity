@@ -268,6 +268,8 @@ MonoBehaviour:
   useCaustics: 1
   causticsVerticalCamera: {fileID: 650722942}
   causticsDepthNormalResolution: 1000
+  causticsDepthWorldBlurRadius: 300
+  causticsDepthBlurIterationCount: 2
 --- !u!114 &91362119
 MonoBehaviour:
   m_ObjectHideFlags: 0

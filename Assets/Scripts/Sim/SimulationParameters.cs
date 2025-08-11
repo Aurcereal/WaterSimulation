@@ -104,8 +104,11 @@ public class SimulationParameters : MonoBehaviour
     public static float SprayAirDragMultiplier => Ins.sprayAirDragMultiplier;
 
     public static bool UseCaustics => Ins.useCaustics;
+
     public static Camera CausticsVerticalCamera => Ins.causticsVerticalCamera;
     public static int CausticsDepthNormalResolution => Ins.causticsDepthNormalResolution;
+    public static float CausticsDepthWorldBlurRadius => Ins.causticsDepthWorldBlurRadius;
+    public static int CausticsDepthBlurIterationCount => Ins.causticsDepthBlurIterationCount;
 
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
@@ -211,8 +214,12 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Caustics Parameters")]
     [SerializeField] bool useCaustics;
+    
+    [Header("Caustics Screenspace")]
     [SerializeField] Camera causticsVerticalCamera;
     [SerializeField] int causticsDepthNormalResolution = 1000;
+    [Range(1, 1000)] [SerializeField] float causticsDepthWorldBlurRadius = 300;
+    [Range(1, 5)][SerializeField] int causticsDepthBlurIterationCount = 2;
 
     private static SimulationParameters Ins;
     void Awake()
@@ -228,7 +235,7 @@ public class SimulationParameters : MonoBehaviour
         GameManager.Ins?.screenSpaceManager.UniformParametersAndTextures();
         GameManager.Ins?.causticsManager.UniformParameters();
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
-        GameManager.Ins?.screenSpaceManager.blurManager.CreateAndSetupGaussianKernel();
+        GameManager.Ins?.screenSpaceManager.ResetGaussianKernels();
         GameManager.Ins?.screenSpaceManager.blurManager.UniformAllParameters();
     }
 

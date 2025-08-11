@@ -61,7 +61,7 @@ public class ScreenSpaceWaterManager
         particleAdditiveDensityMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
 
         commandBuffer = new();
-        blurManager = new();
+        blurManager = new(DepthWorldBlurRadius);
 
         depthTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
         scratchScreenRTex = ComputeHelper.CreateRenderTexture2D(int2(Screen.width, Screen.height), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
@@ -120,6 +120,12 @@ public class ScreenSpaceWaterManager
 
     }
 
+    public void ResetGaussianKernels()
+    {
+        blurManager.CreateAndSetupGaussianKernel(DepthWorldBlurRadius);
+        GameManager.Ins.causticsManager.blurManager.CreateAndSetupGaussianKernel(CausticsDepthWorldBlurRadius);
+    }
+
     public void UpdateObstacleData()
     {
         compositeIntoWater.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
@@ -158,7 +164,7 @@ public class ScreenSpaceWaterManager
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleAdditiveDensityMaterial, 0, ParticleCount);
 
         // Blur depth tex
-        blurManager.Blur(commandBuffer, depthTex, scratchScreenRTex, smoothedDepthTex);
+        blurManager.Blur(commandBuffer, depthTex, scratchScreenRTex, smoothedDepthTex, DepthBlurIterationCount);
 
         // Use smooth depth to get normals
         commandBuffer.Blit(smoothedDepthTex, normalTex, depthTextureToNormals);

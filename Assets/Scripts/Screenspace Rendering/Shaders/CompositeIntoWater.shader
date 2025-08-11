@@ -194,7 +194,7 @@ Shader "Unlit/CompositeIntoWater"
                 float3 reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
 
                 float3 reflectExitPoint = pos + norm*0.0005;
-                float3 reflectLi = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
+                float3 reflectLo = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
 
                 float distFromWaterToEnd = 6.*densityAlongRd; // TODO: Bad approx, can use a multiplier
                 float distFromWaterToFoam = distAlongRayToFoam - distAlongRayToWater;
@@ -204,11 +204,11 @@ Shader "Unlit/CompositeIntoWater"
                 float3 refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
 
                 float3 refractExitPoint = pos + refractRay * min(distFromWaterToSDF, min(distFromWaterToEnd, distFromWaterToFoam));
-                float3 refractLi = 
+                float3 refractLo = 
                     distFromWaterToFoam <= distFromWaterToSDF ? foamCol : SampleEnvironment(refractExitPoint, refractRay);
 
                 // Caustics
-                float3 causticLi = 0.;
+                float3 causticLo = 0.;
                 if(distFromWaterToSDF <= min(distFromWaterToEnd, distFromWaterToFoam)) {
                     float3 floorPoint = refractExitPoint;
                     const float3 causticWi = float3(0.,1.,0.);
@@ -230,20 +230,20 @@ Shader "Unlit/CompositeIntoWater"
                         float causticRefractSceneDist = RayIntersectScene(waterExitPosition, causticRefractRay);
                         if(causticRefractSceneDist >= MAXDIST) {
                             //return waterExitNormal*.5+.5;
-                            causticLi = transmittanceToWaterExit * exp(-ExtinctionCoefficients * 1.1) *( // * .2 instead of exp
-                                smoothstep(0.98, 1.0, pow(causticRefractRay.y, 16.)) +
-                                smoothstep(0.99, 1.0, pow(causticRefractRay.y, 32.)) +
-                                smoothstep(0.996, 1.0, pow(causticRefractRay.y, 64.))
+                            causticLo = transmittanceToWaterExit * exp(-ExtinctionCoefficients * 1.5) *( // * .2 instead of exp
+                                smoothstep(0.987, 1.0, pow(causticRefractRay.y, 16.)) +
+                                smoothstep(0.997, 1.0, pow(causticRefractRay.y, 32.)) +
+                                smoothstep(0.9979, 1.0, pow(causticRefractRay.y, 64.))
                             );
                         }
                     }
                 }
-                refractLi += causticLi;
+                refractLo += causticLo;
 
-                float3 lo = reflectTransmittance * reflectLi +
-                            refractTransmittance * refractLi;
+                float3 li = reflectTransmittance * reflectLo +
+                            refractTransmittance * refractLo;
 
-                return lo;
+                return li;
             }
 
             fixed4 frag(vOut i) : SV_Target

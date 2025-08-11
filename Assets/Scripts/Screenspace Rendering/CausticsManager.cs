@@ -20,7 +20,7 @@ public class CausticsManager
     public RenderTexture SmoothedDepthTex { get; private set; }
     public RenderTexture NormalTex { get; private set; }
 
-    GaussianBlurManager blurManager;
+    public GaussianBlurManager blurManager;
 
     Material depthTextureToNormalsOrthoCamera;
 
@@ -38,7 +38,7 @@ public class CausticsManager
         SmoothedDepthTex = ComputeHelper.CreateRenderTexture2D(texDimensions, ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
         NormalTex = ComputeHelper.CreateRenderTexture2D(texDimensions, ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat);
 
-        blurManager = new();
+        blurManager = new(CausticsDepthWorldBlurRadius);
 
         depthTextureToNormalsOrthoCamera = new(Shader.Find("Unlit/NormalFromDepthOrthoCam"));
 
@@ -85,7 +85,7 @@ public class CausticsManager
         cmd.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, GameManager.Ins.screenSpaceManager.particleSphereDepthMaterial, 0, ParticleCount);
 
         // Blur depth tex
-        blurManager.Blur(cmd, depthTex, scratchRTex, SmoothedDepthTex);
+        blurManager.Blur(cmd, depthTex, scratchRTex, SmoothedDepthTex, CausticsDepthBlurIterationCount);
 
         // Use smooth depth to get normals
         cmd.Blit(SmoothedDepthTex, NormalTex, depthTextureToNormalsOrthoCamera);

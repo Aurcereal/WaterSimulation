@@ -492,19 +492,26 @@ Shader "Unlit/WaterRaymarch"
                             // Caustics
                             float3 floorPoint = hitPos + normal(hitPos)*.02; // Escape SDEps
                             float distUpToScene = RayIntersectScene(floorPoint+float3(0.,1.,0.), float3(0.,1.,0.));
-                            if(/*IsInsideLiquid(floorPoint) && */distUpToScene >= MAXDIST) { // No object blocking sun.. could soften caustics? TODO ?
+                            if(distUpToScene >= MAXDIST) { // No object blocking sun.. could soften caustics? TODO ?
                                 float2 causticWaterInter = RayIntersectWater(floorPoint, float3(0.,1.,0.), MAXDIST, true);
 
                                 float3 waterExitPos = floorPoint + float3(0.,causticWaterInter.x, 0.);
-                                float3 waterExitNormal = CalculateWaterNormal(waterExitPos, 0.3);
-                                float3 transmittanceToWaterExit = exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * max(0.2, causticWaterInter.y) * 3.);
+                                float3 waterExitNormal = CalculateWaterNormal(waterExitPos, .3);
+                                float3 transmittanceToWaterExit = exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * max(1.8, causticWaterInter.y) * 3.);
 
                                 float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, IndexOfRefraction);
+                                float sunAlignment = max(causticRefractRay.y, 0.);
 
-                                li += transmittanceToWaterExit * exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * 1.4) * ( 
-                                    smoothstep(0.97, 1.0, pow(causticRefractRay.y, 4.)) +
-                                    smoothstep(0.98, 1.0, pow(causticRefractRay.y, 8.)) +
-                                    smoothstep(0.992, 1.0, pow(causticRefractRay.y, 16.))
+                                // Fade out caustics near borders cuz density gets too low there so we get bright edges
+                                float3 lp = ContainerScale * mul(ContainerInverseTransform, float4(floorPoint, 1.)).xyz;
+                                float2 dist2D = ContainerScale.xz*.5 - abs(lp.xz);
+                                float minDist = max(0., min(dist2D.x, dist2D.y));
+                                float causticsBorderFadeout = smoothstep(0.2, .8, minDist);
+
+                                li += causticsBorderFadeout * transmittance * transmittanceToWaterExit * exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * 1.4) * ( 
+                                    smoothstep(0.97, 1.0, pow(sunAlignment, 4.)) +
+                                    smoothstep(0.98, 1.0, pow(sunAlignment, 8.)) +
+                                    smoothstep(0.992, 1.0, pow(sunAlignment, 16.))
                                 );
                             }
                         }
