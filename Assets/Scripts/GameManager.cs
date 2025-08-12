@@ -160,7 +160,7 @@ public class GameManager : MonoBehaviour
 
         if (EnableRaymarchShader)
         {
-            RaymarchManager.Ins.DrawFoam();
+            if(UseBillboardFoam) RaymarchManager.Ins.DrawFoam();
         }
         else
         {
