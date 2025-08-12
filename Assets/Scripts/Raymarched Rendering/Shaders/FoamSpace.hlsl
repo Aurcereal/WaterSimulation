@@ -45,7 +45,8 @@ int3 posToCell(float3 pos) {
 }
 ///
 
-// TODO: try tex it might be faster
+// ODOT: Try tex it might be faster
+// No, would take way to long to cache at a good res
 float CheckFoamInsideVolumeRadius(float3 pos) {
     int3 centerCellPos = posToCell(pos);
     int3 currCellPos;

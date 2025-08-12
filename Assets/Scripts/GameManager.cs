@@ -96,6 +96,16 @@ public class GameManager : MonoBehaviour
         {
             causticsManager.OnDisable();
         }
+
+        if (UseShadows)
+        {
+            // Since it's on startup right now will only change on restart, can add listener
+            shadowMapManager.OnEnable();
+        }
+        else
+        {
+            shadowMapManager.OnDisable();
+        }
     }
 
     int counter = 1;
@@ -154,7 +164,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (UseShadowMapping) shadowMapManager.DrawShadows();
+            if (UseShadows) shadowMapManager.DrawShadows();
             screenSpaceManager.Draw();
         }
 

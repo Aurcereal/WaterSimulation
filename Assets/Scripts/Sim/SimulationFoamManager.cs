@@ -58,10 +58,9 @@ public class SimulationFoamManager
         foamSpatialHashingShader.SetFloat("FoamGridSize", FoamGridSize);
     }
 
-    // TODO: mustt be called
     public void UniformParameters()
     {
-        foamParticle3DMaterial.SetFloat("_Radius", ParticleRadius); // TODO: make radius global param
+        foamParticle3DMaterial.SetFloat("_Radius", ParticleRadius); // ODOT: Make radius global param
         foamParticleBillboardMaterial.SetFloat("FoamScaleMultiplier", FoamScaleMultiplier);
     }
 
@@ -80,19 +79,14 @@ public class SimulationFoamManager
         ComputeHelper.Dispatch(GameManager.Ins.computeManager.copyFoamParticleCountToArgsBufferShader, 1, 1, 1, "CopyFoamParticleCountToArgsBuffer");
     }
 
-    int a = 0;
     public void RunSpatialHash()
     {
         // 1. Update keys
         ComputeHelper.Dispatch(foamSpatialHashingShader, MaxFoamParticleCount, 1, 1, "UpdateSpatialHashEntries");
-
         // 2. Sort
         GameManager.Ins.foamParticleCountSorter.SortParticleEntries();
         // 3. Set offsets
         ComputeHelper.Dispatch(foamSpatialHashingShader, MaxFoamParticleCount, 1, 1, "UpdateSpatialHashOffsets");
-        ++a;
-        if (a == 30) { loggspatialhashhh(); a = 0; }
-        // check if the sorting and spatial offsets are valid and stuff
     }
 
     public void DrawFoamTex(CommandBuffer cmd)
@@ -102,62 +96,4 @@ public class SimulationFoamManager
         cmd.DrawMeshInstancedIndirect(MeshUtils.QuadMesh, 0, foamParticleBillboardMaterial, 0, argsBuffer);
     }
 
-    void logggAHH()
-    {
-        ParticleEntry[] entries = new ParticleEntry[MaxFoamParticleCount];
-        GameManager.Ins.computeManager.foamParticleCellKeyEntryBuffer.GetData(entries);
-        for (int i = 0; i < 10; i++)
-        {
-            Debug.Log($"{i}, Index: {entries[i].particleIndex}, Key: {entries[i].cellKey}");
-        }
-    }
-
-    void logSort()
-    {
-        ParticleEntry[] entries = new ParticleEntry[MaxFoamParticleCount];
-        GameManager.Ins.computeManager.foamParticleCellKeyEntryBuffer.GetData(entries);
-
-        int[] counts = new int[2];
-        GameManager.Ins.computeManager.foamParticleCounts.GetData(counts);
-
-        int sortFails = 0;
-
-        for (int i = 1; i < counts[0]; i++)
-        {
-            if (entries[i - 1].cellKey > entries[i].cellKey)
-            {
-                Debug.Log($"Old: ({entries[i - 1].particleIndex}, {entries[i - 1].cellKey}), New: ({entries[i].particleIndex}, {entries[i].cellKey})");
-                ++sortFails;
-            }
-        }
-
-        Debug.Log($"Sort Fails: {sortFails} Sort success: {counts[0]-sortFails}");
-    }
-
-    void loggspatialhashhh()
-    {
-        int[] offsets = new int[FoamSpatialLookupSize];
-        GameManager.Ins.computeManager.foamCellKeyToStartCoordBuffer.GetData(offsets);
-        ParticleEntry[] entries = new ParticleEntry[MaxFoamParticleCount];
-        GameManager.Ins.computeManager.foamParticleCellKeyEntryBuffer.GetData(entries);
-
-        int[] counts = new int[2];
-        GameManager.Ins.computeManager.foamParticleCounts.GetData(counts);
-
-        int found = 0;
-
-        for (int key = 0; key < FoamSpatialLookupSize; key++)
-        {
-            int currIndex = offsets[key];
-            while (currIndex >= 0 && currIndex < counts[0] && entries[currIndex].cellKey == key)
-            {
-                ++found;
-                ++currIndex;
-            }
-        }
-
-        Debug.Log($"Found: {found}, Count: {counts[0]}");
-        Debug.Log($"Entry 0 key: {entries[0].cellKey} Position: {entries[0].particleIndex}, Offset 123: {offsets[123]}");
-
-    }
 }

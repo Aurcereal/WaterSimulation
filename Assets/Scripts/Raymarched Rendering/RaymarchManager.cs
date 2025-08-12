@@ -50,7 +50,7 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat.SetTexture("FoamTex", GameManager.Ins.simFoamManager.FoamTex);
 
         //
-        waterRaymarchMat.SetInteger("UseShadowMapping", UseShadowMapping ? 1 : 0);
+        waterRaymarchMat.SetInteger("UseShadows", UseShadows ? 1 : 0);
 
         //
         GameManager.Ins.simFoamManager.UniformParameters();
@@ -64,6 +64,9 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat.SetFloat("FoamVolumeRadius", FoamVolumeRadius);
         waterRaymarchMat.SetInt("FoamSpatialLookupSize", FoamSpatialLookupSize);
         waterRaymarchMat.SetFloat("FoamGridSize", FoamGridSize);
+
+        waterRaymarchMat.SetInt("UseRaymarchedFoam", UseRaymarchedFoam ? 1 : 0);
+        waterRaymarchMat.SetInt("UseBillboardFoam", UseBillboardFoam ? 1 : 0);
 
         //
         waterRaymarchMat.SetInt("UseCaustics", UseCaustics ? 1 : 0);

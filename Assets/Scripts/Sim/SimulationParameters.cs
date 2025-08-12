@@ -8,15 +8,13 @@ using static Unity.Mathematics.math;
 
 public class SimulationParameters : MonoBehaviour
 {
-    // TODO: remove box thickness and use only container transform (and a float3 box dimensions for accurate sdf) for sdf and particle simulator
-    // sdf: inverse transform to unit box, transform the box dimensions, use sdf of box with box dimensions
     public static int ParticleCount => Ins.particleCount;
     public static float3 SpawnDimensions => new(Ins.spawnWidth, Ins.spawnHeight, Ins.spawnDepth);
 
     public static float SmoothingRadius => Ins.smoothingRadius;
     public static Mesh SphereMesh => Ins.sphereMesh;
     public static bool UseOddEvenSort => Ins.useOddEvenSort;
-    public static bool UseShadowMapping => Ins.useShadowMapping;
+    public static bool UseShadows => Ins.useShadows;
 
     public static Matrix4x4 ContainerTransform => Ins.containerTransform.transform.localToWorldMatrix;
     public static Matrix4x4 ContainerInverseTransform => Ins.containerTransform.transform.worldToLocalMatrix;
@@ -58,6 +56,8 @@ public class SimulationParameters : MonoBehaviour
     public static float GridSize => SmoothingRadius / sqrt(2);
 
     public static bool EnableRaymarchShader => Ins.enableRaymarchShader;
+    public static bool UseRaymarchedFoam => Ins.useRaymarchedFoamInRaymarchedWater;
+    public static bool UseBillboardFoam => Ins.useBillboardFoam;
     public static float DensityCacheStepSize => Ins.densityCacheStepSize;
     public static float DensityCacheSampleCount => Ins.densityCacheSampleCount;
     public static bool UseDensityStepSize => Ins.useDensityStepSize;
@@ -87,8 +87,9 @@ public class SimulationParameters : MonoBehaviour
     public static int ShadowMapResolution => Ins.shadowMapResolution;
     public static Camera ShadowCam => Ins.shadowCam;
 
+    public static bool SimulateFoam => Ins.simulateFoam;
     public const int FoamSpatialLookupSize = 1048576;
-    public static float FoamGridSize => 5f*FoamVolumeRadius; // TODO: Try makign it smaller
+    public static float FoamGridSize => 5f*FoamVolumeRadius;
     public static float FoamVolumeRadius => Ins.foamVolumeRadius;
     public static int MaxFoamParticleCount => Ins.maxFoamParticleCount;
     public static float TrappedAirPotentialRemapLow => Ins.trappedAirPotentialRemapLow;
@@ -110,6 +111,13 @@ public class SimulationParameters : MonoBehaviour
     public static float CausticsDepthWorldBlurRadius => Ins.causticsDepthWorldBlurRadius;
     public static int CausticsDepthBlurIterationCount => Ins.causticsDepthBlurIterationCount;
 
+    [Header("Visual Toggles")]
+    [SerializeField] bool useRaymarchedFoamInRaymarchedWater = true;
+    [SerializeField] bool useBillboardFoam = true;
+    [SerializeField] bool useShadows = false;
+    [SerializeField] bool useCaustics;
+    [SerializeField] bool enableRaymarchShader = true; // TODO: make enum btwn raymarch, screenspace, debug
+
     [Header("Initialization Parameters")]
     [Range(1, 200000)][SerializeField] int particleCount = 10;
     [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
@@ -119,8 +127,7 @@ public class SimulationParameters : MonoBehaviour
     [Header("Misc Parameters")]
     [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
     [SerializeField] Mesh sphereMesh;
-    [SerializeField] bool useOddEvenSort;
-    [SerializeField] bool useShadowMapping = false;
+    [SerializeField] bool useOddEvenSort; // TODO: delete
 
     [Header("Box/Obstacle Parameters")]
     [SerializeField] Transform obstacleTransform;
@@ -164,7 +171,6 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] Camera mainCamera;
 
     [Header("Raymarched Rendering")]
-    [SerializeField] bool enableRaymarchShader = true;
     [SerializeField] float foamVolumeRadius = 0.01f;
     [SerializeField] float densityCacheStepSize = 0.05f;
     [SerializeField] float densityCacheSampleCount = 128;
@@ -193,7 +199,8 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] Camera shadowCam;
 
     [Header("Foam, Spray, Bubbles")] // not just foam technically, called the white particles..
-    // TODO: can turn on particle foam, raymarch foam (for raymarch water) and justt urn it off, have multiple checkboxes
+                                     // TODO: toggle foam (just on and off simple) want the toggles to save performance oc
+    [SerializeField] bool simulateFoam = true;
     [SerializeField] int maxFoamParticleCount = 1048576;
     [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapLow = 1.0f;
     [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapHigh = 4.0f;
@@ -211,16 +218,13 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] float2 cameraRotateSpeed;
     [SerializeField] float2 cameraPanSpeed;
     [SerializeField] float cameraZoomSpeed;
-
-    [Header("Caustics Parameters")]
-    [SerializeField] bool useCaustics;
     
     [Header("Caustics Screenspace")]
     [SerializeField] Camera causticsVerticalCamera;
     [SerializeField] int causticsDepthNormalResolution = 1000;
     [Range(1, 1000)] [SerializeField] float causticsDepthWorldBlurRadius = 300;
     [Range(1, 5)][SerializeField] int causticsDepthBlurIterationCount = 2;
-
+    
     private static SimulationParameters Ins;
     void Awake()
     {

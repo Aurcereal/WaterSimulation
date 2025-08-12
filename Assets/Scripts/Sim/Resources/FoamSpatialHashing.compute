@@ -70,7 +70,7 @@ void UpdateSpatialHashOffsets (uint3 id : SV_DispatchThreadID)
     if(i >= foamParticleCounts[0]) return;
 
     // Check if the current index in the Particle Array is a start index
-    if(i==0) { // TODO: i == 0 check causing bad performance??? probably not.
+    if(i==0) { // ODOT: i == 0 check causing bad performance?
         ParticleEntry e = foamCellKeyEntries[0];
         cellKeyToStartCoord[e.key] = i;
     } else {

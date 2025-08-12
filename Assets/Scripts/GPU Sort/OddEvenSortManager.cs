@@ -26,7 +26,7 @@ public class OddEvenSortManager
         oddPhaseShader.SetBuffer(0, "ParticleEntries", GameManager.Ins.computeManager.particleCellKeyEntryBuffer);
         oddPhaseShader.SetBuffer(0, "ParticleIDToEntryIndex", GameManager.Ins.computeManager.ParticleIDToEntryIndexBuffer);
 
-        evenPhaseShader.SetInt("ParticleCount", entryCount); // TODO: change this and lots else if particle count changes
+        evenPhaseShader.SetInt("ParticleCount", entryCount); // ODOT: Change this and lots else if particle count changes No, OES is unused since time complexity is too bad
         oddPhaseShader.SetInt("ParticleCount", entryCount);
     }
 

@@ -69,13 +69,16 @@ Shader "Unlit/CompositeIntoWater"
             const float3 LightDir;
 
             //
+            const bool UseBillboardFoam;
+            const bool UseShadowMapping;
+
+            //
             const float4x4 ObstacleInverseTransform;
             const float3 ObstacleScale;
             const bool ObstacleType;
 
             // Shadow Mapping
             const float4x4 ShadowCamVP;
-            const bool UseShadowMapping;
             sampler2D DensityFromSunTex;
             
             // Caustics
@@ -173,7 +176,78 @@ Shader "Unlit/CompositeIntoWater"
             #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
             #include "../../Raymarched Rendering/Shaders/SDFScene.hlsl"
 
-            float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam, float distAlongRayToSDF, float3 foamCol) {
+            float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToSDF) {
+                if(distAlongRayToSDF < distAlongRayToWater) {
+                    // SDF Before Water
+                    return SampleEnvironment(CamPos, rd);
+                }
+
+                float ior = 1./IndexOfRefraction; // Screen Space Technique would only work outside water I think
+
+                float3 reflectRay = Reflect(-rd, norm);
+                float3 refractRay = Refract(-rd, norm, ior);
+
+                float densityAlongRefractRay = densityAlongRd; 
+
+                float f = Fresnel(-rd, norm, ior);
+
+                const float densAlongReflect = 0.;
+                float densAlongRefract = densityAlongRd; // Approximation since refracted ray is bent
+
+                float3 reflectTransmittance = f * exp(-ExtinctionCoefficients * densAlongReflect);
+
+                float3 reflectExitPoint = pos + norm*0.0005;
+                float3 reflectLo = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
+
+                float distFromWaterToEnd = 6.*densityAlongRd;
+                float distFromWaterToSDF = RayIntersectScene(pos, refractRay);
+                
+                densAlongRefract = AccountForSDFInDensityAlongRay(densAlongRefract, distFromWaterToSDF, distFromWaterToEnd);
+                float3 refractTransmittance = (1.0-f) * exp(-ExtinctionCoefficients * densAlongRefract);
+
+                float3 refractExitPoint = pos + refractRay * min(distFromWaterToSDF, distFromWaterToEnd);
+                float3 refractLo = SampleEnvironment(refractExitPoint, refractRay);
+
+                // Caustics
+                float3 causticLo = 0.;
+                if(distFromWaterToSDF <= distFromWaterToEnd) {
+                    float3 floorPoint = refractExitPoint;
+                    const float3 causticWi = float3(0.,1.,0.);
+
+                    float4 clipSpace = mul(CausticCamVP, float4(floorPoint, 1.));
+                    float2 causticUV = (clipSpace.xy / clipSpace.w)*0.5+0.5;
+
+                    if(!(causticUV.x < 0. || causticUV.x > 1. || causticUV.y < 0. || causticUV.y > 1.)) {
+                        float causticDepth = tex2D(DepthFromCausticCam, causticUV).r;
+                        float waterExitY = CausticCamPosition.y - causticDepth;
+
+                        float lightTravelDist = max(0., waterExitY - floorPoint.y);
+                        float3 transmittanceToWaterExit = exp(-ExtinctionCoefficients * lightTravelDist * 0.05);
+
+                        float3 waterExitPosition = float3(floorPoint.x, waterExitY, floorPoint.z);
+                        float3 waterExitNormal = tex2D(NormalFromCausticCam, causticUV).xyz;
+
+                        float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, IndexOfRefraction);
+                        float causticRefractSceneDist = RayIntersectScene(waterExitPosition, causticRefractRay);
+                        if(causticRefractSceneDist >= MAXDIST) {
+                            //return waterExitNormal*.5+.5;
+                            causticLo = transmittanceToWaterExit * exp(-ExtinctionCoefficients * 1.5) *( // * .2 instead of exp
+                                smoothstep(0.987, 1.0, pow(causticRefractRay.y, 16.)) +
+                                smoothstep(0.997, 1.0, pow(causticRefractRay.y, 32.)) +
+                                smoothstep(0.9979, 1.0, pow(causticRefractRay.y, 64.))
+                            );
+                        }
+                    }
+                }
+                refractLo += causticLo;
+
+                float3 li = reflectTransmittance * reflectLo +
+                            refractTransmittance * refractLo;
+
+                return li;
+            }
+
+            float3 ShadeWaterFoam(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam, float distAlongRayToSDF, float3 foamCol) {
                 if(min(distAlongRayToFoam, distAlongRayToSDF) < distAlongRayToWater) {
                     // Foam or SDF Before Water
                     return distAlongRayToFoam < distAlongRayToSDF ? foamCol : SampleEnvironment(CamPos, rd);
@@ -196,7 +270,7 @@ Shader "Unlit/CompositeIntoWater"
                 float3 reflectExitPoint = pos + norm*0.0005;
                 float3 reflectLo = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
 
-                float distFromWaterToEnd = 6.*densityAlongRd; // TODO: Bad approx, can use a multiplier
+                float distFromWaterToEnd = 6.*densityAlongRd;
                 float distFromWaterToFoam = distAlongRayToFoam - distAlongRayToWater;
                 float distFromWaterToSDF = RayIntersectScene(pos, refractRay);
                 
@@ -258,10 +332,13 @@ Shader "Unlit/CompositeIntoWater"
                 float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo);
                 float distAlongRayToSDF = RayIntersectScene(CamPos, rd);
                 if(norm.a == 0.) {
-                    return float4(distAlongRayToFoam >= 100000.0 || distAlongRayToSDF <= distAlongRayToFoam ? SampleEnvironment(CamPos, rd) : FoamColor, 1.);
+                    return float4(!UseBillboardFoam || distAlongRayToFoam >= 100000.0 || distAlongRayToSDF <= distAlongRayToFoam ? 
+                        SampleEnvironment(CamPos, rd) : FoamColor, 1.);
                 }
 
-                float3 accumLight = ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam, distAlongRayToSDF, FoamColor);
+                float3 accumLight = UseBillboardFoam ? // TODO: make compile feature
+                    ShadeWaterFoam(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam, distAlongRayToSDF, FoamColor) : 
+                    ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToSDF);
                 float3 col = accumLight;//pow(accumLight/(1.+accumLight),1./2.2);
 
                 return float4(col, 1.0);

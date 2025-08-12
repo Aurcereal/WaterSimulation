@@ -29,6 +29,18 @@ public class ShadowMapManager
         DensityFromSunTex = ComputeHelper.CreateRenderTexture2D(int2(ShadowMapResolution), ComputeHelper.DepthMode.Depth16, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat);
     }
 
+    public void OnEnable()
+    {
+        ShadowCam.RemoveAllCommandBuffers();
+        ShadowCam.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, cmd);
+        ShadowCam.depthTextureMode = DepthTextureMode.Depth;
+    }
+
+    public void OnDisable()
+    {
+        ShadowCam.RemoveAllCommandBuffers();
+    }
+
     public void DrawShadows()
     {
         cmd.Clear();

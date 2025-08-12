@@ -17,7 +17,8 @@ public class ScreenSpaceWaterManager
     //
     Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
     public Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
-    public Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity")); // TODO make material manager that sets all buffers and enable instancing and stuff
+    public Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity"));
+    // ODOT make material manager that sets all buffers and enable instancing and stuff No it's good to own materials for now
 
     public Material depthTextureToNormals = new Material(Shader.Find("Unlit/NormalFromDepth"));
     Material compositeIntoWater = new Material(Shader.Find("Unlit/CompositeIntoWater"));
@@ -103,8 +104,11 @@ public class ScreenSpaceWaterManager
 
         compositeIntoWater.SetInt("ObstacleType", ObstacleType ? 1 : 0);
 
-        // TODO: maybe make it so we can change shadowcam view during sim
-        compositeIntoWater.SetInteger("UseShadowMapping", UseShadowMapping ? 1 : 0);
+        //
+        compositeIntoWater.SetFloat("UseBillboardFoam", UseBillboardFoam ? 1 : 0);
+
+        // TODO: maybe make it so we can change shadowcam view during sim for demo vid
+        compositeIntoWater.SetInteger("UseShadowMapping", UseShadows ? 1 : 0);
         compositeIntoWater.SetMatrix("ShadowCamVP", GameManager.Ins.shadowMapManager.ShadowCamVP);
         compositeIntoWater.SetTexture("DensityFromSunTex", GameManager.Ins.shadowMapManager.DensityFromSunTex);
 
@@ -155,12 +159,12 @@ public class ScreenSpaceWaterManager
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
 
         // Draw foam particles
-        GameManager.Ins.simFoamManager.DrawFoamTex(commandBuffer);
+        if(UseBillboardFoam) GameManager.Ins.simFoamManager.DrawFoamTex(commandBuffer);
 
         // Draw thickness/density texture
         commandBuffer.SetRenderTarget(densityTex);
         commandBuffer.ClearRenderTarget(true, true, Color.black);
-        commandBuffer.Blit(GameManager.Ins.simFoamManager.FoamTex, densityTex, copyDepthMaterial);
+        if(UseBillboardFoam) commandBuffer.Blit(GameManager.Ins.simFoamManager.FoamTex, densityTex, copyDepthMaterial);
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleAdditiveDensityMaterial, 0, ParticleCount);
 
         // Blur depth tex

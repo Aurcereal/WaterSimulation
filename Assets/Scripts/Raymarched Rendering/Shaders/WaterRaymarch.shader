@@ -87,6 +87,12 @@ Shader "Unlit/WaterRaymarch"
             const float NextRayOffset;
 
             //
+            const bool UseShadows;
+            const bool UseCaustics;
+            const bool UseRaymarchedFoam;
+            const bool UseBillboardFoam;
+
+            //
             sampler2D FoamTex;
 
             //
@@ -145,12 +151,22 @@ Shader "Unlit/WaterRaymarch"
 
                 float accumDensity = 0.;
 
+                bool foundFirstWater = false;
+
                 while(tCurr <= tEnd) {
-                    // TODO: Optimize and make it so once we find the first thing over existence threshold, we stop when we find the first thing not over existence threshold.
-                    // Can also optimize with larger step size and then a binary search once we find wall
                     float3 lpos = lro + lrd * tCurr;
-                    accumDensity += BIGSTEPSIZE * SampleLocalDensity(lpos);
+                    float dens = SampleLocalDensity(lpos);
+                    accumDensity += BIGSTEPSIZE * dens;
                     tCurr += BIGSTEPSIZE;
+
+                    #if 1
+                    // Only go through the first 'patch' of water optimization, could lead to errors when multiple patches along ray
+                    if(!foundFirstWater) {
+                        if(dens >= WaterExistenceThreshold + WaterExistenceEps) foundFirstWater = true;
+                    } else {
+                        if(dens < WaterExistenceThreshold - WaterExistenceEps) break;
+                    }
+                    #endif
                 }
 
                 return accumDensity;
@@ -184,11 +200,6 @@ Shader "Unlit/WaterRaymarch"
             }
 
             #include "./FoamSpace.hlsl"
-
-            const bool UseShadowMapping;
-
-            //
-            const bool UseCaustics;
 
             samplerCUBE EnvironmentMap;
 
@@ -436,7 +447,7 @@ Shader "Unlit/WaterRaymarch"
             }
 
             float GetShadowOcclusion(float3 pos) {
-                if(!UseShadowMapping) return 1.;
+                if(!UseShadows) return 1.;
 
                 pos += normal(pos)*0.07;
 
@@ -469,7 +480,7 @@ Shader "Unlit/WaterRaymarch"
                 for(int i=0; i<2; i++) { //min(NumBounces, MAXBOUNCECOUNT); i++) {
 
                     int interType;
-                    float3 inter = !firstFollowReflect ? RayIntersectEnvironmentFoam(ro, rd, isInsideLiquid, interType) : RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
+                    float3 inter = UseRaymarchedFoam && !firstFollowReflect ? RayIntersectEnvironmentFoam(ro, rd, isInsideLiquid, interType) : RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
                     float t = inter.x; float densityAlongRay = inter.y; foamTransmittance *= inter.z;
                     float3 hitPos = ro + rd*t;
                     float3 norm = CalculateWaterNormal(hitPos);
@@ -478,16 +489,16 @@ Shader "Unlit/WaterRaymarch"
                     // Moved this above inter break
                     transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
-                    //
-                    if(!firstFollowReflect && i <= 1 && ft <= t) {
-                        const float3 FoamColor = 1.; // TODO: temp
-                        return li + 0.9*FoamColor;// * transmittance
+                    // TODO: Compile diff versions through scripts with macros and setfeature to not have all these if statements
+                    if(UseBillboardFoam && !firstFollowReflect && i <= 1 && ft <= t) {
+                        const float3 FoamColor = 1.; // TODO: temp, expose it to editor
+                        return li + 0.9*FoamColor;
                     }
-                    ft -= t; //RVS old billboard foam
+                    ft -= t;
 
                     if(interType != INTERTYPE_WATER) {
-                        if(i==0) return 0.5*SampleEnvironment(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier); //RVS
-                        // TODO: need to fix the white edges probably come from full transmittance sampling ca ustics when there's like no water
+                        if(i==0) return 0.5*SampleEnvironment(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier);
+
                         if(UseCaustics && interType == INTERTYPE_OBJECT && i==1 && !firstFollowReflect) {
                             // Caustics
                             float3 floorPoint = hitPos + normal(hitPos)*.02; // Escape SDEps
@@ -554,7 +565,7 @@ Shader "Unlit/WaterRaymarch"
                 float3 transmittanceToLight = exp(-ExtinctionCoefficients * CalculateDensityAlongRay(ro, rd)); // Can use big step sizefor this one
                 li += lerp(transmittance * transmittanceToLight * SampleEnvironment(ro, rd), float3(1.,1.,1.), .9*(1.-foamTransmittance));
 
-                return li; //RVS
+                return li;
             }
 
             fixed4 frag(vOut i) : SV_Target
@@ -570,15 +581,12 @@ Shader "Unlit/WaterRaymarch"
 
                 //
                 float3 accumLight;
-                //if(CheckFoamInsideVolumeRadius(float3(0.,0.,0.)) >= 1.) return 0.; else return 1.; // RVS
 
                 if(!TraceReflectAndRefract) {
-                    accumLight = 0.;//TraceWaterRay(ro, rd, sp);
+                    accumLight = 0.;//TraceWaterRay(ro, rd, sp); TODO: add this back in after u separate tracewaterrayoverride into 2 funcs
                 } else {
-                    // TODO: Foam partial transparency? Well more like just the raymarched foam I can do later with spatial hashing and better sort
-                    // TODO: Separate reflect and refract into different funcs for performance
-                    // TODO: Can optimize more like so many repeated intersection and density marching calculations idk if they're bottleneck tho
-                    // TOOD: reflect and refract rays have exact same sequence up until first intersection so can avoid doing same thing twice
+                    // TODO: Separate reflect and refract into different funcs for performance and THEN
+                    // TODO: Can optimize more like so many repeated intersection and density marching calculations idk if they're bottleneck tho, reflect and refract rays have exact same sequence up until first intersection so can avoid doing same thing twice
                     float3 accumReflectLight = TraceWaterRayOverride(ro, rd, sp, true, distAlongRayToFoam);
                     float3 accumRefractLight = TraceWaterRayOverride(ro, rd, sp, false, distAlongRayToFoam);
                     accumLight = accumReflectLight + accumRefractLight;

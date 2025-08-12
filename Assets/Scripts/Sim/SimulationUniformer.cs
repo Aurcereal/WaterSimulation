@@ -103,7 +103,8 @@ public class SimulationUniformer
         particleSimulatorShader.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
         particleSimulatorShader.SetVector("ObstacleScale", (Vector3)ObstacleScale);
         particleSimulatorShader.SetBool("ObstacleType", ObstacleType);
-        particleSimulatorShader.SetBool("ObstacleSimInteraction", ObstacleSimInteraction);
+        particleSimulatorShader.SetBool("ObstacleSimInteraction", ObstacleSimInteraction); // TODO: make it a compile feature
+        particleSimulatorShader.SetBool("SpawnFoam", SimulateFoam);
 
         particleSimulatorShader.SetVector("Gravity", (Vector3)Gravity);
         particleSimulatorShader.SetFloat("ParticleRadius", ParticleRadius);

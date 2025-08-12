@@ -45,7 +45,6 @@ public class CausticsManager
         UniformParameters();
     }
 
-    // TODO: gotta do the ball and blur thing it's pretty much same as screenspace from diff angle and less
     public void OnEnable()
     {
         CausticsVerticalCamera.RemoveAllCommandBuffers();

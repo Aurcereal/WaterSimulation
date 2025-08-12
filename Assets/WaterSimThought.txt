@@ -1,3 +1,4 @@
+
 Unity, ShaderLab, C#
 
 https://matthias-research.github.io/pages/publications/sca03.pdf
@@ -44,6 +45,7 @@ THE FOAM ISNT DISAPPEARING FAST ENOUGH
 - Make a new branch where you're fixing stuff/adding preset stuff and can use scriptable objects for presets of scenes and another set of scriptable objects for presets of materials
 - Maybe 5 SOs: Scene (includes floor pattern), Fluid Visual Material, Fluid Behavior Preset, Foam Material/Behavior in 1 SO, Caustics Material?
 	Need a toggle for Foam, Caustics, Shadow Mapping/Occlusion, 3 Render Modes: (Balls, Raymarched, Screenspace)
+	Need a toggle for Springs, Stickiness
 
 -=Ignore/Done for now=-
 
