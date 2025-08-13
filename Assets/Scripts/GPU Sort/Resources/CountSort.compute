@@ -3,7 +3,7 @@
 #pragma kernel SortParticles
 #pragma kernel CopyFromSortedBufferToEntryBuffer
 
-#pragma multi_compile BUFFER_COUNT __ //RVS
+#pragma multi_compile BUFFER_COUNT __
 
 struct ParticleEntry {
     int particleIndex;

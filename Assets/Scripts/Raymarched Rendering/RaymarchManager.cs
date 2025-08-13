@@ -22,7 +22,7 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat = new(Shader.Find("Unlit/WaterRaymarch"));
 
         //
-        commandBuffer = new ();
+        commandBuffer = new();
 
     }
 
@@ -106,7 +106,7 @@ public class RaymarchManager : MonoBehaviour
     public void DrawFoam()
     {
         commandBuffer.Clear();
-        
+
         GameManager.Ins.simFoamManager.DrawFoamTex(commandBuffer);
     }
 
@@ -120,5 +120,12 @@ public class RaymarchManager : MonoBehaviour
         ComputeHelper.Dispatch(GameManager.Ins.computeManager.particleSimulatorShader, densitySampleCount.x, densitySampleCount.y, densitySampleCount.z, "CacheDensities");
 
         waterRaymarchMat.SetTexture("DensityTexture", densityTexture);
+    }
+
+    string? currCompileMacro;
+    public void HandleNewEnv()
+    {
+        if (currCompileMacro != null) waterRaymarchMat.DisableKeyword(currCompileMacro);
+        waterRaymarchMat.EnableKeyword(EnvPreset.visualCompileKeyword);
     }
 }

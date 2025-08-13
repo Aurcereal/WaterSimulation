@@ -23,7 +23,6 @@ public class SimulationParameters : MonoBehaviour
     public static Matrix4x4 ObstacleInverseTransform => Ins.obstacleTransform.transform.worldToLocalMatrix;
     public static float3 ObstacleScale => Ins.obstacleTransform.transform.localScale;
     public static bool ObstacleType => Ins.environmentPreset.obstacleType;
-    public static bool ObstacleSimInteraction => Ins.obstacleSimInteraction;
 
     public static float3 Gravity => Ins.fluidBehaviorPreset.gravity;
 
@@ -111,6 +110,8 @@ public class SimulationParameters : MonoBehaviour
     public static Color ParticleLowSpeedColor => Ins.debugVisualPreset.particleLowSpeedColor;
     public static Color ParticleHighSpeedColor => Ins.debugVisualPreset.particleHighSpeedColor;
 
+    public static EnvTemplate EnvPreset => Ins.envPreset;
+
     public enum VisualMode
     {
         DebugSpheres,
@@ -126,7 +127,6 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Other Toggles")]
     [SerializeField] bool simulateFoam = true;
-    [SerializeField] bool obstacleSimInteraction = true;
 
     [Header("Visual Presets")]
     [SerializeField] DebugVisualPreset debugVisualPreset;
@@ -141,6 +141,10 @@ public class SimulationParameters : MonoBehaviour
     [Header("Behavior Presets")]
     [SerializeField] FluidBehaviorPreset fluidBehaviorPreset;
     [SerializeField] FoamBehaviorPreset foamBehaviorPreset;
+
+    [Header("Environment Preset")]
+    [SerializeField] EnvTemplate envPreset;
+    [SerializeField] bool overrideEnvPreset = false; // TODO: make this matter and have bbx and obstacle physics toggleable through overrides
 
     [Header("Unity References")]
     [SerializeField] Transform obstacleTransform; ///

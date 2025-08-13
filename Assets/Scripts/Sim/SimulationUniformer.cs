@@ -92,7 +92,6 @@ public class SimulationUniformer
         particleSimulatorShader.SetMatrix("ObstacleInverseTransform", ObstacleInverseTransform);
         particleSimulatorShader.SetVector("ObstacleScale", (Vector3)ObstacleScale);
         particleSimulatorShader.SetBool("ObstacleType", ObstacleType);
-        particleSimulatorShader.SetBool("ObstacleSimInteraction", ObstacleSimInteraction); // TODO: make it a compile feature
         particleSimulatorShader.SetBool("SpawnFoam", SimulateFoam);
 
         particleSimulatorShader.SetVector("Gravity", (Vector3)Gravity);
@@ -156,6 +155,30 @@ public class SimulationUniformer
     public void UniformDensityTexture(RenderTexture tex, int3 size)
     {
         ComputeHelper.SetTexture(GameManager.Ins.computeManager.particleSimulatorShader, "DensityTexture", tex, "CacheDensities");
-        GameManager.Ins.computeManager.particleSimulatorShader.SetVector("DensityTextureSize", (Vector3) (float3) size);
+        GameManager.Ins.computeManager.particleSimulatorShader.SetVector("DensityTextureSize", (Vector3)(float3)size);
+    }
+
+    public void HandleNewEnv()
+    {
+        var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
+
+        //
+        foreach (var keyword in particleSimulatorShader.enabledKeywords)
+        {
+            particleSimulatorShader.DisableKeyword(keyword);
+        }
+
+        //
+        if (EnvPreset.enableBoundingBoxInteraction)
+        {
+            particleSimulatorShader.EnableKeyword("BBX_COLLISION");
+        }
+        if (EnvPreset.enableObjectInteraction)
+        {
+            particleSimulatorShader.EnableKeyword("OBSTACLE_COLLISION");
+        }
+
+        //
+        particleSimulatorShader.EnableKeyword(EnvPreset.physicsCompileKeyword);
     }
 }

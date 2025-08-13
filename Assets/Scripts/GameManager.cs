@@ -98,10 +98,19 @@ public class GameManager : MonoBehaviour
         {
             shadowMapManager.OnDisable();
         }
+
+        HandleNewEnv();
     }
 
     int counter = 1;
     VisualMode? prevVisualMode;
+
+    void HandleNewEnv()
+    {
+        screenSpaceManager.HandleNewEnv();
+        raymarchManager.HandleNewEnv();
+        simUniformer.HandleNewEnv();
+    }
 
     void HandleVisualModeSwitching()
     {

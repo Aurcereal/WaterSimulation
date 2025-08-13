@@ -108,7 +108,7 @@ public class ScreenSpaceWaterManager
 
         // Caustics
         compositeIntoWater.SetInt("UseCaustics", UseCaustics ? 1 : 0);
-        compositeIntoWater.SetVector("CausticCamPosition", (Vector3) GameManager.Ins.causticsManager.CausticCamPosition);
+        compositeIntoWater.SetVector("CausticCamPosition", (Vector3)GameManager.Ins.causticsManager.CausticCamPosition);
         compositeIntoWater.SetMatrix("CausticCamVP", GameManager.Ins.causticsManager.CausticsCamVP);
         compositeIntoWater.SetTexture("DepthFromCausticCam", GameManager.Ins.causticsManager.SmoothedDepthTex);
         compositeIntoWater.SetTexture("NormalFromCausticCam", GameManager.Ins.causticsManager.NormalTex);
@@ -153,12 +153,12 @@ public class ScreenSpaceWaterManager
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleSphereDepthMaterial, 0, ParticleCount);
 
         // Draw foam particles
-        if(UseBillboardFoam) GameManager.Ins.simFoamManager.DrawFoamTex(commandBuffer);
+        if (UseBillboardFoam) GameManager.Ins.simFoamManager.DrawFoamTex(commandBuffer);
 
         // Draw thickness/density texture
         commandBuffer.SetRenderTarget(densityTex);
         commandBuffer.ClearRenderTarget(true, true, Color.black);
-        if(UseBillboardFoam) commandBuffer.Blit(GameManager.Ins.simFoamManager.FoamTex, densityTex, copyDepthMaterial);
+        if (UseBillboardFoam) commandBuffer.Blit(GameManager.Ins.simFoamManager.FoamTex, densityTex, copyDepthMaterial);
         commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particleAdditiveDensityMaterial, 0, ParticleCount);
 
         // Blur depth tex
@@ -169,5 +169,12 @@ public class ScreenSpaceWaterManager
 
         //
         commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
+    }
+    
+    string? currCompileMacro;
+    public void HandleNewEnv()
+    {
+        if (currCompileMacro != null) compositeIntoWater.DisableKeyword(currCompileMacro);
+        compositeIntoWater.EnableKeyword(EnvPreset.visualCompileKeyword);
     }
 }

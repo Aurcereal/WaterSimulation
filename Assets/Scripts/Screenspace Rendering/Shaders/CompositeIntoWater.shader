@@ -16,6 +16,7 @@ Shader "Unlit/CompositeIntoWater"
         Pass
         {
             CGPROGRAM
+            #pragma multi_compile CHECKERFLOOR_ENV
             #pragma vertex vert
 			#pragma fragment frag
 			#pragma target 4.5

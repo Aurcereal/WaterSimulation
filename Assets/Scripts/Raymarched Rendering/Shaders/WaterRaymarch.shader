@@ -16,6 +16,8 @@ Shader "Unlit/WaterRaymarch"
         Pass
         {
             CGPROGRAM
+            #pragma multi_compile CHECKERFLOOR_ENV
+
             #pragma editor_sync_compilation
             #pragma vertex vert
 			#pragma fragment frag

@@ -181,7 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentVisualMode: 1
+  currentVisualMode: 2
   useRaymarchedFoamInRaymarchedWater: 1
   useBillboardFoam: 1
   useShadows: 0
@@ -198,6 +198,7 @@ MonoBehaviour:
   screenspaceVisualPreset: {fileID: 11400000, guid: 9d098d03e4cd60f4faefa7340aa209e7, type: 2}
   fluidBehaviorPreset: {fileID: 11400000, guid: 5848d942ab820764198a99092966c287, type: 2}
   foamBehaviorPreset: {fileID: 11400000, guid: da21c338ef2455947a9bd4154d99ee0f, type: 2}
+  envPreset: {fileID: 11400000, guid: 28cbedd4450d76f4e86cbfd7a8fab466, type: 2}
   obstacleTransform: {fileID: 1857617105}
   containerTransform: {fileID: 2036646829}
   lightTransform: {fileID: 705507995}

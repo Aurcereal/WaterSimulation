@@ -1,3 +1,7 @@
+#pragma multi_compile BBX_COLLISION __
+#pragma multi_compile OBSTACLE_COLLISION __
+#pragma multi_compile CHECKERFLOOR_ENV
+
 #define THREADGROUPSIZE 256
 #define CUBETHREADGROUPSIZE 8
 
@@ -55,7 +59,6 @@ const float3 ContainerScale;
 const float4x4 ObstacleInverseTransform;
 const float3 ObstacleScale;
 const bool ObstacleType;
-const bool ObstacleSimInteraction;
 
 RWTexture3D<float> DensityTexture;
 float3 DensityTextureSize;
@@ -449,12 +452,29 @@ float3 CalculateStickinessForce(int particleIndex) {
     return -norm * forceMag;
 }
 
+#ifdef BBX_COLLISION
+#include "../../../Env/BoundingBoxEnvPhysics.hlsl"
+#endif
+#ifdef OBSTACLE_COLLISION
+#include "../../../Env/ObstacleEnvPhysics.hlsl"
+#endif
+
+#ifdef CHECKERFLOOR_ENV
+#include "../../../Env/CheckerFloorEnvPhysics.hlsl"
+#endif
+
 float sdScene(float3 p) {
-    float dBox = -sdBox(ContainerScale * mul(ContainerInverseTransform, float4(p, 1.)).xyz, ContainerScale);
-    float dObstacle = !ObstacleSimInteraction ? 10000.0 : ObstacleType ? 
-        sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale-1.5*SmoothingRadius) : 
-        sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x-1.5*SmoothingRadius);
-    return min(dBox, dObstacle);
+    float sd = sdEnv(p);
+
+    #ifdef BBX_COLLISION
+    sd = min(sd, sdBoundingBox(p));
+    #endif
+
+    #ifdef OBSTACLE_COLLISION
+    sd = min(sd, sdObstacle(p));
+    #endif
+
+    return sd;
 }
 
 /// Just returns first velocity of nearby particle it finds (since particles could be sparse)
