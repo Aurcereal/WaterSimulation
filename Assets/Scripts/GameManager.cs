@@ -26,11 +26,13 @@ public class GameManager : MonoBehaviour
 
     public CameraController camController;
 
-    public ScreenSpaceWaterManager screenSpaceManager;
     public SimulationFoamManager simFoamManager;
     public ShadowMapManager shadowMapManager;
-
     public CausticsManager causticsManager;
+
+    public ScreenSpaceWaterManager screenSpaceManager;
+    public DebugRenderingManager debugRenderingManager;
+    public RaymarchManager raymarchManager => RaymarchManager.Ins;
 
     void Start()
     {
@@ -66,23 +68,16 @@ public class GameManager : MonoBehaviour
         camController = new(MainCamera.transform.position, float3(0));
 
         screenSpaceManager = new();
+        debugRenderingManager = new();
 
-        RaymarchManager.Ins.UniformAllParameters();
         camController.SetGlobalUniformCameraData();
-        RaymarchManager.Ins.UpdateContainerData();
-        if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
+        raymarchManager.UniformAllParameters();
+        raymarchManager.UpdateContainerData();
+        if (raymarchManager != null) raymarchManager.enabled = CurrentVisualMode == VisualMode.Raymarched;
         screenSpaceManager.UpdateObstacleData();
 
-        if (EnableRaymarchShader)
-        {
-            screenSpaceManager.OnDisable();
-            RaymarchManager.Ins.OnEnable();
-        }
-        else
-        {
-            RaymarchManager.Ins.OnDisable();
-            screenSpaceManager.OnEnable();
-        }
+        prevVisualMode = null;
+        HandleVisualModeSwitching();
 
         if (UseCaustics)
         {
@@ -106,10 +101,43 @@ public class GameManager : MonoBehaviour
     }
 
     int counter = 1;
-    bool prevEnableRaymarchShader;
+    VisualMode? prevVisualMode;
+
+    void HandleVisualModeSwitching()
+    {
+        if (prevVisualMode != CurrentVisualMode)
+        {
+            switch (prevVisualMode)
+            {
+                case VisualMode.DebugSpheres:
+                    debugRenderingManager.OnDisable();
+                    break;
+                case VisualMode.Raymarched:
+                    RaymarchManager.Ins.OnDisable();
+                    break;
+                case VisualMode.Screenspace:
+                    screenSpaceManager.OnDisable();
+                    break;
+            }
+
+            switch (CurrentVisualMode)
+            {
+                case VisualMode.DebugSpheres:
+                    debugRenderingManager.OnEnable();
+                    break;
+                case VisualMode.Raymarched:
+                    RaymarchManager.Ins.OnEnable();
+                    break;
+                case VisualMode.Screenspace:
+                    screenSpaceManager.OnEnable();
+                    break;
+            }
+        }
+    }
 
     void Update()
     {
+        #region Input and Camera
         inputManager.Update();
 
         camController.Update();
@@ -124,48 +152,42 @@ public class GameManager : MonoBehaviour
 
         if (inputManager.KeyDownR)
             ResetSimulation();
+        #endregion
 
+        #region Update Sim
         simTimeController.UpdateState();
 
         if (simTimeController.ShouldUpdate())
             simUpdater.Update(simTimeController.GetDeltaTime());
+        #endregion
 
-        if (EnableRaymarchShader)
+        HandleVisualModeSwitching();
+
+        if (CurrentVisualMode == VisualMode.Raymarched)
         {
             if (counter >= 1) { RaymarchManager.Ins.CacheDensities(); counter = 0; } // Takes up ton of time . .
             else ++counter;
         }
 
-        if (EnableRaymarchShader != prevEnableRaymarchShader)
+        switch (CurrentVisualMode)
         {
-            if (EnableRaymarchShader)
-            {
-                screenSpaceManager.OnDisable();
-                RaymarchManager.Ins.OnEnable();
-            }
-            else
-            {
-                RaymarchManager.Ins.OnDisable();
-                screenSpaceManager.OnEnable();
-            }
+            case VisualMode.DebugSpheres:
+                // Debug Draw Spheres using ScreenSpaceManager CMD and stuff
+                debugRenderingManager.Draw();
+                break;
+            case VisualMode.Raymarched:
+                if (UseBillboardFoam) RaymarchManager.Ins.DrawFoam();
+                // The actual drawing to screen will happen in RaymarchManager.OnRenderImage
+                break;
+            case VisualMode.Screenspace:
+                // Put shadowmap and caustics in screenspace
+                if (UseCaustics) causticsManager.DrawTextures();
+                if (UseShadows) shadowMapManager.DrawShadows();
+                screenSpaceManager.Draw();
+                break;
         }
 
-        if (UseCaustics)
-        {
-            causticsManager.DrawTextures();
-        }
-
-        if (EnableRaymarchShader)
-        {
-            if(UseBillboardFoam) RaymarchManager.Ins.DrawFoam();
-        }
-        else
-        {
-            if (UseShadows) shadowMapManager.DrawShadows();
-            screenSpaceManager.Draw();
-        }
-
-        prevEnableRaymarchShader = EnableRaymarchShader;
+        prevVisualMode = CurrentVisualMode;
     }
 
     void OnDisable()

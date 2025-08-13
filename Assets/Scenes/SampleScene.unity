@@ -181,11 +181,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentVisualMode: 1
   useRaymarchedFoamInRaymarchedWater: 1
   useBillboardFoam: 1
   useShadows: 0
   useCaustics: 1
-  enableRaymarchShader: 1
   simulateFoam: 1
   obstacleSimInteraction: 1
   debugVisualPreset: {fileID: 11400000, guid: eb008d68815564749b81afebaf3b0d34, type: 2}

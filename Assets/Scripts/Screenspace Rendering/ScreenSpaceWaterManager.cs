@@ -15,7 +15,6 @@ public class ScreenSpaceWaterManager
     int ScreenHeight => ResolutionTracker.ScreenHeight;
 
     //
-    Material particle3DMaterial = new Material(Shader.Find("Unlit/ParticleDebug"));
     public Material particleSphereDepthMaterial = new Material(Shader.Find("Unlit/ParticleSphereDepth"));
     public Material particleAdditiveDensityMaterial = new Material(Shader.Find("Unlit/ParticleAdditiveDensity"));
     // ODOT make material manager that sets all buffers and enable instancing and stuff No it's good to own materials for now
@@ -49,10 +48,6 @@ public class ScreenSpaceWaterManager
 
     public ScreenSpaceWaterManager()
     {
-        particle3DMaterial.enableInstancing = true;
-        particle3DMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
-        particle3DMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
-
         particleSphereDepthMaterial.enableInstancing = true;
         particleSphereDepthMaterial.SetBuffer("positionBuffer", GameManager.Ins.computeManager.positionBuffer);
         particleSphereDepthMaterial.SetBuffer("colorBuffer", GameManager.Ins.computeManager.colorBuffer);
@@ -82,7 +77,6 @@ public class ScreenSpaceWaterManager
 
     public void UniformParametersAndTextures()
     {
-        particle3DMaterial.SetFloat("_Radius", ParticleRadius);
         particleSphereDepthMaterial.SetFloat("_Radius", ParticleRadius);
         particleAdditiveDensityMaterial.SetFloat("_Radius", ParticleRadius);
 
@@ -175,14 +169,5 @@ public class ScreenSpaceWaterManager
 
         //
         commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
-    }
-
-    public void DebugDrawSpheres()
-    {
-        commandBuffer.Clear();
-
-        commandBuffer.SetRenderTarget(MainCamera.targetTexture);
-        commandBuffer.ClearRenderTarget(true, true, Color.black);
-        commandBuffer.DrawMeshInstancedProcedural(MeshUtils.QuadMesh, 0, particle3DMaterial, 0, ParticleCount);
     }
 }

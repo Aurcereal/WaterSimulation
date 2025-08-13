@@ -32,33 +32,41 @@ Shader "Unlit/FoamParticleDebug"
             struct vIn
             {
                 float4 vertex : POSITION;
-                float4 normal : NORMAL;
+                float2 uv : TEXCOORD0;
             };
 
             struct vOut
             {
                 float4 vertex : SV_POSITION;
-                float3 normal : TEXCOORD1;
+                float2 uv : TEXCOORD0;
             };
 
-            float _Radius;
+            const float _FoamRadius;
 
             vOut vert (vIn v, uint instanceID : SV_InstanceID)
             {
                 vOut o;
 
-                float3 objectPos = v.vertex.xyz * _Radius;
+                float3 camRi = unity_CameraToWorld._m00_m10_m20; // Row major
+                float3 camUp = unity_CameraToWorld._m01_m11_m21;
+
+                float3 objectPos = v.vertex.xyz * _FoamRadius;
+                objectPos = objectPos.x * camRi + objectPos.y * camUp; // Orient towards cam
                 float3 worldPos = objectPos + foamParticleBuffer[instanceID].position;
                 o.vertex = mul(UNITY_MATRIX_VP, float4(worldPos, 1.));
 
-                o.normal = mul(float4(v.normal.xyz, 0.), unity_WorldToObject).xyz;
+                o.uv = v.uv;
                 
                 return o;
             }
 
             fixed4 frag(vOut i) : SV_Target
             {
-                return float4(1.,1.,1.,1.);
+                float2 p = i.uv*2.-1.;
+                float sqrDist = dot(p,p);
+                if(sqrDist >= 1.) discard;
+
+                return 1.;
             }
             ENDCG
         }

@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particleLowColorSpeed: 1
   particleHighColorSpeed: 7.5
+  particleLowSpeedColor: {r: 0, g: 0.42205977, b: 1, a: 1}
+  particleHighSpeedColor: {r: 0, g: 0.7312844, b: 0.8584906, a: 1}

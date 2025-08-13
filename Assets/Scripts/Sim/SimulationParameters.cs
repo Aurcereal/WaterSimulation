@@ -49,7 +49,7 @@ public class SimulationParameters : MonoBehaviour
     public const int SpatialLookupSize = 1048576;
     public static float GridSize => SmoothingRadius / sqrt(2);
 
-    public static bool EnableRaymarchShader => Ins.enableRaymarchShader;
+    public static VisualMode CurrentVisualMode => Ins.currentVisualMode;
     public static bool UseRaymarchedFoam => Ins.useRaymarchedFoamInRaymarchedWater;
     public static bool UseBillboardFoam => Ins.useBillboardFoam;
     public static float DensityCacheStepSize => Ins.raymarchVisualPreset.densityCacheStepSize;
@@ -106,12 +106,23 @@ public class SimulationParameters : MonoBehaviour
     public static float CausticsDepthWorldBlurRadius => Ins.screenspaceCausticsVisualPreset.causticsDepthWorldBlurRadius;
     public static int CausticsDepthBlurIterationCount => Ins.screenspaceCausticsVisualPreset.causticsDepthBlurIterationCount;
 
+    public static float ParticleLowColorSpeed => Ins.debugVisualPreset.particleLowColorSpeed;
+    public static float ParticleHighColorSpeed => Ins.debugVisualPreset.particleHighColorSpeed;
+    public static Color ParticleLowSpeedColor => Ins.debugVisualPreset.particleLowSpeedColor;
+    public static Color ParticleHighSpeedColor => Ins.debugVisualPreset.particleHighSpeedColor;
+
+    public enum VisualMode
+    {
+        DebugSpheres,
+        Raymarched,
+        Screenspace
+    }
     [Header("Visual Toggles")]
+    [SerializeField] VisualMode currentVisualMode; /// TODO: make enum btwn raymarch, screenspace, debug
     [SerializeField] bool useRaymarchedFoamInRaymarchedWater = true; ///
     [SerializeField] bool useBillboardFoam = true; ///
     [SerializeField] bool useShadows = false; ///
     [SerializeField] bool useCaustics; ///
-    [SerializeField] bool enableRaymarchShader = true; /// TODO: make enum btwn raymarch, screenspace, debug
 
     [Header("Other Toggles")]
     [SerializeField] bool simulateFoam = true;
@@ -161,7 +172,7 @@ public class SimulationParameters : MonoBehaviour
         RaymarchManager.Ins?.UniformAllParameters();
         GameManager.Ins?.screenSpaceManager.UniformParametersAndTextures();
         GameManager.Ins?.causticsManager.UniformParameters();
-        if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = EnableRaymarchShader;
+        if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = CurrentVisualMode == VisualMode.Raymarched;
         GameManager.Ins?.screenSpaceManager.ResetGaussianKernels();
         GameManager.Ins?.screenSpaceManager.blurManager.UniformAllParameters();
     }

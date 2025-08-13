@@ -10,9 +10,8 @@ using UnityEngine.Rendering;
 
 public class SimulationFoamManager
 {
-    ComputeBuffer argsBuffer;
+    public ComputeBuffer ArgsBuffer;
 
-    Material foamParticle3DMaterial = new Material(Shader.Find("Unlit/FoamParticleDebug"));
     Material foamParticleBillboardMaterial = new Material(Shader.Find("Unlit/FoamParticle"));
 
     public RenderTexture FoamTex { get; private set; }
@@ -31,13 +30,10 @@ public class SimulationFoamManager
     {
         ComputeManager computeManager = GameManager.Ins.computeManager;
 
-        argsBuffer = ComputeHelper.CreateArgsBuffer(MeshUtils.QuadMesh, 0, 0);
+        ArgsBuffer = ComputeHelper.CreateArgsBuffer(MeshUtils.QuadMesh, 0, 0);
 
-        computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("argsBuffer", argsBuffer, "CopyFoamParticleCountToArgsBuffer");
+        computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("argsBuffer", ArgsBuffer, "CopyFoamParticleCountToArgsBuffer");
         computeManager.copyFoamParticleCountToArgsBufferShader.SetBuffer("foamParticleCounts", GameManager.Ins.computeManager.foamParticleCounts, "CopyFoamParticleCountToArgsBuffer");
-
-        foamParticle3DMaterial.enableInstancing = true;
-        foamParticle3DMaterial.SetBuffer("foamParticleBuffer", computeManager.survivingFoamParticles);
 
         foamParticleBillboardMaterial.enableInstancing = true;
         foamParticleBillboardMaterial.SetBuffer("foamParticleBuffer", computeManager.survivingFoamParticles);
@@ -60,7 +56,6 @@ public class SimulationFoamManager
 
     public void UniformParameters()
     {
-        foamParticle3DMaterial.SetFloat("_Radius", ParticleRadius); // ODOT: Make radius global param
         foamParticleBillboardMaterial.SetFloat("FoamScaleMultiplier", FoamScaleMultiplier);
     }
 
@@ -93,7 +88,7 @@ public class SimulationFoamManager
     {
         cmd.SetRenderTarget(FoamTex);
         cmd.ClearRenderTarget(true, true, new Color(0, 0, 100000)); // ~ 0 color, 0 Unity Depth (i think its reversed), 100000 Linear Depth
-        cmd.DrawMeshInstancedIndirect(MeshUtils.QuadMesh, 0, foamParticleBillboardMaterial, 0, argsBuffer);
+        cmd.DrawMeshInstancedIndirect(MeshUtils.QuadMesh, 0, foamParticleBillboardMaterial, 0, ArgsBuffer);
     }
 
 }

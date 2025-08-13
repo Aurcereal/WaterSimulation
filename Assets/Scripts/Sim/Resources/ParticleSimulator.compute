@@ -90,6 +90,12 @@ const float TimeSinceStart;
 
 const bool SpawnFoam;
 
+// Debug Drawing
+const float ParticleLowColorSpeed;
+const float ParticleHighColorSpeed;
+const float4 ParticleLowSpeedColor;
+const float4 ParticleHighSpeedColor;
+
 //
 #include "./MathHelper.hlsl"
 #include "./ParticleMath3D.hlsl"
@@ -518,7 +524,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
 
         float kineticEnergy = 0.5 * dot(vel, vel);
         float kineticPotential = clamp((kineticEnergy - KineticPotentialRemapLow) / (KineticPotentialRemapHigh - KineticPotentialRemapLow), 0., 1.);
-        float spawnRate = kineticPotential * (TrappedAirMultiplier * airPotential); // TODO: maybe add wave crest
+        float spawnRate = kineticPotential * (TrappedAirMultiplier * airPotential); // ODOT: Maybe add wave crest
         float numSpawn = dt * spawnRate * spawnRate;
         float spd = length(vel);
         float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
@@ -537,7 +543,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     }
 
     positions[i] = pos;
-    //colors[i] = float4(hash31(pos) < frac(numSpawn) ? 0. : 1., 1., 0., 1.);//float4(kineticPotential * (TrappedAirMultiplier * airPotential), 1., 0.,1.);//colors[i] = lerp(float4(0.3, 0.4, 1.0, 1.0), float4(0.4, 0.8, 1.0, 1.0), smoothstep(0., 7.5, length(velocities[i])));//smoothstep(0.5, 1.5, length(EvaluateExistenceGradient(positions[i], -1))));//length(velocities[i])));
+    colors[i] = lerp(ParticleLowSpeedColor, ParticleHighSpeedColor, clamp((length(vel) - ParticleLowColorSpeed)/(ParticleHighColorSpeed - ParticleLowColorSpeed), 0., 1.)); // TODO: Debug draw only
     velocities[i] = vel;
 }
 

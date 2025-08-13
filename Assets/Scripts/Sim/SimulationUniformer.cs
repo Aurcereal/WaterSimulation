@@ -130,6 +130,12 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("GridSize", GridSize);
         particleSimulatorShader.SetInt("SpatialLookupSize", SpatialLookupSize);
 
+        //
+        particleSimulatorShader.SetFloat("ParticleLowColorSpeed", ParticleLowColorSpeed);
+        particleSimulatorShader.SetFloat("ParticleHighColorSpeed", ParticleHighColorSpeed);
+        particleSimulatorShader.SetVector("ParticleLowSpeedColor", ParticleLowSpeedColor);
+        particleSimulatorShader.SetVector("ParticleHighSpeedColor", ParticleHighSpeedColor);
+
     }
 
     public void UniformDeltaTimeAndCurrentTime(float dt, float timeSinceStart)
