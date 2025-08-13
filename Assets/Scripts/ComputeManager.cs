@@ -41,9 +41,6 @@ public class ComputeManager
     public ComputeBuffer foamParticleCellKeyEntryBuffer;
     public ComputeBuffer foamCellKeyToStartCoordBuffer;
 
-    // Odd-Even Sort OES
-    public ComputeBuffer ParticleIDToEntryIndexBuffer;
-
     public ComputeManager()
     {
         particleSimulatorShader = ComputeHelper.FindInResourceFolder("ParticleSimulator");
@@ -73,11 +70,6 @@ public class ComputeManager
         foamParticleCellKeyEntryBuffer = ComputeHelper.CreateBuffer<ParticleEntry>(MaxFoamParticleCount);
         foamCellKeyToStartCoordBuffer = ComputeHelper.CreateBuffer<int>(FoamSpatialLookupSize);
 
-        // OES
-        if (UseOddEvenSort)
-        {
-            ParticleIDToEntryIndexBuffer = ComputeHelper.CreateBuffer<int>(ParticleCount);
-        }
     }
 
     public void Destructor()

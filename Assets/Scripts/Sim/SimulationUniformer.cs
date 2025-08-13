@@ -31,7 +31,6 @@ public class SimulationUniformer
                 new string[] {
                 "CalculatePredictedPositions",
                 "UpdateSpatialHashEntries",
-                "UpdateSpatialHashEntriesOES",
                 "ResetSpatialHashOffsets",
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
@@ -58,7 +57,6 @@ public class SimulationUniformer
                 new string[] {
                 "CalculatePredictedPositions",
                 "UpdateSpatialHashEntries",
-                "UpdateSpatialHashEntriesOES",
                 "ResetSpatialHashOffsets",
                 "UpdateSpatialHashOffsets",
                 "CalculateDensities",
@@ -79,15 +77,6 @@ public class SimulationUniformer
             "MoveSurvivingFoamParticlesToUpdatingBuffer"
             });
 
-        // OES
-        if (UseOddEvenSort)
-        {
-            particleSimulatorShader.SetBuffers(new (string, ComputeBuffer)[] {
-                ("ParticleIDToEntryIndex", computeManager.ParticleIDToEntryIndexBuffer)
-            }, new string[] {
-                "UpdateSpatialHashEntriesOES"
-            });
-        }
     }
 
     public void UniformAllParameters()
@@ -111,13 +100,10 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("SmoothingRadius", SmoothingRadius);
         particleSimulatorShader.SetFloat("SqrSmoothingRadius", SmoothingRadius * SmoothingRadius);
         particleSimulatorShader.SetFloat("InvSmoothingRadius", 1.0f / SmoothingRadius);
-        particleSimulatorShader.SetFloat("MouseForceRadius", MouseForceRadius);
-        particleSimulatorShader.SetFloat("MouseForceStrength", MouseForceStrength);
         particleSimulatorShader.SetFloat("TargetDensity", TargetDensity);
         particleSimulatorShader.SetFloat("NearDensityPressureMultiplier", NearDensityPressureMultiplier);
         particleSimulatorShader.SetFloat("PressureMultiplier", PressureMultiplier);
         particleSimulatorShader.SetFloat("ViscosityStrength", ViscosityStrength);
-        particleSimulatorShader.SetFloat("SurfaceTensionMultiplier", SurfaceTensionMultiplier);
         particleSimulatorShader.SetFloat("SpringForceMultiplier", SpringForceMultiplier);
         particleSimulatorShader.SetFloat("Plasticity", Plasticity);
         particleSimulatorShader.SetFloat("SpringYieldRatio", SpringYieldRatio);

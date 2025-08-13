@@ -6,9 +6,6 @@ struct ParticleEntry {
 RWStructuredBuffer<ParticleEntry> particleCellKeyEntries;
 RWStructuredBuffer<int> cellKeyToStartCoord;
 
-// OES
-RWStructuredBuffer<int> ParticleIDToEntryIndex;
-
 const int SpatialLookupSize;
 const float GridSize;
 

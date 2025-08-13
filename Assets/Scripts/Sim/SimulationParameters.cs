@@ -8,12 +8,11 @@ using static Unity.Mathematics.math;
 
 public class SimulationParameters : MonoBehaviour
 {
-    public static int ParticleCount => Ins.particleCount;
-    public static float3 SpawnDimensions => new(Ins.spawnWidth, Ins.spawnHeight, Ins.spawnDepth);
+    public static int ParticleCount => Ins.fluidBehaviorPreset.particleCount;
+    public static float3 SpawnDimensions => new(Ins.fluidBehaviorPreset.spawnWidth, Ins.fluidBehaviorPreset.spawnHeight, Ins.fluidBehaviorPreset.spawnDepth);
 
-    public static float SmoothingRadius => Ins.smoothingRadius;
+    public static float SmoothingRadius => Ins.fluidBehaviorPreset.smoothingRadius;
     public static Mesh SphereMesh => Ins.sphereMesh;
-    public static bool UseOddEvenSort => Ins.useOddEvenSort;
     public static bool UseShadows => Ins.useShadows;
 
     public static Matrix4x4 ContainerTransform => Ins.containerTransform.transform.localToWorldMatrix;
@@ -23,33 +22,28 @@ public class SimulationParameters : MonoBehaviour
     public static Matrix4x4 ObstacleTransorm => Ins.obstacleTransform.transform.localToWorldMatrix;
     public static Matrix4x4 ObstacleInverseTransform => Ins.obstacleTransform.transform.worldToLocalMatrix;
     public static float3 ObstacleScale => Ins.obstacleTransform.transform.localScale;
-    public static bool ObstacleType => Ins.obstacleType;
+    public static bool ObstacleType => Ins.environmentPreset.obstacleType;
     public static bool ObstacleSimInteraction => Ins.obstacleSimInteraction;
 
-    public static float3 Gravity => Ins.gravity;
+    public static float3 Gravity => Ins.fluidBehaviorPreset.gravity;
 
-    public static float MouseForceRadius => Ins.mouseForceRadius;
-    public static float MouseForceStrength => Ins.mouseForceStrength;
+    public static float TargetDensity => Ins.fluidBehaviorPreset.targetDensity;
+    public static float NearDensityPressureMultiplier => Ins.fluidBehaviorPreset.nearDensityPressureMultiplier;
+    public static float PressureMultiplier => Ins.fluidBehaviorPreset.pressureMultiplier;
 
-    public static float TargetDensity => Ins.targetDensity;
-    public static float NearDensityPressureMultiplier => Ins.nearDensityPressureMultiplier;
-    public static float PressureMultiplier => Ins.pressureMultiplier;
+    public static float ViscosityStrength => Ins.fluidBehaviorPreset.viscosityStrength;
 
-    public static float ViscosityStrength => Ins.viscosityStrength;
+    public static bool EnableParticleSprings => Ins.fluidBehaviorPreset.enableSpringForce;
+    public static float SpringForceMultiplier => Ins.fluidBehaviorPreset.springForceMultiplier;
+    public static float Plasticity => Ins.fluidBehaviorPreset.plasticity;
+    public static float SpringYieldRatio => Ins.fluidBehaviorPreset.springYieldRatio;
 
-    public static float SurfaceTensionMultiplier => Ins.surfaceTensionMultiplier;
-
-    public static bool EnableParticleSprings => Ins.enableParticleSprings;
-    public static float SpringForceMultiplier => Ins.springForceMultiplier;
-    public static float Plasticity => Ins.plasticity;
-    public static float SpringYieldRatio => Ins.springYieldRatio;
-
-    public static bool EnableStickForce => Ins.enableStickForce;
-    public static float MaxStickDistance => Ins.maxStickDistance;
-    public static float StickForceMultiplier => Ins.stickForceMultiplier;
+    public static bool EnableStickForce => Ins.fluidBehaviorPreset.enableStickForce;
+    public static float MaxStickDistance => Ins.fluidBehaviorPreset.maxStickDistance;
+    public static float StickForceMultiplier => Ins.fluidBehaviorPreset.stickForceMultiplier;
 
     public static float ParticleRadius => Ins.particleRadius;
-    public static float2 ParticleColorSpeedRange => new(Ins.particleLowColorSpeed, Ins.particleHighColorSpeed);
+    public static float2 ParticleColorSpeedRange => new(Ins.debugVisualPreset.particleLowColorSpeed, Ins.debugVisualPreset.particleHighColorSpeed);
     public static Camera MainCamera => Ins.mainCamera;
 
     public const int SpatialLookupSize = 1048576;
@@ -58,173 +52,102 @@ public class SimulationParameters : MonoBehaviour
     public static bool EnableRaymarchShader => Ins.enableRaymarchShader;
     public static bool UseRaymarchedFoam => Ins.useRaymarchedFoamInRaymarchedWater;
     public static bool UseBillboardFoam => Ins.useBillboardFoam;
-    public static float DensityCacheStepSize => Ins.densityCacheStepSize;
-    public static float DensityCacheSampleCount => Ins.densityCacheSampleCount;
-    public static bool UseDensityStepSize => Ins.useDensityStepSize;
-    public static float RaymarchDensityMultiplier => Ins.raymarchDensityMultiplier;
-    public static float RaymarchLightMultiplier => Ins.raymarchLightMultiplier;
-    public static float3 RaymarchExtinctionCoefficients => Ins.raymarchExtinctionCoefficients;
-    public static float IndexOfRefraction => Ins.indexOfRefraction;
+    public static float DensityCacheStepSize => Ins.raymarchVisualPreset.densityCacheStepSize;
+    public static float DensityCacheSampleCount => Ins.raymarchVisualPreset.densityCacheSampleCount;
+    public static bool UseDensityStepSize => Ins.raymarchVisualPreset.useDensityStepSize;
+    public static float RaymarchDensityMultiplier => Ins.raymarchVisualPreset.densityMultiplier;
+    public static float RaymarchLightMultiplier => Ins.raymarchVisualPreset.lightMultiplier;
+    public static float3 RaymarchExtinctionCoefficients => Ins.raymarchVisualPreset.extinctionCoefficients;
+    public static float RaymarchIndexOfRefraction => Ins.raymarchVisualPreset.indexOfRefraction;
     public static float3 LightDir => Ins.lightTransform.forward;
-    public static int NumBounces => Ins.numBounces;
-    public static bool TraceReflectAndRefract => Ins.traceReflectAndRefract;
-    public static float WaterExistenceThreshold => Ins.waterExistenceThreshold;
-    public static float WaterExistenceEps => Ins.waterExistenceEps;
-    public static float NextRayOffset => Ins.nextRayOffset;
-    public static Cubemap EnvironmentMap => Ins.environmentMap;
+    public static int NumBounces => Ins.raymarchVisualPreset.numBounces;
+    public static bool TraceReflectAndRefract => Ins.raymarchVisualPreset.traceReflectAndRefract;
+    public static float WaterExistenceThreshold => Ins.raymarchVisualPreset.waterExistenceThreshold;
+    public static float WaterExistenceEps => Ins.raymarchVisualPreset.waterExistenceEps;
+    public static float NextRayOffset => Ins.raymarchVisualPreset.nextRayOffset;
+    public static Cubemap EnvironmentMap => Ins.environmentPreset.environmentMap;
 
     public static float2 CameraRotateSpeed => Ins.cameraRotateSpeed;
     public static float2 CameraPanSpeed => Ins.cameraPanSpeed;
     public static float CameraZoomSpeed => Ins.cameraZoomSpeed;
 
-    public static float DepthWorldBlurRadius => Ins.depthWorldBlurRadius;
-    public static float DepthBlurBilateralFalloff => Ins.depthBlurBilteralFalloff;
-    public static int DepthBlurIterationCount => Ins.depthBlurIterationCount;
-    public static float DepthDifferenceCutoffForNormals => Ins.depthDifferenceCutoffForNormals;
-    public static float ScreenSpaceDensityMultiplier => Ins.screenSpaceDensityMultiplier;
-    public static float3 ScreenSpaceExtinctionCoefficients => Ins.screenSpaceExtinctionCoefficients;
-    public static float ScreenSpaceLightMultiplier => Ins.screenSpaceLightMultiplier;
-    public static int ShadowMapResolution => Ins.shadowMapResolution;
+    public static float DepthWorldBlurRadius => Ins.screenspaceVisualPreset.depthWorldBlurRadius;
+    public static float DepthBlurBilateralFalloff => Ins.screenspaceVisualPreset.depthBlurBilteralFalloff;
+    public static int DepthBlurIterationCount => Ins.screenspaceVisualPreset.depthBlurIterationCount;
+    public static float DepthDifferenceCutoffForNormals => Ins.screenspaceVisualPreset.depthDifferenceCutoffForNormals;
+    public static float ScreenSpaceDensityMultiplier => Ins.screenspaceVisualPreset.screenSpaceDensityMultiplier;
+    public static float3 ScreenSpaceExtinctionCoefficients => Ins.screenspaceVisualPreset.screenSpaceExtinctionCoefficients;
+    public static float ScreenSpaceLightMultiplier => Ins.screenspaceVisualPreset.screenSpaceLightMultiplier;
+    public static int ShadowMapResolution => Ins.screenspaceVisualPreset.shadowMapResolution;
     public static Camera ShadowCam => Ins.shadowCam;
+    public static float ScreenspaceIndexOfRefraction => Ins.screenspaceVisualPreset.indexOfRefraction;
 
     public static bool SimulateFoam => Ins.simulateFoam;
     public const int FoamSpatialLookupSize = 1048576;
     public static float FoamGridSize => 5f*FoamVolumeRadius;
-    public static float FoamVolumeRadius => Ins.foamVolumeRadius;
-    public static int MaxFoamParticleCount => Ins.maxFoamParticleCount;
-    public static float TrappedAirPotentialRemapLow => Ins.trappedAirPotentialRemapLow;
-    public static float TrappedAirPotentialRemapHigh => Ins.trappedAirPotentialRemapHigh;
-    public static float TrappedAirMultiplier => Ins.trappedAirMultiplier;
-    public static float KineticPotentialRemapLow => Ins.kineticPotentialRemapLow;
-    public static float KineticPotentialRemapHigh => Ins.kineticPotentialRemapHigh;
-    public static float FoamScaleMultiplier => Ins.foamScaleMultiplier;
-    public static float HighestSprayDensity => Ins.highestSprayDensity;
-    public static float LowestBubbleDensity => Ins.lowestBubbleDensity;
-    public static float BubbleGravityMultiplier => Ins.bubbleGravityMultiplier;
-    public static float BubbleFluidConformingMultiplier => Ins.bubbleFluidConformingMultiplier;
-    public static float SprayAirDragMultiplier => Ins.sprayAirDragMultiplier;
+    public static float FoamVolumeRadius => Ins.raymarchFoamVisualPreset.foamVolumeRadius;
+    public static int MaxFoamParticleCount => Ins.foamBehaviorPreset.maxFoamParticleCount;
+    public static float TrappedAirPotentialRemapLow => Ins.foamBehaviorPreset.trappedAirPotentialRemapLow;
+    public static float TrappedAirPotentialRemapHigh => Ins.foamBehaviorPreset.trappedAirPotentialRemapHigh;
+    public static float TrappedAirMultiplier => Ins.foamBehaviorPreset.trappedAirMultiplier;
+    public static float KineticPotentialRemapLow => Ins.foamBehaviorPreset.kineticPotentialRemapLow;
+    public static float KineticPotentialRemapHigh => Ins.foamBehaviorPreset.kineticPotentialRemapHigh;
+    public static float FoamScaleMultiplier => Ins.screenspaceFoamVisualPreset.foamScaleMultiplier;
+    public static float HighestSprayDensity => Ins.foamBehaviorPreset.highestSprayDensity;
+    public static float LowestBubbleDensity => Ins.foamBehaviorPreset.lowestBubbleDensity;
+    public static float BubbleGravityMultiplier => Ins.foamBehaviorPreset.bubbleGravityMultiplier;
+    public static float BubbleFluidConformingMultiplier => Ins.foamBehaviorPreset.bubbleFluidConformingMultiplier;
+    public static float SprayAirDragMultiplier => Ins.foamBehaviorPreset.sprayAirDragMultiplier;
 
     public static bool UseCaustics => Ins.useCaustics;
 
     public static Camera CausticsVerticalCamera => Ins.causticsVerticalCamera;
-    public static int CausticsDepthNormalResolution => Ins.causticsDepthNormalResolution;
-    public static float CausticsDepthWorldBlurRadius => Ins.causticsDepthWorldBlurRadius;
-    public static int CausticsDepthBlurIterationCount => Ins.causticsDepthBlurIterationCount;
+    public static int CausticsDepthNormalResolution => Ins.screenspaceCausticsVisualPreset.causticsDepthNormalResolution;
+    public static float CausticsDepthWorldBlurRadius => Ins.screenspaceCausticsVisualPreset.causticsDepthWorldBlurRadius;
+    public static int CausticsDepthBlurIterationCount => Ins.screenspaceCausticsVisualPreset.causticsDepthBlurIterationCount;
 
     [Header("Visual Toggles")]
-    [SerializeField] bool useRaymarchedFoamInRaymarchedWater = true;
-    [SerializeField] bool useBillboardFoam = true;
-    [SerializeField] bool useShadows = false;
-    [SerializeField] bool useCaustics;
-    [SerializeField] bool enableRaymarchShader = true; // TODO: make enum btwn raymarch, screenspace, debug
+    [SerializeField] bool useRaymarchedFoamInRaymarchedWater = true; ///
+    [SerializeField] bool useBillboardFoam = true; ///
+    [SerializeField] bool useShadows = false; ///
+    [SerializeField] bool useCaustics; ///
+    [SerializeField] bool enableRaymarchShader = true; /// TODO: make enum btwn raymarch, screenspace, debug
 
-    [Header("Initialization Parameters")]
-    [Range(1, 200000)][SerializeField] int particleCount = 10;
-    [Range(0.05f, 100)][SerializeField] float spawnWidth = 50.0f;
-    [Range(0.05f, 100)][SerializeField] float spawnHeight = 40.0f;
-    [Range(0.05f, 100)][SerializeField] float spawnDepth = 40.0f;
-
-    [Header("Misc Parameters")]
-    [Range(0.005f, 10.0f)][SerializeField] float smoothingRadius = 0.1f;
-    [SerializeField] Mesh sphereMesh;
-    [SerializeField] bool useOddEvenSort; // TODO: delete
-
-    [Header("Box/Obstacle Parameters")]
-    [SerializeField] Transform obstacleTransform;
-    [SerializeField] bool obstacleType;
-    [SerializeField] bool obstacleSimInteraction = true;
-    [SerializeField] Transform containerTransform;
-
-    [Header("Gravity Force")]
-    [SerializeField] float3 gravity = new float3(0.0f, -9.8f, 0.0f);
-
-    [Header("Mouse Force")]
-    [Range(0.005f, 10.0f)][SerializeField] float mouseForceRadius = 4.0f;
-    [Range(0.0f, 5000.0f)][SerializeField] float mouseForceStrength = 100.0f;
-
-    [Header("Pressure Force")]
-    [Range(0.0f, 500.0f)][SerializeField] float targetDensity = 10.0f;
-    [Range(0.0f, 500.0f)][SerializeField] float nearDensityPressureMultiplier = 1.0f;
-    [Range(0.05f, 500.0f)][SerializeField] float pressureMultiplier = 1.0f;
-
-    [Header("Viscosity Force")]
-    [Range(0.0f, 750.0f)][SerializeField] float viscosityStrength = 4.0f;
-
-    [Header("Surface Tension Force")]
-    [Range(0.0f, 500.0f)][SerializeField] float surfaceTensionMultiplier = 5.0f;
-
-    [Header("Spring Force")]
-    [Tooltip("Requires Restart")][SerializeField] bool enableParticleSprings = false;
-    [Range(0.0f, 200000.0f)][SerializeField] float springForceMultiplier = 50000f;
-    [Range(0.0f, 10.0f)][SerializeField] float plasticity = 0f;
-    [Range(0.0f, 10.0f)][SerializeField] float springYieldRatio = 0.1f;
-
-    [Header("Stickiness Force")]
-    [SerializeField] bool enableStickForce = true;
-    [Range(0.0f, 2.0f)][SerializeField] float maxStickDistance = 0.07f;
-    [Range(0.0f, 10000.0f)][SerializeField] float stickForceMultiplier = 10.0f;
-
-    [Header("Mostly Visual")]
-    [Range(0.025f, 1.0f)][SerializeField] float particleRadius = 0.05f;
-    [Range(0.01f, 100f)][SerializeField] float particleLowColorSpeed = 0.0f;
-    [Range(0.01f, 100f)][SerializeField] float particleHighColorSpeed = 20.0f;
-    [SerializeField] Camera mainCamera;
-
-    [Header("Raymarched Rendering")]
-    [SerializeField] float foamVolumeRadius = 0.01f;
-    [SerializeField] float densityCacheStepSize = 0.05f;
-    [SerializeField] float densityCacheSampleCount = 128;
-    [SerializeField] bool useDensityStepSize = false;
-    [Range(0.00005f, 10.0f)][SerializeField] float raymarchDensityMultiplier = 1.0f;
-    [Range(0.005f, 100.0f)][SerializeField] float raymarchLightMultiplier = 0.5f;
-    [SerializeField] float3 raymarchExtinctionCoefficients = 1.0f;
-    [Range(0.1f, 10.0f)][SerializeField] float indexOfRefraction = 1.33f;
-    [SerializeField] Transform lightTransform;
-    [Range(1, 4)][SerializeField] int numBounces = 2;
-    [SerializeField][Tooltip("Traces reflect and refract ray Li on iter 1 and adds them instead of following only refract or reflect.")] bool traceReflectAndRefract;
-    [Range(0.001f, 10.0f)][SerializeField] float waterExistenceThreshold = 0.1f;
-    [SerializeField] float waterExistenceEps = 0.05f;
-    [SerializeField] float nextRayOffset = 0.0005f;
-    [SerializeField] Cubemap environmentMap;
-
-    [Header("Screenspace Rendering")]
-    [Range(1, 1000)][SerializeField] float depthWorldBlurRadius = 10;
-    [Range(0.0f, 100.0f)][SerializeField] float depthBlurBilteralFalloff = 1.0f;
-    [Range(1, 5)][SerializeField] int depthBlurIterationCount;
-    [SerializeField] float depthDifferenceCutoffForNormals = 0.5f;
-    [Range(0.00005f, 10.0f)][SerializeField] float screenSpaceDensityMultiplier = 0.118f;
-    [SerializeField] float3 screenSpaceExtinctionCoefficients = 1.0f;
-    [Range(0.005f, 100.0f)][SerializeField] float screenSpaceLightMultiplier = 1f;
-    [SerializeField] int shadowMapResolution = 1000;
-    [SerializeField] Camera shadowCam;
-
-    [Header("Foam, Spray, Bubbles")] // not just foam technically, called the white particles..
-                                     // TODO: toggle foam (just on and off simple) want the toggles to save performance oc
+    [Header("Other Toggles")]
     [SerializeField] bool simulateFoam = true;
-    [SerializeField] int maxFoamParticleCount = 1048576;
-    [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapLow = 1.0f;
-    [Range(0.0f, 200.0f)] [SerializeField] float trappedAirPotentialRemapHigh = 4.0f;
-    [Range(0.0f, 200.0f)] [SerializeField] float trappedAirMultiplier = 1.0f;
-    [Range(0.0f, 200.0f)] [SerializeField] float kineticPotentialRemapLow = 1.0f;
-    [Range(0.0f, 200.0f)] [SerializeField] float kineticPotentialRemapHigh = 4.0f;
-    [Range(0.0f, 200.0f)][SerializeField] float foamScaleMultiplier = 1.0f;
-    [Range(0.0f, 50.0f)][SerializeField] float highestSprayDensity = 0.8f;
-    [Range(0.0f, 50.0f)][SerializeField] float lowestBubbleDensity = 2.0f;
-    [Range(0.0f, 200.0f)][SerializeField] float bubbleGravityMultiplier = 1.0f;
-    [Range(0.0f, 200.0f)][SerializeField] float bubbleFluidConformingMultiplier = 1.0f;
-    [Range(0.0f, 200.0f)][SerializeField] float sprayAirDragMultiplier = 1.0f;
+    [SerializeField] bool obstacleSimInteraction = true;
+
+    [Header("Visual Presets")]
+    [SerializeField] DebugVisualPreset debugVisualPreset;
+    [SerializeField] EnvironmentPreset environmentPreset;
+    [SerializeField] RaymarchCausticsVisualPreset raymarchCausticsVisualPreset;
+    [SerializeField] RaymarchFoamVisualPreset raymarchFoamVisualPreset;
+    [SerializeField] RaymarchVisualPreset raymarchVisualPreset;
+    [SerializeField] ScreenspaceCausticsVisualPreset screenspaceCausticsVisualPreset;
+    [SerializeField] ScreenspaceFoamVisualPreset screenspaceFoamVisualPreset;
+    [SerializeField] ScreenspaceVisualPreset screenspaceVisualPreset;
+
+    [Header("Behavior Presets")]
+    [SerializeField] FluidBehaviorPreset fluidBehaviorPreset;
+    [SerializeField] FoamBehaviorPreset foamBehaviorPreset;
+
+    [Header("Unity References")]
+    [SerializeField] Transform obstacleTransform; ///
+    [SerializeField] Transform containerTransform; ///
+    [SerializeField] Transform lightTransform; /// make this stuff unity references header in simulationparams can't be turned into SO
+    [SerializeField] Camera mainCamera; ///
+    [SerializeField] Camera shadowCam; ///
+    [SerializeField] Camera causticsVerticalCamera; ///
+    [SerializeField] Mesh sphereMesh; ///
 
     [Header("Camera Controller Parameters")]
-    [SerializeField] float2 cameraRotateSpeed;
-    [SerializeField] float2 cameraPanSpeed;
-    [SerializeField] float cameraZoomSpeed;
-    
-    [Header("Caustics Screenspace")]
-    [SerializeField] Camera causticsVerticalCamera;
-    [SerializeField] int causticsDepthNormalResolution = 1000;
-    [Range(1, 1000)] [SerializeField] float causticsDepthWorldBlurRadius = 300;
-    [Range(1, 5)][SerializeField] int causticsDepthBlurIterationCount = 2;
-    
+    [SerializeField] float2 cameraRotateSpeed; ///
+    [SerializeField] float2 cameraPanSpeed; ///
+    [SerializeField] float cameraZoomSpeed; ///
+
+    [Header("Advanced")]
+    [SerializeField] float particleRadius = 0.05f;
+
     private static SimulationParameters Ins;
     void Awake()
     {

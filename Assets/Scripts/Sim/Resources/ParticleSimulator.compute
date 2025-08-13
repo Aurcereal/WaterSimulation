@@ -4,7 +4,6 @@
 #pragma kernel CalculatePredictedPositions
 
 #pragma kernel UpdateSpatialHashEntries
-#pragma kernel UpdateSpatialHashEntriesOES // OES
 #pragma kernel ResetSpatialHashOffsets
 #pragma kernel UpdateSpatialHashOffsets // Must be sorted at this point
 
@@ -35,14 +34,11 @@ const int ParticleCount;
 const float3 Gravity;
 const float ParticleRadius;
 const float SmoothingRadius;
-const float MouseForceRadius;
-const float MouseForceStrength;
 const float TargetDensity;
 const float NearDensityPressureMultiplier;
 const float PressureMultiplier;
 
 const float ViscosityStrength;
-const float SurfaceTensionMultiplier;
 const float SpringForceMultiplier;
 const float Plasticity;
 const float SpringYieldRatio;
@@ -70,10 +66,6 @@ const float DeltaTime;
 //
 const float SqrSmoothingRadius;
 const float InvSmoothingRadius;
-
-//
-const float MouseForceSign;
-const float2 MousePosition;
 
 //
 const float FoamScaleMultiplier;
@@ -128,22 +120,6 @@ void UpdateSpatialHashEntries (uint3 id : SV_DispatchThreadID)
     e.key = key;
 
     particleCellKeyEntries[i] = e;
-}
-
-[numthreads(THREADGROUPSIZE, 1,1)]
-void UpdateSpatialHashEntriesOES (uint3 id : SV_DispatchThreadID) // OES
-{
-    int i = id.x;
-    if(i >= ParticleCount) return;
-
-    int3 cell = posToCell(predictedPositions[i]);
-    int key = getCellKey(cell);
-
-    ParticleEntry e;
-    e.particleIndex = i;
-    e.key = key;
-
-    particleCellKeyEntries[ParticleIDToEntryIndex[i]] = e;
 }
 
 [numthreads(THREADGROUPSIZE, 1, 1)]

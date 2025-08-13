@@ -23,7 +23,6 @@ public class GameManager : MonoBehaviour
     public BitonicSortManager bitonicSorter;
     public CountSortManager waterParticleCountSorter;
     public CountSortManager foamParticleCountSorter;
-    public OddEvenSortManager oddEvenSorter;
 
     public CameraController camController;
 
@@ -60,8 +59,6 @@ public class GameManager : MonoBehaviour
         causticsManager = new();
 
         bitonicSorter = new();
-        if (UseOddEvenSort) // OES
-            oddEvenSorter = new();
 
         waterParticleCountSorter = new(ParticleCount, SpatialLookupSize, computeManager.particleCellKeyEntryBuffer);
         foamParticleCountSorter = new(MaxFoamParticleCount, FoamSpatialLookupSize, computeManager.foamParticleCellKeyEntryBuffer, true, computeManager.foamParticleCounts);

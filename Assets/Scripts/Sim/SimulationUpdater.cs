@@ -36,23 +36,9 @@ public class SimulationUpdater
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculatePredictedPositions");
 
-        if (UseOddEvenSort)
-        {
-            ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashEntriesOES"); // OES
-            for (int i = 0; i < 10; i++)
-            {
-                GameManager.Ins.oddEvenSorter.RunSortPhase();
-                GameManager.Ins.oddEvenSorter.test();
-                Debug.Log($"{i}");
-            }
-            ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
-        }
-        else
-        {
-            ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashEntries");
-            GameManager.Ins.waterParticleCountSorter.SortParticleEntries(); // TODO: remove reset spatial offsets code unnecessary (like in compute shader and the kernel)
-            ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
-        }
+        ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashEntries");
+        GameManager.Ins.waterParticleCountSorter.SortParticleEntries(); // TODO: remove reset spatial offsets code unnecessary (like in compute shader and the kernel)
+        ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculateDensities");
         if (EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths"); // TODO: optimize springs space wise so we can use them

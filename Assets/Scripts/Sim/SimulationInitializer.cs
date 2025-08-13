@@ -81,16 +81,6 @@ public class SimulationInitializer
         for (int i = 0; i < FoamSpatialLookupSize; i++) foamKeyToStartCoord[i] = -1;
         GameManager.Ins.computeManager.foamCellKeyToStartCoordBuffer.SetData(foamKeyToStartCoord);
 
-        if (UseOddEvenSort) // OES
-        {
-            var particleIDToEntryIndex = new int[ParticleCount];
-            for (int i = 0; i < ParticleCount; i++)
-            {
-                particleIDToEntryIndex[i] = i;
-            }
-            GameManager.Ins.computeManager.ParticleIDToEntryIndexBuffer.SetData(particleIDToEntryIndex);
-        }
-
     }
 
 }

@@ -18,8 +18,6 @@ THE FOAM ISNT DISAPPEARING FAST ENOUGH
 - Probably just take out masses for now?
 - Implement linked list method for springs (detailed below)
 
-- Maybe remove OES
-
 - Better foam rendering with volumetric raymarching as described by first foam paper (neighbor search terminates at first find so not so bad)
 - Caustics (nvidia article scroll up)
 - God rays??
