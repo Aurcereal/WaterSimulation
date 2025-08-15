@@ -19,7 +19,7 @@ MonoBehaviour:
   enableGravityForce: 1
   enablePressureForce: 1
   enableViscosityForce: 1
-  enableSpringForce: 0
+  enableSpringForce: 1
   enableStickForce: 1
   gravity:
     x: 0
@@ -29,9 +29,7 @@ MonoBehaviour:
   nearDensityPressureMultiplier: 12
   pressureMultiplier: 215
   viscosityStrength: 42
-  springForceMultiplier: 50000
-  plasticity: 10
-  springYieldRatio: 0
+  springForceMultiplier: 200000
   maxStickDistance: 0.25
   stickForceMultiplier: 8250
   smoothingRadius: 0.4

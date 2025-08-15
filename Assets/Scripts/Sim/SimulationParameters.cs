@@ -34,8 +34,6 @@ public class SimulationParameters : MonoBehaviour
 
     public static bool EnableParticleSprings => Ins.fluidBehaviorPreset.enableSpringForce;
     public static float SpringForceMultiplier => Ins.fluidBehaviorPreset.springForceMultiplier;
-    public static float Plasticity => Ins.fluidBehaviorPreset.plasticity;
-    public static float SpringYieldRatio => Ins.fluidBehaviorPreset.springYieldRatio;
 
     public static bool EnableStickForce => Ins.fluidBehaviorPreset.enableStickForce;
     public static float MaxStickDistance => Ins.fluidBehaviorPreset.maxStickDistance;

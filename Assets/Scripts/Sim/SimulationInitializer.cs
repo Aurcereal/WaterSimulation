@@ -64,13 +64,6 @@ public class SimulationInitializer
         GameManager.Ins.computeManager.densityBuffer.SetData(densities);
         GameManager.Ins.computeManager.nearDensityBuffer.SetData(nearDensities);
 
-        if (EnableParticleSprings)
-        {
-            var springRests = new float[ParticleCount * ParticleCount];
-            for (int i = 0; i < springRests.Length; i++) springRests[i] = -1.0f;
-            GameManager.Ins.computeManager.springRestLengthBuffer.SetData(springRests);
-        }
-
         GameManager.Ins.computeManager.colorBuffer.SetData(colors);
 
         GameManager.Ins.computeManager.particleCellKeyEntryBuffer.SetData(partIDCellKeyPairs);

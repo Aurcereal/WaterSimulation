@@ -25,8 +25,6 @@ public class ComputeManager
     public ComputeBuffer densityBuffer;
     public ComputeBuffer nearDensityBuffer;
 
-    public ComputeBuffer springRestLengthBuffer;
-
     public ComputeBuffer colorBuffer;
 
     // Spatial Hashing
@@ -54,8 +52,6 @@ public class ComputeManager
         massBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         densityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         nearDensityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
-
-        if (EnableParticleSprings) springRestLengthBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount * ParticleCount);
 
         colorBuffer = ComputeHelper.CreateBuffer<Color>(ParticleCount);
 
@@ -88,7 +84,5 @@ public class ComputeManager
             survivingFoamParticles,
             foamParticleCounts
         );
-
-        springRestLengthBuffer?.Dispose();
     }
 }

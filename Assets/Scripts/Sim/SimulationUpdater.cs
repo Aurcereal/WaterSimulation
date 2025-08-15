@@ -32,7 +32,6 @@ public class SimulationUpdater
         timeSinceStart += dt;
 
         GameManager.Ins.simUniformer.UniformDeltaTimeAndCurrentTime(dt, timeSinceStart);
-        GameManager.Ins.simUniformer.UniformMouseInputData();
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculatePredictedPositions");
 
@@ -41,7 +40,6 @@ public class SimulationUpdater
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpatialHashOffsets");
 
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "CalculateDensities");
-        if (EnableParticleSprings) ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateSpringLengths"); // TODO: optimize springs space wise so we can use them
         ComputeHelper.Dispatch(particleSimulator, ParticleCount, 1, 1, "UpdateParticles");
 
         if (SimulateFoam)

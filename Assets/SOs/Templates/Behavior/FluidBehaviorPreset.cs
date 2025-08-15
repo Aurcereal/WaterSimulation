@@ -33,9 +33,7 @@ public class FluidBehaviorPreset : ScriptableObject
     [Range(0.0f, 750.0f)][SerializeField] public float viscosityStrength = 4.0f;
 
     [Header("Spring Force")]
-    [Range(0.0f, 200000.0f)][SerializeField] public float springForceMultiplier = 50000f;
-    [Range(0.0f, 10.0f)][SerializeField] public float plasticity = 0f;
-    [Range(0.0f, 10.0f)][SerializeField] public float springYieldRatio = 0.1f;
+    [Range(0.0f, 1000000.0f)][SerializeField] public float springForceMultiplier = 50000f;
 
     [Header("Stickiness Force")]
     [Range(0.0f, 2.0f)][SerializeField] public float maxStickDistance = 0.07f;

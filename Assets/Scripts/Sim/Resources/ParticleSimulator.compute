@@ -11,7 +11,6 @@
 #pragma kernel ResetSpatialHashOffsets
 #pragma kernel UpdateSpatialHashOffsets // Must be sorted at this point
 
-#pragma kernel UpdateSpringLengths
 #pragma kernel CalculateDensities
 #pragma kernel UpdateParticles
 
@@ -29,8 +28,6 @@ RWStructuredBuffer<float> masses;
 RWStructuredBuffer<float> densities;
 RWStructuredBuffer<float> nearDensities;
 
-RWStructuredBuffer<float> springRestLengths;
-
 RWStructuredBuffer<float4> colors;
 
 // Simulation Params
@@ -44,8 +41,6 @@ const float PressureMultiplier;
 
 const float ViscosityStrength;
 const float SpringForceMultiplier;
-const float Plasticity;
-const float SpringYieldRatio;
 const bool EnableParticleSprings;
 
 const bool EnableStickForce;
@@ -205,17 +200,6 @@ void CalculateDensities (uint3 id : SV_DispatchThreadID)
     nearDensities[i] = totalNearDensity;
 }
 
-void UpdateSprings(int particleIndex, float dt);
-
-[numthreads(THREADGROUPSIZE, 1,1)]
-void UpdateSpringLengths (uint3 id : SV_DispatchThreadID)
-{
-    int i = id.x;
-    if(i >= ParticleCount) return;
-
-    UpdateSprings(i, DeltaTime);
-}
-
 inline float DensityToPressure(float density)
 {
     // TargetDensity kind of offsets pressure to determine what happens with empty space: 
@@ -262,23 +246,38 @@ float3 CalculatePressureForceAndAirPotential(int i, out float airPotential)
                         if (i != otherParticleIndex)
                         {
                             float3 otherPos = predictedPositions[otherParticleIndex];
-                            float dist = length(otherPos - pos);
+                            float3 diff = otherPos - pos;
+                            float sqrDist = dot(diff, diff);
+                            if(sqrDist <= SqrSmoothingRadius) {
+                                float dist = sqrt(sqrDist);
+                                float3 posDiffNormalize = diff / dist;
 
-                            totalForce +=
-                                (DensityToPressure(densities[i]) + DensityToPressure(densities[otherParticleIndex])) * 0.5f *
-                                (-SmoothingKernelPow2Gradient(SmoothingRadius, otherPos - pos))
-                                / dens;
-                            totalForce +=
-                                (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[otherParticleIndex])) * 0.5f *
-                                (-SmoothingKernelPow3Gradient(SmoothingRadius, otherPos - pos))
-                                / dens;
+                                totalForce +=
+                                    (DensityToPressure(densities[i]) + DensityToPressure(densities[otherParticleIndex])) * 0.5f *
+                                    (-SmoothingKernelPow2Gradient(SmoothingRadius, otherPos - pos))
+                                    / dens;
+                                totalForce +=
+                                    (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[otherParticleIndex])) * 0.5f *
+                                    (-SmoothingKernelPow3Gradient(SmoothingRadius, otherPos - pos))
+                                    / dens;
 
-                            // For WhiteWater (Spray, Foam, Bubbles) - https://cg.informatik.uni-freiburg.de/publications/2012_CGI_sprayFoamBubbles.pdf
-                            float3 velDiff = velocities[otherParticleIndex] - vel;
-                            float velDiffLength = length(velDiff);
-                            float3 velDiffNormalize = velDiff / velDiffLength;
-                            float3 posDiffNormalize = (otherPos - pos) / dist;
-                            scaledVelocityDiff += velDiffLength * (1. - dot(velDiffNormalize, posDiffNormalize)) * max(0., 1. - dist/SmoothingRadius);
+                                // For WhiteWater (Spray, Foam, Bubbles) - https://cg.informatik.uni-freiburg.de/publications/2012_CGI_sprayFoamBubbles.pdf
+                                #define SIMULATE_FOAM // TODO: make compile keyowrd
+                                #ifdef SIMULATE_FOAM
+                                float3 velDiff = velocities[otherParticleIndex] - vel;
+                                float velDiffLength = length(velDiff);
+                                float3 velDiffNormalize = velDiff / velDiffLength;
+                                scaledVelocityDiff += velDiffLength * (1. - dot(velDiffNormalize, posDiffNormalize)) * max(0., 1. - dist/SmoothingRadius);
+                                #endif
+
+                                // Spring Force (turn to compile keyword)
+                                if(EnableParticleSprings) {
+                                    float restLen = SmoothingRadius*.5;
+
+                                    float forceMult = SpringForceMultiplier * (1. - dist*InvSmoothingRadius) * (restLen - dist);
+                                    totalForce += forceMult * (-posDiffNormalize);
+                                }
+                            }
                         }
 
                         currIndex++;
@@ -335,112 +334,6 @@ float3 CalculateViscosityForce(int i)
         }
     }
     return totalForce * ViscosityStrength;
-}
-
-float getSpringLength(int i1, int i2) {
-    return springRestLengths[i1 * ParticleCount + i2];
-}
-
-void setSpringLength(int i1, int i2, float val) {
-    springRestLengths[i1 * ParticleCount + i2] = val;
-}
-
-// Optimize length
-void UpdateSprings(int particleIndex, float dt) {
-
-    float3 pos = predictedPositions[particleIndex];
-    int3 centerCellPos = posToCell(pos);
-    int3 currCell;
-    int otherParticleIndex;
-
-    // could cut down spring adjustments by half since order doesn't matter
-    // also the linked list method would be better ~ O(100n) where 100 is like neighbors insetad of O(n^2)
-
-    for(int x=-1; x<=1; x++) {
-        for(int y=-1; y<=1; y++) {
-            for(int z=-1; z<=1; z++) {
-                currCell = centerCellPos + int3(x, y, z);
-
-                int key = getCellKey(currCell);
-                int currIndex = getStartIndex(key);
-
-                if(currIndex != -1) {
-                    while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
-
-                        otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
-
-                        if(otherParticleIndex != particleIndex) {
-                            float r = length(predictedPositions[otherParticleIndex]-pos);
-                            if(r <= SmoothingRadius) {
-                                // Add spring if there's none already
-                                if(getSpringLength(particleIndex, otherParticleIndex) < 0.)
-                                    setSpringLength(particleIndex, otherParticleIndex, SmoothingRadius*0.5);
-
-                                float restLen = getSpringLength(particleIndex, otherParticleIndex);
-
-                                float tolerableDeformation = SpringYieldRatio * restLen;
-
-                                if(r > restLen + tolerableDeformation)
-                                    restLen += dt * Plasticity * (r - (restLen+tolerableDeformation));
-                                else if(r < restLen - tolerableDeformation)
-                                    restLen += dt * Plasticity * (r - (restLen-tolerableDeformation));
-
-                                setSpringLength(particleIndex, otherParticleIndex, restLen);
-                            } else {
-                                // Remove spring, too far
-                                setSpringLength(particleIndex, otherParticleIndex, -1.0);
-                            }
-                        }
-
-                        currIndex++;
-                    }
-                }
-            }
-        }
-    }
-}
-
-float3 CalculateSpringForce(int particleIndex) {
-
-    float3 pos = predictedPositions[particleIndex];
-    int3 centerCellPos = posToCell(pos);
-    int3 currCell;
-    int otherParticleIndex;
-
-    float3 totalForce = 0.;
-
-    for(int x=-1; x<=1; x++) {
-        for(int y=-1; y<=1; y++) {
-            for(int z=-1; z<=1; z++) {
-                currCell = centerCellPos + int3(x, y, z);
-
-                int key = getCellKey(currCell);
-                int currIndex = getStartIndex(key);
-
-                if(currIndex != -1) {
-                    while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
-
-                        otherParticleIndex = particleCellKeyEntries[currIndex].particleIndex;
-
-                        if(otherParticleIndex != particleIndex) {
-                            float sqrDist = dot(predictedPositions[otherParticleIndex]-pos, predictedPositions[otherParticleIndex]-pos);
-                            if(sqrDist <= SqrSmoothingRadius) {
-                                float r = sqrt(sqrDist);
-                                float restLen = getSpringLength(particleIndex, otherParticleIndex);
-
-                                float forceMult = SpringForceMultiplier * (1. - r*InvSmoothingRadius) * (restLen - r);
-                                totalForce += forceMult * normalize(pos - predictedPositions[otherParticleIndex]);
-                            }
-                        }
-
-                        currIndex++;
-                    }
-                }
-            }
-        }
-    }
-
-    return totalForce;
 }
 
 float3 CalculateStickinessForce(int particleIndex) {
@@ -533,9 +426,8 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
     float3 pressureAcceleration = CalculatePressureForceAndAirPotential(i, airPotential) / dens;
     float3 viscosityAcceleration = CalculateViscosityForce(i) / dens;
-    float3 springAcceleration = EnableParticleSprings ? CalculateSpringForce(i) / dens : 0.;
     float3 stickinessAcceleration = EnableStickForce ? CalculateStickinessForce(i) / dens : 0.;
-    float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + springAcceleration + Gravity;
+    float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + Gravity;
 
     // Handle Spawning Foam
     if(SpawnFoam) {
