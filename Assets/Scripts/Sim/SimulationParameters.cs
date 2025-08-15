@@ -111,6 +111,12 @@ public class SimulationParameters : MonoBehaviour
     public static Color ParticleHighSpeedColor => Ins.debugVisualPreset.particleHighSpeedColor;
 
     public static EnvTemplate EnvPreset => Ins.envPreset;
+    public static bool EnableBoundingBoxCollisionWithOverride => OverrideEnvPreset ? OverrideEnableBoundingBoxCollision : EnvPreset.enableBoundingBoxInteraction;
+    public static bool EnableObstacleCollisionWithOverride => OverrideEnvPreset ? OverrideEnableObstacleCollision : EnvPreset.enableObjectInteraction;
+
+    public static bool OverrideEnvPreset => Ins.overrideEnvPreset;
+    public static bool OverrideEnableBoundingBoxCollision => Ins.overrideEnableBoundingBoxCollision;
+    public static bool OverrideEnableObstacleCollision => Ins.overrideEnableObstacleCollision;
 
     public enum VisualMode
     {
@@ -144,7 +150,9 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Environment Preset")]
     [SerializeField] EnvTemplate envPreset;
-    [SerializeField] bool overrideEnvPreset = false; // TODO: make this matter and have bbx and obstacle physics toggleable through overrides
+    [SerializeField] bool overrideEnvPreset = false;
+    [SerializeField] bool overrideEnableBoundingBoxCollision = false;
+    [SerializeField] bool overrideEnableObstacleCollision = false;
 
     [Header("Unity References")]
     [SerializeField] Transform obstacleTransform; ///
@@ -169,6 +177,7 @@ public class SimulationParameters : MonoBehaviour
         Ins = this;
     }
 
+    bool prevOverrideEnvPreset = false;
     void OnValidate()
     {
         // This Monobehavior func is called when a value changes
@@ -179,6 +188,12 @@ public class SimulationParameters : MonoBehaviour
         if (RaymarchManager.Ins != null) RaymarchManager.Ins.enabled = CurrentVisualMode == VisualMode.Raymarched;
         GameManager.Ins?.screenSpaceManager.ResetGaussianKernels();
         GameManager.Ins?.screenSpaceManager.blurManager.UniformAllParameters();
+
+        if (prevOverrideEnvPreset || OverrideEnvPreset)
+        {
+            GameManager.Ins.HandleNewEnv();
+        }
+        prevOverrideEnvPreset = OverrideEnvPreset;
     }
 
     void Update()

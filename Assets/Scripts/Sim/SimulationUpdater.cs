@@ -49,7 +49,7 @@ public class SimulationUpdater
             GameManager.Ins.simFoamManager.UpdateFoamParticles();
             GameManager.Ins.simFoamManager.MoveSurvivingFoamParticlesToUpdatingBuffer();
             GameManager.Ins.simFoamManager.UpdateFoamArgsBuffer();
-            GameManager.Ins.simFoamManager.RunSpatialHash();
+            if(CurrentVisualMode == VisualMode.Raymarched && UseRaymarchedFoam) GameManager.Ins.simFoamManager.RunSpatialHash();
         }
     }
 

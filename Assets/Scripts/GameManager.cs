@@ -105,7 +105,7 @@ public class GameManager : MonoBehaviour
     int counter = 1;
     VisualMode? prevVisualMode;
 
-    void HandleNewEnv()
+    public void HandleNewEnv()
     {
         screenSpaceManager.HandleNewEnv();
         raymarchManager.HandleNewEnv();

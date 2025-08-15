@@ -169,11 +169,11 @@ public class SimulationUniformer
         }
 
         //
-        if (EnvPreset.enableBoundingBoxInteraction)
+        if (EnableBoundingBoxCollisionWithOverride)
         {
             particleSimulatorShader.EnableKeyword("BBX_COLLISION");
         }
-        if (EnvPreset.enableObjectInteraction)
+        if (EnableObstacleCollisionWithOverride)
         {
             particleSimulatorShader.EnableKeyword("OBSTACLE_COLLISION");
         }
