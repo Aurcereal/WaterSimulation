@@ -16,7 +16,10 @@ Shader "Unlit/CompositeIntoWater"
         Pass
         {
             CGPROGRAM
-            #pragma multi_compile CHECKERFLOOR_ENV
+            #pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV
+            #pragma multi_compile BILLBOARD_FOAM __
+            #pragma multi_compile CAUSTICS __
+            #pragma multi_compile SHADOWS __
             #pragma vertex vert
 			#pragma fragment frag
 			#pragma target 4.5
@@ -210,6 +213,7 @@ Shader "Unlit/CompositeIntoWater"
                 float3 refractLo = SampleEnvironment(refractExitPoint, refractRay);
 
                 // Caustics
+                #ifdef CAUSTICS
                 float3 causticLo = 0.;
                 if(distFromWaterToSDF <= distFromWaterToEnd) {
                     float3 floorPoint = refractExitPoint;
@@ -241,6 +245,7 @@ Shader "Unlit/CompositeIntoWater"
                     }
                 }
                 refractLo += causticLo;
+                #endif
 
                 float3 li = reflectTransmittance * reflectLo +
                             refractTransmittance * refractLo;
@@ -283,6 +288,7 @@ Shader "Unlit/CompositeIntoWater"
                     distFromWaterToFoam <= distFromWaterToSDF ? foamCol : SampleEnvironment(refractExitPoint, refractRay);
 
                 // Caustics
+                #ifdef CAUSTICS
                 float3 causticLo = 0.;
                 if(distFromWaterToSDF <= min(distFromWaterToEnd, distFromWaterToFoam)) {
                     float3 floorPoint = refractExitPoint;
@@ -314,6 +320,7 @@ Shader "Unlit/CompositeIntoWater"
                     }
                 }
                 refractLo += causticLo;
+                #endif
 
                 float3 li = reflectTransmittance * reflectLo +
                             refractTransmittance * refractLo;
@@ -337,9 +344,11 @@ Shader "Unlit/CompositeIntoWater"
                         SampleEnvironment(CamPos, rd) : FoamColor, 1.);
                 }
 
-                float3 accumLight = UseBillboardFoam ? // TODO: make compile feature
-                    ShadeWaterFoam(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam, distAlongRayToSDF, FoamColor) : 
-                    ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToSDF);
+                #ifdef BILLBOARD_FOAM
+                float3 accumLight = ShadeWaterFoam(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToFoam, distAlongRayToSDF, FoamColor);
+                #else
+                float3 accumLight = ShadeWater(rd, distAlongRay, pos, normalize(norm.xyz), DensityMultiplier * accumDensityAlongRay, distAlongRayToSDF);
+                #endif
                 float3 col = accumLight;//pow(accumLight/(1.+accumLight),1./2.2);
 
                 return float4(col, 1.0);

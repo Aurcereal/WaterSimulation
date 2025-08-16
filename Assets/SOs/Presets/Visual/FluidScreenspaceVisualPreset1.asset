@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8a2ed72cd157984baf2ad4c21475d26, type: 3}
+  m_Name: FluidScreenspaceVisualPreset1
+  m_EditorClassIdentifier: 
+  screenSpaceDensityMultiplier: 0.5
+  screenSpaceExtinctionCoefficients:
+    x: 5
+    y: 2
+    z: 1
+  screenSpaceLightMultiplier: 1.4
+  indexOfRefraction: 1.33
+  shadowMapResolution: 100
+  depthWorldBlurRadius: 180
+  depthBlurBilteralFalloff: 1
+  depthBlurIterationCount: 2
+  depthDifferenceCutoffForNormals: 0.5

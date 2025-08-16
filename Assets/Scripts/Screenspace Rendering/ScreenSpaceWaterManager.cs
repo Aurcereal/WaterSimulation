@@ -7,6 +7,7 @@ using static Unity.Mathematics.math;
 using UnityEngine.Rendering;
 
 using static SimulationParameters;
+using static ComputeHelper;
 
 public class ScreenSpaceWaterManager
 {
@@ -75,6 +76,9 @@ public class ScreenSpaceWaterManager
 
     }
 
+    bool? billboardFoamFeature = null;
+    bool? causticsFeature = null;
+    bool? shadowsFeature = null;
     public void UniformParametersAndTextures()
     {
         particleSphereDepthMaterial.SetFloat("_Radius", ParticleRadius);
@@ -115,6 +119,15 @@ public class ScreenSpaceWaterManager
 
         //
         GameManager.Ins.simFoamManager.UniformParameters();
+
+        //
+        if (UseBillboardFoam != billboardFoamFeature) compositeIntoWater.SetKeywordActive("BILLBOARD_FOAM", UseBillboardFoam);
+        if (UseCaustics != causticsFeature) compositeIntoWater.SetKeywordActive("CAUSTICS", UseCaustics);
+        if (shadowsFeature != UseShadows) compositeIntoWater.SetKeywordActive("SHADOWS", UseShadows);
+
+        billboardFoamFeature = UseBillboardFoam;
+        causticsFeature = UseCaustics;
+        shadowsFeature = UseShadows;
 
     }
 

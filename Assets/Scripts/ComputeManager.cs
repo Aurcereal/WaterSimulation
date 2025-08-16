@@ -20,8 +20,6 @@ public class ComputeManager
     public ComputeBuffer predictedPositionBuffer;
     public ComputeBuffer velocityBuffer;
 
-    public ComputeBuffer massBuffer;
-
     public ComputeBuffer densityBuffer;
     public ComputeBuffer nearDensityBuffer;
 
@@ -49,7 +47,6 @@ public class ComputeManager
         predictedPositionBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
         velocityBuffer = ComputeHelper.CreateBuffer<float3>(ParticleCount);
 
-        massBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         densityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
         nearDensityBuffer = ComputeHelper.CreateBuffer<float>(ParticleCount);
 
@@ -74,7 +71,6 @@ public class ComputeManager
             positionBuffer,
             predictedPositionBuffer,
             velocityBuffer,
-            massBuffer,
             densityBuffer,
             nearDensityBuffer,
             colorBuffer,

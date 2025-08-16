@@ -26,6 +26,10 @@ public class RaymarchManager : MonoBehaviour
 
     }
 
+    bool? billboardFoamFeature = null;
+    bool? raymarchFoamFeature = null;
+    bool? causticsFeature = null;
+    bool? shadowsFeature = null;
     public void UniformAllParameters()
     {
 
@@ -70,6 +74,18 @@ public class RaymarchManager : MonoBehaviour
 
         //
         waterRaymarchMat.SetInt("UseCaustics", UseCaustics ? 1 : 0);
+
+        //
+        if (billboardFoamFeature != UseBillboardFoam) waterRaymarchMat.SetKeywordActive("BILLBOARD_FOAM", UseBillboardFoam);
+        if (raymarchFoamFeature != UseRaymarchedFoam) waterRaymarchMat.SetKeywordActive("RAYMARCHED_FOAM", UseBillboardFoam);
+        if (causticsFeature != UseCaustics) waterRaymarchMat.SetKeywordActive("CAUSTICS", UseCaustics);
+        if (shadowsFeature != UseShadows) waterRaymarchMat.SetKeywordActive("SHADOWS", UseShadows);
+
+        //
+        billboardFoamFeature = UseBillboardFoam;
+        raymarchFoamFeature = UseRaymarchedFoam;
+        causticsFeature = UseCaustics;
+        shadowsFeature = UseShadows;
 
     }
 

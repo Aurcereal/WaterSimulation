@@ -16,7 +16,11 @@ Shader "Unlit/WaterRaymarch"
         Pass
         {
             CGPROGRAM
-            #pragma multi_compile CHECKERFLOOR_ENV
+            #pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV
+            #pragma multi_compile BILLBOARD_FOAM __
+            #pragma multi_compile RAYMARCHED_FOAM __
+            #pragma multi_compile CAUSTICS __
+            #pragma multi_compile SHADOWS __
 
             #pragma editor_sync_compilation
             #pragma vertex vert
@@ -374,15 +378,6 @@ Shader "Unlit/WaterRaymarch"
                     while(tCurr <= tEnd) {
                         float3 lpos = lro + lrd * tCurr;
 
-                        // if(currFoamSampleTime >= outsideWaterFoamSamplePeriod) {
-                        //     float foamSample = CheckFoamInsideVolumeRadius(ro+rd*tCurr);
-                        //     //foamSamplePeriod += -4. * (foamSample*2.-1.); foamSamplePeriod = max(foamSamplePeriod, 10.);
-                        //     transmittanceThroughFoam *= exp(-foamSample * 100. * 0.1 * BIGSTEPSIZE * (foamSamplePeriod+1.) / (1.+0.*15.*accumDensity));
-                        //     currFoamSampleTime = 0.;
-                        // } else {
-                        //     currFoamSampleTime += 1.;
-                        // }
-
                         float dens = SampleLocalDensity(lpos);
                         if(dens > WaterExistenceThreshold + WaterExistenceEps) {
                             while(dens >= WaterExistenceThreshold + WaterExistenceEps && tCurr >= tStart) {
@@ -482,7 +477,11 @@ Shader "Unlit/WaterRaymarch"
                 for(int i=0; i<2; i++) { //min(NumBounces, MAXBOUNCECOUNT); i++) {
 
                     int interType;
-                    float3 inter = UseRaymarchedFoam && !firstFollowReflect ? RayIntersectEnvironmentFoam(ro, rd, isInsideLiquid, interType) : RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
+                    #ifdef RAYMARCHED_FOAM
+                    float3 inter = !firstFollowReflect ? RayIntersectEnvironmentFoam(ro, rd, isInsideLiquid, interType) : RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
+                    #else
+                    float3 inter = RayIntersectEnvironment(ro, rd, isInsideLiquid, interType);
+                    #endif
                     float t = inter.x; float densityAlongRay = inter.y; foamTransmittance *= inter.z;
                     float3 hitPos = ro + rd*t;
                     float3 norm = CalculateWaterNormal(hitPos);
@@ -491,17 +490,19 @@ Shader "Unlit/WaterRaymarch"
                     // Moved this above inter break
                     transmittance *= exp(- ExtinctionCoefficients * densityAlongRay);
 
-                    // TODO: Compile diff versions through scripts with macros and setfeature to not have all these if statements
-                    if(UseBillboardFoam && !firstFollowReflect && i <= 1 && ft <= t) {
+                    #ifdef BILLBOARD_FOAM
+                    if(!firstFollowReflect && i <= 1 && ft <= t) {
                         const float3 FoamColor = 1.; // TODO: temp, expose it to editor
                         return li + 0.9*FoamColor;
                     }
                     ft -= t;
+                    #endif
 
                     if(interType != INTERTYPE_WATER) {
                         if(i==0) return 0.5*SampleEnvironment(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier);
 
-                        if(UseCaustics && interType == INTERTYPE_OBJECT && i==1 && !firstFollowReflect) {
+                        #ifdef CAUSTICS
+                        if(interType == INTERTYPE_OBJECT && i==1 && !firstFollowReflect) {
                             // Caustics
                             float3 floorPoint = hitPos + normal(hitPos)*.02; // Escape SDEps
                             float distUpToScene = RayIntersectScene(floorPoint+float3(0.,1.,0.), float3(0.,1.,0.));
@@ -528,6 +529,7 @@ Shader "Unlit/WaterRaymarch"
                                 );
                             }
                         }
+                        #endif
                         break;
                     }
 
@@ -579,7 +581,11 @@ Shader "Unlit/WaterRaymarch"
                 float2 sp = (i.uv*2.0-1.0)*float2(1.3, 1.0);
                 
                 //
+                #ifdef BILLBOARD_FOAM
                 float distAlongRayToFoam = tex2D(FoamTex, i.uv).b/dot(rd, CamFo); // RVS
+                #else
+                float distAlongRayToFoam = 100000.0;
+                #endif
 
                 //
                 float3 accumLight;

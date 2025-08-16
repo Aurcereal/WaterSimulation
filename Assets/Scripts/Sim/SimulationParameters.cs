@@ -24,12 +24,14 @@ public class SimulationParameters : MonoBehaviour
     public static float3 ObstacleScale => Ins.obstacleTransform.transform.localScale;
     public static bool ObstacleType => Ins.environmentPreset.obstacleType;
 
-    public static float3 Gravity => Ins.fluidBehaviorPreset.gravity;
+    public static float3 Gravity => Ins.fluidBehaviorPreset.enableGravityForce ? Ins.fluidBehaviorPreset.gravity : float3(0);
 
+    public static bool EnablePressureForce => Ins.fluidBehaviorPreset.enablePressureForce;
     public static float TargetDensity => Ins.fluidBehaviorPreset.targetDensity;
     public static float NearDensityPressureMultiplier => Ins.fluidBehaviorPreset.nearDensityPressureMultiplier;
     public static float PressureMultiplier => Ins.fluidBehaviorPreset.pressureMultiplier;
 
+    public static bool EnableViscosityForce => Ins.fluidBehaviorPreset.enableViscosityForce;
     public static float ViscosityStrength => Ins.fluidBehaviorPreset.viscosityStrength;
 
     public static bool EnableParticleSprings => Ins.fluidBehaviorPreset.enableSpringForce;
@@ -47,8 +49,8 @@ public class SimulationParameters : MonoBehaviour
     public static float GridSize => SmoothingRadius / sqrt(2);
 
     public static VisualMode CurrentVisualMode => Ins.currentVisualMode;
-    public static bool UseRaymarchedFoam => Ins.useRaymarchedFoamInRaymarchedWater;
-    public static bool UseBillboardFoam => Ins.useBillboardFoam;
+    public static bool UseRaymarchedFoam => Ins.simulateFoam && Ins.useRaymarchedFoamInRaymarchedWater;
+    public static bool UseBillboardFoam => Ins.simulateFoam && Ins.useBillboardFoam;
     public static float DensityCacheStepSize => Ins.raymarchVisualPreset.densityCacheStepSize;
     public static float DensityCacheSampleCount => Ins.raymarchVisualPreset.densityCacheSampleCount;
     public static bool UseDensityStepSize => Ins.raymarchVisualPreset.useDensityStepSize;
@@ -108,6 +110,7 @@ public class SimulationParameters : MonoBehaviour
     public static Color ParticleLowSpeedColor => Ins.debugVisualPreset.particleLowSpeedColor;
     public static Color ParticleHighSpeedColor => Ins.debugVisualPreset.particleHighSpeedColor;
 
+    public static bool EnableSceneCollision => Ins.enableSceneCollision;
     public static EnvTemplate EnvPreset => Ins.envPreset;
     public static bool EnableBoundingBoxCollisionWithOverride => OverrideEnvPreset ? OverrideEnableBoundingBoxCollision : EnvPreset.enableBoundingBoxInteraction;
     public static bool EnableObstacleCollisionWithOverride => OverrideEnvPreset ? OverrideEnableObstacleCollision : EnvPreset.enableObjectInteraction;
@@ -147,6 +150,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] FoamBehaviorPreset foamBehaviorPreset;
 
     [Header("Environment Preset")]
+    [SerializeField] bool enableSceneCollision;
     [SerializeField] EnvTemplate envPreset;
     [SerializeField] bool overrideEnvPreset = false;
     [SerializeField] bool overrideEnableBoundingBoxCollision = false;

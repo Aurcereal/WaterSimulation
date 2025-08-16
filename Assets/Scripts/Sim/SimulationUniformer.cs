@@ -19,7 +19,6 @@ public class SimulationUniformer
             ("positions", computeManager.positionBuffer),
             ("predictedPositions", computeManager.predictedPositionBuffer),
             ("velocities", computeManager.velocityBuffer),
-            ("masses", computeManager.massBuffer),
             ("densities", computeManager.densityBuffer),
             ("nearDensities", computeManager.nearDensityBuffer),
             ("particleCellKeyEntries", computeManager.particleCellKeyEntryBuffer),
@@ -30,7 +29,6 @@ public class SimulationUniformer
             new string[] {
             "CalculatePredictedPositions",
             "UpdateSpatialHashEntries",
-            "ResetSpatialHashOffsets",
             "UpdateSpatialHashOffsets",
             "CalculateDensities",
             "UpdateParticles",
@@ -52,6 +50,12 @@ public class SimulationUniformer
 
     }
 
+    bool? sceneCollisionFeature = null;
+    bool? simulateFoamFeature = null;
+    bool? pressureForceFeature = null;
+    bool? viscosityForceFeature = null;
+    bool? stickForceFeature = null;
+    bool? springForceFeature = null;
     public void UniformAllParameters()
     {
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
@@ -106,6 +110,21 @@ public class SimulationUniformer
         particleSimulatorShader.SetVector("ParticleLowSpeedColor", ParticleLowSpeedColor);
         particleSimulatorShader.SetVector("ParticleHighSpeedColor", ParticleHighSpeedColor);
 
+        //
+        if (EnableSceneCollision != sceneCollisionFeature) particleSimulatorShader.SetKeywordActive("SCENE_COLLISION", EnableSceneCollision);
+        if (SimulateFoam != simulateFoamFeature) particleSimulatorShader.SetKeywordActive("SIMULATE_FOAM", SimulateFoam);
+        if (pressureForceFeature != EnablePressureForce) particleSimulatorShader.SetKeywordActive("PRESSURE_FORCE", EnablePressureForce);
+        if (viscosityForceFeature != EnableViscosityForce) particleSimulatorShader.SetKeywordActive("VISCOSITY_FORCE", EnableViscosityForce);
+        if (stickForceFeature != EnableStickForce) particleSimulatorShader.SetKeywordActive("STICK_FORCE", EnableStickForce);
+        if (springForceFeature != EnableParticleSprings) particleSimulatorShader.SetKeywordActive("SPRING_FORCE", EnableParticleSprings);
+
+        sceneCollisionFeature = EnableSceneCollision;
+        simulateFoamFeature = SimulateFoam;
+        pressureForceFeature = EnablePressureForce;
+        viscosityForceFeature = EnableViscosityForce;
+        stickForceFeature = EnableStickForce;
+        springForceFeature = EnableParticleSprings;
+
     }
 
     public void UniformDeltaTimeAndCurrentTime(float dt, float timeSinceStart)
@@ -120,27 +139,20 @@ public class SimulationUniformer
         GameManager.Ins.computeManager.particleSimulatorShader.SetVector("DensityTextureSize", (Vector3)(float3)size);
     }
 
+    string? currPhysicsCompileKeyword = null;
     public void HandleNewEnv()
     {
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;
 
         //
-        foreach (var keyword in particleSimulatorShader.enabledKeywords)
-        {
-            particleSimulatorShader.DisableKeyword(keyword);
-        }
+        if (currPhysicsCompileKeyword != null) particleSimulatorShader.DisableKeyword(currPhysicsCompileKeyword);
 
         //
-        if (EnableBoundingBoxCollisionWithOverride)
-        {
-            particleSimulatorShader.EnableKeyword("BBX_COLLISION");
-        }
-        if (EnableObstacleCollisionWithOverride)
-        {
-            particleSimulatorShader.EnableKeyword("OBSTACLE_COLLISION");
-        }
+        particleSimulatorShader.SetKeywordActive("BBX_COLLISION", EnableBoundingBoxCollisionWithOverride);
+        particleSimulatorShader.SetKeywordActive("OBSTACLE_COLLISION", EnableObstacleCollisionWithOverride);
 
         //
-        particleSimulatorShader.EnableKeyword(EnvPreset.physicsCompileKeyword);
+        currPhysicsCompileKeyword = EnvPreset.physicsCompileKeyword;
+        particleSimulatorShader.EnableKeyword(currPhysicsCompileKeyword);
     }
 }

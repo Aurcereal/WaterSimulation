@@ -32,7 +32,6 @@ public class SimulationInitializer
         var predictedPositions = new float3[ParticleCount];
         var velocities = new float3[ParticleCount];
 
-        var masses = new float[ParticleCount];
         var densities = new float[ParticleCount];
         var nearDensities = new float[ParticleCount];
 
@@ -49,7 +48,6 @@ public class SimulationInitializer
                 UnityEngine.Random.Range(-SpawnDimensions.z * 0.5f, SpawnDimensions.z * 0.5f)
                 );
             velocities[i] = float3(0.0f);
-            masses[i] = 1.0f; //i > positions.Length/2 ? 4.0f : 1.0f;
             colors[i] = Color.white; //i > positions.Length/2 ? Color.red : Color.white;
         }
 
@@ -59,7 +57,6 @@ public class SimulationInitializer
         GameManager.Ins.computeManager.positionBuffer.SetData(positions);
         GameManager.Ins.computeManager.predictedPositionBuffer.SetData(predictedPositions);
         GameManager.Ins.computeManager.velocityBuffer.SetData(velocities);
-        GameManager.Ins.computeManager.massBuffer.SetData(masses);
 
         GameManager.Ins.computeManager.densityBuffer.SetData(densities);
         GameManager.Ins.computeManager.nearDensityBuffer.SetData(nearDensities);

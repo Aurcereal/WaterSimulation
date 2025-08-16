@@ -6,6 +6,8 @@
 
 #ifdef CHECKERFLOOR_ENV
 #include "../../../Env/CheckerFloorEnvVisual.hlsl"
+#elif defined(EMPTY_ENV)
+#include "../../../Env/EmptyEnvVisual.hlsl"
 #endif
 
 float GetShadowOcclusion(float3 pos);
@@ -18,7 +20,13 @@ float3 shadeScene(float3 pos, float3 normal, float3 color) {
 
     float3 ambientCol = 0.02;
 
-    return ambientCol + GetShadowOcclusion(pos) * diffuseCol * 0.7;
+    #ifdef SHADOWS
+    float shadowOcclusion = GetShadowOcclusion(pos);
+    #else
+    float shadowOcclusion = 1.;
+    #endif
+
+    return ambientCol + shadowOcclusion * diffuseCol * 0.7;
 }
 
 float RayIntersectScene(float3 ro, float3 rd) {

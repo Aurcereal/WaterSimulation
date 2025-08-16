@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 307507db850fc5f44a699d13c2835136, type: 3}
   m_Name: FluidBehaviorPreset1
   m_EditorClassIdentifier: 
-  particleCount: 38046
+  particleCount: 38873
   spawnWidth: 19.5
   spawnHeight: 5.1
   spawnDepth: 4.2
   enableGravityForce: 1
   enablePressureForce: 1
   enableViscosityForce: 1
-  enableSpringForce: 1
+  enableSpringForce: 0
   enableStickForce: 1
   gravity:
     x: 0

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
-  m_Name: DefaultEnv
+  m_Name: EmptyEnv
   m_EditorClassIdentifier: 
-  physicsCompileKeyword: CHECKERFLOOR_ENV
-  visualCompileKeyword: CHECKERFLOOR_ENV
+  physicsCompileKeyword: EMPTY_ENV
+  visualCompileKeyword: EMPTY_ENV
   enableObjectInteraction: 1
   enableBoundingBoxInteraction: 1

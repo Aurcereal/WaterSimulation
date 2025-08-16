@@ -1,6 +1,18 @@
+#pragma multi_compile SCENE_COLLISION __
 #pragma multi_compile BBX_COLLISION __
 #pragma multi_compile OBSTACLE_COLLISION __
-#pragma multi_compile CHECKERFLOOR_ENV
+#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV
+
+#pragma multi_compile SIMULATE_FOAM __
+#pragma multi_compile PRESSURE_FORCE __
+#pragma multi_compile VISCOSITY_FORCE __
+#pragma multi_compile STICK_FORCE __
+#pragma multi_compile SPRING_FORCE __
+// #define SIMULATE_FOAM
+// #define PRESSURE_FORCE
+// #define VISCOSITY_FORCE
+// #define STICK_FORCE
+// #define SPRING_FORCE
 
 #define THREADGROUPSIZE 256
 #define CUBETHREADGROUPSIZE 8
@@ -8,7 +20,6 @@
 #pragma kernel CalculatePredictedPositions
 
 #pragma kernel UpdateSpatialHashEntries
-#pragma kernel ResetSpatialHashOffsets
 #pragma kernel UpdateSpatialHashOffsets // Must be sorted at this point
 
 #pragma kernel CalculateDensities
@@ -24,7 +35,6 @@ RWStructuredBuffer<float3> positions;
 RWStructuredBuffer<float3> predictedPositions;
 RWStructuredBuffer<float3> velocities;
 
-RWStructuredBuffer<float> masses;
 RWStructuredBuffer<float> densities;
 RWStructuredBuffer<float> nearDensities;
 
@@ -124,14 +134,6 @@ void UpdateSpatialHashEntries (uint3 id : SV_DispatchThreadID)
     e.key = key;
 
     particleCellKeyEntries[i] = e;
-}
-
-[numthreads(THREADGROUPSIZE, 1, 1)]
-void ResetSpatialHashOffsets(uint3 id : SV_DispatchThreadID) {
-    int i = id.x;
-    if(i >= SpatialLookupSize) return;
-
-    cellKeyToStartCoord[i] = -1;
 }
 
 [numthreads(THREADGROUPSIZE, 1,1)]
@@ -252,6 +254,7 @@ float3 CalculatePressureForceAndAirPotential(int i, out float airPotential)
                                 float dist = sqrt(sqrDist);
                                 float3 posDiffNormalize = diff / dist;
 
+                                #ifdef PRESSURE_FORCE
                                 totalForce +=
                                     (DensityToPressure(densities[i]) + DensityToPressure(densities[otherParticleIndex])) * 0.5f *
                                     (-SmoothingKernelPow2Gradient(SmoothingRadius, otherPos - pos))
@@ -260,9 +263,9 @@ float3 CalculatePressureForceAndAirPotential(int i, out float airPotential)
                                     (NearDensityToPressure(nearDensities[i]) + NearDensityToPressure(nearDensities[otherParticleIndex])) * 0.5f *
                                     (-SmoothingKernelPow3Gradient(SmoothingRadius, otherPos - pos))
                                     / dens;
+                                #endif
 
                                 // For WhiteWater (Spray, Foam, Bubbles) - https://cg.informatik.uni-freiburg.de/publications/2012_CGI_sprayFoamBubbles.pdf
-                                #define SIMULATE_FOAM // TODO: make compile keyowrd
                                 #ifdef SIMULATE_FOAM
                                 float3 velDiff = velocities[otherParticleIndex] - vel;
                                 float velDiffLength = length(velDiff);
@@ -271,12 +274,12 @@ float3 CalculatePressureForceAndAirPotential(int i, out float airPotential)
                                 #endif
 
                                 // Spring Force (turn to compile keyword)
-                                if(EnableParticleSprings) {
-                                    float restLen = SmoothingRadius*.5;
+                                #ifdef SPRING_FORCE
+                                float restLen = SmoothingRadius*.5;
 
-                                    float forceMult = SpringForceMultiplier * (1. - dist*InvSmoothingRadius) * (restLen - dist);
-                                    totalForce += forceMult * (-posDiffNormalize);
-                                }
+                                float forceMult = SpringForceMultiplier * (1. - dist*InvSmoothingRadius) * (restLen - dist);
+                                totalForce += forceMult * (-posDiffNormalize);
+                                #endif
                             }
                         }
 
@@ -287,7 +290,11 @@ float3 CalculatePressureForceAndAirPotential(int i, out float airPotential)
         }
     }
 
+    #ifdef SIMULATE_FOAM
     airPotential = clamp((scaledVelocityDiff - TrappedAirPotentialRemapLow) / (TrappedAirPotentialRemapHigh - TrappedAirPotentialRemapLow), 0., 1.);
+    #else
+    airPotential = 0.;
+    #endif
 
     return totalForce;
 }
@@ -354,10 +361,16 @@ float3 CalculateStickinessForce(int particleIndex) {
 
 #ifdef CHECKERFLOOR_ENV
 #include "../../../Env/CheckerFloorEnvPhysics.hlsl"
+#elif defined(EMPTY_ENV)
+#include "../../../Env/EmptyEnvPhysics.hlsl"
 #endif
 
 float sdScene(float3 p) {
+    #ifdef SCENE_COLLISION
     float sd = sdEnv(p);
+    #else
+    float sd = 100000.0;
+    #endif
 
     #ifdef BBX_COLLISION
     sd = min(sd, sdBoundingBox(p));
@@ -421,27 +434,42 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float3 vel = velocities[i];
     float dens = densities[i];
 
-    float airPotential;
+    float airPotential = 0.;
 
     // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
+    #if defined PRESSURE_FORCE || defined SPRING_FORCE || defined SIMULATE_FOAM
     float3 pressureAcceleration = CalculatePressureForceAndAirPotential(i, airPotential) / dens;
+    #else
+    float3 pressureAcceleration = 0.;
+    #endif
+
+    #ifdef VISCOSITY_FORCE
     float3 viscosityAcceleration = CalculateViscosityForce(i) / dens;
+    #else
+    float3 viscosityAcceleration = 0.;
+    #endif
+
+    #ifdef STICK_FORCE
     float3 stickinessAcceleration = EnableStickForce ? CalculateStickinessForce(i) / dens : 0.;
+    #else
+    float3 stickinessAcceleration = 0.;
+    #endif
+
     float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + Gravity;
 
     // Handle Spawning Foam
-    if(SpawnFoam) {
-        if(i == 0) 
-            foamParticleCounts[1] = 0; // Need to 'clear' survivor buffer
+    #ifdef SIMULATE_FOAM
+    if(i == 0) 
+        foamParticleCounts[1] = 0; // Need to 'clear' survivor buffer
 
-        float kineticEnergy = 0.5 * dot(vel, vel);
-        float kineticPotential = clamp((kineticEnergy - KineticPotentialRemapLow) / (KineticPotentialRemapHigh - KineticPotentialRemapLow), 0., 1.);
-        float spawnRate = kineticPotential * (TrappedAirMultiplier * airPotential); // ODOT: Maybe add wave crest
-        float numSpawn = dt * spawnRate * spawnRate;
-        float spd = length(vel);
-        float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
-        if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
-    }
+    float kineticEnergy = 0.5 * dot(vel, vel);
+    float kineticPotential = clamp((kineticEnergy - KineticPotentialRemapLow) / (KineticPotentialRemapHigh - KineticPotentialRemapLow), 0., 1.);
+    float spawnRate = kineticPotential * (TrappedAirMultiplier * airPotential); // ODOT: Maybe add wave crest
+    float numSpawn = dt * spawnRate * spawnRate;
+    float spd = length(vel);
+    float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
+    if(spd > 0.) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
+    #endif
 
     vel += a * dt;
     pos += vel * dt;

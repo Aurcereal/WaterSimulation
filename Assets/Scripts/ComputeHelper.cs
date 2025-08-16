@@ -158,4 +158,16 @@ public static class ComputeHelper
         buf.SetData(args);
         return buf;
     }
+
+    public static void SetKeywordActive(this Material mat, string featureName, bool active)
+    {
+        if (active) mat.EnableKeyword(featureName);
+        else mat.DisableKeyword(featureName);
+    }
+
+    public static void SetKeywordActive(this ComputeShader sha, string featureName, bool active)
+    {
+        if (active) sha.EnableKeyword(featureName);
+        else sha.DisableKeyword(featureName);
+    }
 }
