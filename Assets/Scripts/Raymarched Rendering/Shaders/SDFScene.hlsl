@@ -8,6 +8,8 @@
 #include "../../../Env/CheckerFloorEnvVisual.hlsl"
 #elif defined(EMPTY_ENV)
 #include "../../../Env/EmptyEnvVisual.hlsl"
+#elif defined(FOUNTAIN_ENV)
+#include "../../../Env/FountainEnvVisual.hlsl"
 #endif
 
 float GetShadowOcclusion(float3 pos);

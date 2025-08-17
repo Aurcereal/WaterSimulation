@@ -1,7 +1,7 @@
 #pragma multi_compile SCENE_COLLISION __
 #pragma multi_compile BBX_COLLISION __
 #pragma multi_compile OBSTACLE_COLLISION __
-#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV
+#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV
 
 #pragma multi_compile SIMULATE_FOAM __
 #pragma multi_compile PRESSURE_FORCE __
@@ -56,6 +56,8 @@ const bool EnableParticleSprings;
 const bool EnableStickForce;
 const float MaxStickDistance;
 const float StickForceMultiplier;
+
+const float ForceFieldMultiplier;
 
 const float4x4 ContainerInverseTransform;
 const float4x4 ContainerTransform;
@@ -352,6 +354,8 @@ float3 CalculateStickinessForce(int particleIndex) {
     return -norm * forceMag;
 }
 
+float3 sampleForceField(float3 p);
+
 #ifdef BBX_COLLISION
 #include "../../../Env/BoundingBoxEnvPhysics.hlsl"
 #endif
@@ -363,6 +367,8 @@ float3 CalculateStickinessForce(int particleIndex) {
 #include "../../../Env/CheckerFloorEnvPhysics.hlsl"
 #elif defined(EMPTY_ENV)
 #include "../../../Env/EmptyEnvPhysics.hlsl"
+#elif defined(FOUNTAIN_ENV)
+#include "../../../Env/FountainEnvPhysics.hlsl"
 #endif
 
 float sdScene(float3 p) {
@@ -450,12 +456,18 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     #endif
 
     #ifdef STICK_FORCE
-    float3 stickinessAcceleration = EnableStickForce ? CalculateStickinessForce(i) / dens : 0.;
+    float3 stickinessAcceleration = CalculateStickinessForce(i) / dens;
     #else
     float3 stickinessAcceleration = 0.;
     #endif
 
-    float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + Gravity;
+    #ifdef FORCE_FIELD // TODO: make disabeable
+    float3 forceFieldAcceleration = ForceFieldMultiplier * sampleForceField(pos) / dens;
+    #else
+    float3 forceFieldAcceleration = 0.;
+    #endif
+
+    float3 a = pressureAcceleration + viscosityAcceleration + stickinessAcceleration + forceFieldAcceleration + Gravity;
 
     // Handle Spawning Foam
     #ifdef SIMULATE_FOAM
@@ -512,6 +524,43 @@ float CalculateDensity(float3 pos) {
 
                         if(sqrDist <= SmoothingRadius*SmoothingRadius) {
                             totalDensity += /*masses[particleIndex] * */SmoothingKernelPow2Unsafe(sqrt(sqrDist));
+                        }
+
+                        currIndex++;
+                    }
+                }
+            }
+        }
+    }
+
+    return totalDensity;
+}
+
+// temp
+float CalculateDensity(float3 pos, float h) {
+    float totalDensity = 0.0;
+
+    int3 centerCellPos = posToCell(pos);
+    int3 currCell;
+    int particleIndex;
+
+    for(int x=-1; x<=1; x++) {
+        for(int y=-1; y<=1; y++) {
+            for(int z=-1; z<=1; z++) {
+                currCell = centerCellPos + int3(x, y, z);
+
+                int key = getCellKey(currCell);
+                int currIndex = getStartIndex(key);
+
+                if(currIndex != -1) {
+                    while(currIndex < ParticleCount && particleCellKeyEntries[currIndex].key == key) {
+
+                        particleIndex = particleCellKeyEntries[currIndex].particleIndex;
+                        
+                        float sqrDist = dot(positions[particleIndex] - pos, positions[particleIndex] - pos);
+
+                        if(sqrDist <= h*h) {
+                            totalDensity += /*masses[particleIndex] * */SmoothingKernelPow2(h, sqrt(sqrDist));
                         }
 
                         currIndex++;

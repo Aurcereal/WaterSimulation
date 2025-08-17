@@ -7,13 +7,6 @@ using UnityEngine;
 public class FluidBehaviorPreset : ScriptableObject
 {
 
-    // TODO:  make it an in-editor box instead of 3 dimensions here
-    [Header("Initialization")]
-    [Range(1, 200000)][SerializeField] public int particleCount = 10;
-    [Range(0.05f, 100)][SerializeField] public float spawnWidth = 50.0f;
-    [Range(0.05f, 100)][SerializeField] public float spawnHeight = 40.0f;
-    [Range(0.05f, 100)][SerializeField] public float spawnDepth = 40.0f;
-
     [Header("Force Toggles")]
     [SerializeField] public bool enableGravityForce = true;
     [SerializeField] public bool enablePressureForce = true;
@@ -38,6 +31,9 @@ public class FluidBehaviorPreset : ScriptableObject
     [Header("Stickiness Force")]
     [Range(0.0f, 2.0f)][SerializeField] public float maxStickDistance = 0.07f;
     [Range(0.0f, 10000.0f)][SerializeField] public float stickForceMultiplier = 10.0f;
+
+    [Header("Force Field")]
+    public float forceFieldMultiplier = 1.0f;
 
     [Header("Advanced")]
     [Range(0.005f, 10.0f)][SerializeField] public float smoothingRadius = 0.1f;

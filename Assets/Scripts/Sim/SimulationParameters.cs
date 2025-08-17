@@ -8,8 +8,9 @@ using static Unity.Mathematics.math;
 
 public class SimulationParameters : MonoBehaviour
 {
-    public static int ParticleCount => Ins.fluidBehaviorPreset.particleCount;
-    public static float3 SpawnDimensions => new(Ins.fluidBehaviorPreset.spawnWidth, Ins.fluidBehaviorPreset.spawnHeight, Ins.fluidBehaviorPreset.spawnDepth);
+    public static int ParticleCount => Ins.envPreset.particleCount;
+    public static float3 SpawnDimensions => new(Ins.envPreset.spawnWidth, Ins.envPreset.spawnHeight, Ins.envPreset.spawnDepth);
+    public static float3 SpawnPosition => Ins.envPreset.spawnPosition;
 
     public static float SmoothingRadius => Ins.fluidBehaviorPreset.smoothingRadius;
     public static Mesh SphereMesh => Ins.sphereMesh;
@@ -40,6 +41,8 @@ public class SimulationParameters : MonoBehaviour
     public static bool EnableStickForce => Ins.fluidBehaviorPreset.enableStickForce;
     public static float MaxStickDistance => Ins.fluidBehaviorPreset.maxStickDistance;
     public static float StickForceMultiplier => Ins.fluidBehaviorPreset.stickForceMultiplier;
+
+    public static float ForceFieldMultiplier => Ins.fluidBehaviorPreset.forceFieldMultiplier;
 
     public static float ParticleRadius => Ins.particleRadius;
     public static float2 ParticleColorSpeedRange => new(Ins.debugVisualPreset.particleLowColorSpeed, Ins.debugVisualPreset.particleHighColorSpeed);

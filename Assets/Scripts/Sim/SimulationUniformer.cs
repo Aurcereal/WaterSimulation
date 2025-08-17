@@ -85,6 +85,7 @@ public class SimulationUniformer
         particleSimulatorShader.SetBool("EnableStickForce", EnableStickForce);
         particleSimulatorShader.SetFloat("MaxStickDistance", MaxStickDistance);
         particleSimulatorShader.SetFloat("StickForceMultiplier", StickForceMultiplier);
+        particleSimulatorShader.SetFloat("ForceFieldMultiplier", ForceFieldMultiplier);
 
         //
         particleSimulatorShader.SetInt("MaxFoamParticleCount", MaxFoamParticleCount);

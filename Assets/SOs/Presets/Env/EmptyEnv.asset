@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
   m_Name: EmptyEnv
   m_EditorClassIdentifier: 
+  particleCount: 38873
+  spawnWidth: 19.5
+  spawnHeight: 5.1
+  spawnDepth: 4.2
+  spawnPosition:
+    x: 0
+    y: 0
+    z: 0
   physicsCompileKeyword: EMPTY_ENV
   visualCompileKeyword: EMPTY_ENV
   enableObjectInteraction: 1

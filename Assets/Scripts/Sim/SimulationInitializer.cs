@@ -42,7 +42,7 @@ public class SimulationInitializer
         for (int i = 0; i < positions.Length; i++)
         {
             float t = (i * 1.0f + 0.5f) / positions.Length;
-            positions[i] = float3(
+            positions[i] = SpawnPosition + float3(
                 UnityEngine.Random.Range(-SpawnDimensions.x * 0.5f, SpawnDimensions.x * 0.5f),
                 UnityEngine.Random.Range(-SpawnDimensions.y * 0.5f, SpawnDimensions.y * 0.5f),
                 UnityEngine.Random.Range(-SpawnDimensions.z * 0.5f, SpawnDimensions.z * 0.5f)

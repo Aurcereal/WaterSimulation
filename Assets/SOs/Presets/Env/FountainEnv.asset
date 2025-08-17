@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
-  m_Name: CheckerEnv
+  m_Name: FountainEnv
   m_EditorClassIdentifier: 
-  particleCount: 38873
-  spawnWidth: 19.5
-  spawnHeight: 5.1
-  spawnDepth: 4.2
+  particleCount: 149648
+  spawnWidth: 4
+  spawnHeight: 4
+  spawnDepth: 4
   spawnPosition:
     x: 0
     y: 0
     z: 0
-  physicsCompileKeyword: CHECKERFLOOR_ENV
-  visualCompileKeyword: CHECKERFLOOR_ENV
+  physicsCompileKeyword: FOUNTAIN_ENV
+  visualCompileKeyword: FOUNTAIN_ENV
   enableObjectInteraction: 1
   enableBoundingBoxInteraction: 1
