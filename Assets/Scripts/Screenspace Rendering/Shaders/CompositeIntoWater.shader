@@ -137,7 +137,7 @@ Shader "Unlit/CompositeIntoWater"
             samplerCUBE EnvironmentMap;
 
             float3 SampleSkybox(float3 rd) {
-                return 0.*LightMultiplier*texCUBE(EnvironmentMap, rd).rgb + SampleSun(rd);
+                return LightMultiplier*texCUBE(EnvironmentMap, rd).rgb + SampleSun(rd);
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)

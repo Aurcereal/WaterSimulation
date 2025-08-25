@@ -181,12 +181,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentVisualMode: 2
+  currentVisualMode: 1
   useRaymarchedFoamInRaymarchedWater: 1
   useBillboardFoam: 1
   useShadows: 0
   useCaustics: 1
-  simulateFoam: 0
+  simulateFoam: 1
   debugVisualPreset: {fileID: 11400000, guid: eb008d68815564749b81afebaf3b0d34, type: 2}
   environmentPreset: {fileID: 11400000, guid: fe4c1ec08d2d15b4ba84877c504e4112, type: 2}
   raymarchCausticsVisualPreset: {fileID: 11400000, guid: 353b4016634002b47a26e942dbea8bb0, type: 2}
@@ -626,7 +626,7 @@ Transform:
   m_GameObject: {fileID: 2036646828}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 35, y: 8, z: 8}
+  m_LocalScale: {x: 35, y: 8, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
