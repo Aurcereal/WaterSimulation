@@ -15,6 +15,19 @@
 float GetShadowOcclusion(float3 pos);
 float3 SampleSkybox(float3 rd);
 
+const float3 SunDir;
+const float SunRadius;
+const float SunMultiplier;
+float3 SampleSun(float3 rd) {
+    float sunDot = dot(rd, -SunDir);
+    float sunAngle = acos(sunDot);
+
+    sunAngle /= SunRadius;
+    float energy = 1./(sunAngle*sunAngle);
+
+    return SunMultiplier*energy;
+}
+
 // Material, Hit Params -> Li
 float3 shadeScene(float3 pos, float3 normal, float3 color) {
     float diffuse = max(0., dot(normal, -LightDir));

@@ -210,7 +210,7 @@ Shader "Unlit/WaterRaymarch"
             samplerCUBE EnvironmentMap;
 
             float3 SampleSkybox(float3 rd) {
-                return LightMultiplier*texCUBE(EnvironmentMap, rd);//SampleSpaceSkybox(rd, float2(rd.x, rd.y), CamFo);////;//1.;//;//
+                return LightMultiplier*texCUBE(EnvironmentMap, rd) + SampleSun(rd);
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)

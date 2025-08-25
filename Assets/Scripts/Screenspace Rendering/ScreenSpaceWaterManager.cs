@@ -117,6 +117,11 @@ public class ScreenSpaceWaterManager
         compositeIntoWater.SetTexture("DepthFromCausticCam", GameManager.Ins.causticsManager.SmoothedDepthTex);
         compositeIntoWater.SetTexture("NormalFromCausticCam", GameManager.Ins.causticsManager.NormalTex);
 
+        // Sun
+        compositeIntoWater.SetVector("SunDir", SunDir);
+        compositeIntoWater.SetFloat("SunRadius", SunRadius);
+        compositeIntoWater.SetFloat("SunMultiplier", SunMultiplier);
+
         //
         GameManager.Ins.simFoamManager.UniformParameters();
 

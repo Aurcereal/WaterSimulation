@@ -130,10 +130,14 @@ Shader "Unlit/CompositeIntoWater"
                 return depth >= 100000.0;
             }
 
+            #define MAXDIST 1000.0
+            #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
+            #include "../../Raymarched Rendering/Shaders/SDFScene.hlsl"
+
             samplerCUBE EnvironmentMap;
 
             float3 SampleSkybox(float3 rd) {
-                return LightMultiplier*texCUBE(EnvironmentMap, rd).rgb;
+                return 0.*LightMultiplier*texCUBE(EnvironmentMap, rd).rgb + SampleSun(rd);
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)
@@ -175,10 +179,6 @@ Shader "Unlit/CompositeIntoWater"
             float AccountForSDFInDensityAlongRay(float densAlongRayWithFoam, float distFromWaterToSDFAlongRefract, float distFromWaterToEndAlongRefract) {
                 return min(1., distFromWaterToSDFAlongRefract / distFromWaterToEndAlongRefract) * densAlongRayWithFoam;
             }
-
-            #define MAXDIST 1000.0
-            #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
-            #include "../../Raymarched Rendering/Shaders/SDFScene.hlsl"
 
             float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToSDF) {
                 if(distAlongRayToSDF < distAlongRayToWater) {

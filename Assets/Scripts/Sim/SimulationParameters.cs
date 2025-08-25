@@ -117,6 +117,9 @@ public class SimulationParameters : MonoBehaviour
     public static EnvTemplate EnvPreset => Ins.envPreset;
     public static bool EnableBoundingBoxCollisionWithOverride => OverrideEnvPreset ? OverrideEnableBoundingBoxCollision : EnvPreset.enableBoundingBoxInteraction;
     public static bool EnableObstacleCollisionWithOverride => OverrideEnvPreset ? OverrideEnableObstacleCollision : EnvPreset.enableObjectInteraction;
+    public static float SunRadius => EnvPreset.sunRadius;
+    public static Vector3 SunDir => Ins.lightTransform.forward;
+    public static float SunMultiplier => EnvPreset.sunMultiplier;
 
     public static bool OverrideEnvPreset => Ins.overrideEnvPreset;
     public static bool OverrideEnableBoundingBoxCollision => Ins.overrideEnableBoundingBoxCollision;
@@ -210,6 +213,7 @@ public class SimulationParameters : MonoBehaviour
             RaymarchManager.Ins.UpdateContainerData();
             RaymarchManager.Ins.UpdateObstacleData();
             GameManager.Ins.screenSpaceManager.UpdateObstacleData();
+            GameManager.Ins.screenSpaceManager.UniformParametersAndTextures();
             RaymarchManager.Ins.UniformAllParameters();
         }
     }

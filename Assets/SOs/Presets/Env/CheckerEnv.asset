@@ -24,3 +24,5 @@ MonoBehaviour:
   visualCompileKeyword: CHECKERFLOOR_ENV
   enableObjectInteraction: 1
   enableBoundingBoxInteraction: 1
+  sunRadius: 0.1
+  sunMultiplier: 40
