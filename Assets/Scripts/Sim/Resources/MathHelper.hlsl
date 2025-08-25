@@ -18,6 +18,14 @@ float2 rot2D(float2 v, float o) {
     return mul(float2x2(cos(o), sin(o), -sin(o), cos(o)), v);
 }
 
+float2 toPolar(float2 v) {
+    return float2(length(v), amod(atan2(v.y, v.x), TAU));
+}
+
+float2 toCartesian(float2 p) {
+    return p.x * float2(cos(p.y), sin(p.y));
+}
+
 // float2 rot(float2 v, float o) {
 //     return mul(float2x2(cos(o), sin(o), -sin(o), cos(o)), v);
 // }
@@ -53,5 +61,12 @@ float hash31(float3 p3)
     //return frac(410.*sin(dot(p3, float3(145., 15., 98.))));
 	p3  = frac(p3 * .1031);
     p3 += dot(p3, p3.zyx + 31.32);
+    return frac((p3.x + p3.y) * p3.z);
+}
+
+float hash21(float2 p)
+{
+	float3 p3  = frac(float3(p.xyx) * .1031);
+    p3 += dot(p3, p3.yzx + 33.33);
     return frac((p3.x + p3.y) * p3.z);
 }
