@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
   m_Name: FallEnv
   m_EditorClassIdentifier: 
-  particleCount: 38873
-  spawnWidth: 4.2
-  spawnHeight: 20
-  spawnDepth: 4.2
+  particleCount: 50000
+  spawnWidth: 4.4
+  spawnHeight: 50
+  spawnDepth: 4.4
   spawnPosition:
     x: 0
-    y: 13.41
+    y: 27
     z: 0
   physicsCompileKeyword: FALL_ENV
   visualCompileKeyword: FALL_ENV
