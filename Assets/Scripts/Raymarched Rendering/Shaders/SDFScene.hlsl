@@ -10,6 +10,8 @@
 #include "../../../Env/EmptyEnvVisual.hlsl"
 #elif defined(FOUNTAIN_ENV)
 #include "../../../Env/FountainEnvVisual.hlsl"
+#elif defined(FALL_ENV)
+#include "../../../Env/FallEnvVisual.hlsl"
 #endif
 
 float GetShadowOcclusion(float3 pos);
