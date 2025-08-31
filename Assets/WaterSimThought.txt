@@ -37,6 +37,8 @@ THE FOAM ISNT DISAPPEARING FAST ENOUGH
 	Filling up bath with SDF toys around to splash inside
 	Hamburger ketchup very viscous on simple hamburger with bun (since it's all SDF) and mabe hamburger closes.. very little ketchup needed
 	Honey
+	Attractor Ball
+	Regular simple container scene in the sky or wherever different hdris, spawn a way to produce nice waves and stuff, show slowly putting in the object and lifting it back out - the simple container scene is good for showcasing foam, caustics, shadows, the 35, 8, 8 default container
 - 3D Object Repeller/Attractor objects or can use raycasting to transfer mouse force to 3D
 - Sticky magnet with springs, different types of liquids like ketchup or goop could be cool visuals
 - Could eventually move to SDY and have water interact with SDF objects there

@@ -1,3 +1,12 @@
+const float FovY;
+const float Aspect;
+
+const float3 CamRi;
+const float3 CamUp;
+const float3 CamFo;
+
+const float3 CamPos;
+
 #define SDNORMEPS 0.001
 #define SDEPS 0.005
 #define MAXSTEPS 100
@@ -16,7 +25,7 @@ float GetShadowOcclusion(float3 pos);
 float3 SampleSkybox(float3 rd);
 
 // Material, Hit Params -> Li
-float3 shadeScene(float3 pos, float3 normal, float3 color) {
+float3 shadeScene(float3 pos, float3 normal, float3 color, float3 rd) {
     float diffuse = max(0., dot(normal, -LightDir));
     float3 diffuseCol = color * diffuse;
 
@@ -57,7 +66,7 @@ float3 SampleEnvironment(float3 ro, float3 rd) {
     float3 norm = normal(hitPos);
     float3 material = sampleSceneColor(hitPos);
 
-    return shadeScene(hitPos, norm, material);
+    return shadeScene(hitPos, norm, material, rd);
 }
 
 float3 SampleEnvironmentDist(float3 ro, float3 rd, out float dist) {
@@ -68,5 +77,5 @@ float3 SampleEnvironmentDist(float3 ro, float3 rd, out float dist) {
     float3 norm = normal(hitPos);
     float3 material = sampleSceneColor(hitPos);
 
-    return shadeScene(hitPos, norm, material);
+    return shadeScene(hitPos, norm, material, rd);
 }

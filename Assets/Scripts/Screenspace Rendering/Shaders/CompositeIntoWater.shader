@@ -51,14 +51,7 @@ Shader "Unlit/CompositeIntoWater"
             sampler2D DensityTex;
             sampler2D FoamTex;
 
-            const float FovY;
-            const float Aspect;
-
-            const float3 CamRi;
-            const float3 CamUp;
-            const float3 CamFo;
-
-            const float3 CamPos;
+            // Cam Params in SDFScene.hlsl
 
             const int ScreenWidth;
             const int ScreenHeight;
@@ -91,44 +84,6 @@ Shader "Unlit/CompositeIntoWater"
             const float4x4 CausticCamVP;
             sampler2D DepthFromCausticCam;
             sampler2D NormalFromCausticCam;
-
-            float GetShadowOcclusion(float3 pos) {
-                if(!UseShadowMapping) return 1.;
-
-                float4 clipSpacePos = mul(ShadowCamVP, float4(pos, 1.));
-                clipSpacePos /= clipSpacePos.w;
-
-                float2 uv = clipSpacePos.xy*0.5+0.5;
-                if(uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.) return 1.;
-
-                // TODO: Use a very low res depth tex from shadow cam to check whether we're being occluded at all
-                float fragDepth = dot(pos - CamPos, CamFo);
-
-                //
-                float densityAlongSunRay = tex2D(DensityFromSunTex, uv).r;
-                float transmittance = exp(-0.05 * densityAlongSunRay * ExtinctionCoefficients);
-
-                return transmittance;
-            }
-
-            float3 Raycast(float2 uv) {
-                float2 p = uv*2.0-1.0;
-
-                float3 rd = normalize(float3(tan(FovY*0.5) * (p * float2(Aspect, 1.0)), 1.0));
-                return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
-            }
-
-            float3 GetPosFromDepthTexture(float2 uv, out float distAlongRay) {
-                float3 rd = Raycast(uv);
-                float distAlongCam = tex2D(SmoothedDepthTex, uv).r;
-                distAlongRay = distAlongCam / dot(rd, CamFo);
-                float3 pos = CamPos + rd*distAlongRay;
-                return pos;
-            }
-
-            inline bool InvalidDepth(float depth) {
-                return depth >= 100000.0;
-            }
 
             samplerCUBE EnvironmentMap;
 
@@ -179,6 +134,44 @@ Shader "Unlit/CompositeIntoWater"
             #define MAXDIST 1000.0
             #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
             #include "../../Raymarched Rendering/Shaders/SDFScene.hlsl"
+
+            float3 Raycast(float2 uv) {
+                float2 p = uv*2.0-1.0;
+
+                float3 rd = normalize(float3(tan(FovY*0.5) * (p * float2(Aspect, 1.0)), 1.0));
+                return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
+            }
+
+            float3 GetPosFromDepthTexture(float2 uv, out float distAlongRay) {
+                float3 rd = Raycast(uv);
+                float distAlongCam = tex2D(SmoothedDepthTex, uv).r;
+                distAlongRay = distAlongCam / dot(rd, CamFo);
+                float3 pos = CamPos + rd*distAlongRay;
+                return pos;
+            }
+
+            inline bool InvalidDepth(float depth) {
+                return depth >= 100000.0;
+            }
+
+            float GetShadowOcclusion(float3 pos) {
+                if(!UseShadowMapping) return 1.;
+
+                float4 clipSpacePos = mul(ShadowCamVP, float4(pos, 1.));
+                clipSpacePos /= clipSpacePos.w;
+
+                float2 uv = clipSpacePos.xy*0.5+0.5;
+                if(uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.) return 1.;
+
+                // TODO: Use a very low res depth tex from shadow cam to check whether we're being occluded at all
+                float fragDepth = dot(pos - CamPos, CamFo);
+
+                //
+                float densityAlongSunRay = tex2D(DensityFromSunTex, uv).r;
+                float transmittance = exp(-0.05 * densityAlongSunRay * ExtinctionCoefficients);
+
+                return transmittance;
+            }
 
             float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToSDF) {
                 if(distAlongRayToSDF < distAlongRayToWater) {

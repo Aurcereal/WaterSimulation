@@ -55,15 +55,7 @@ Shader "Unlit/WaterRaymarch"
                 return o;
             }
 
-            //
-            const float FovY;
-            const float Aspect;
-
-            const float3 CamRi;
-            const float3 CamUp;
-            const float3 CamFo;
-
-            const float3 CamPos;
+            // Cam Params in SDFScene.hlsl
 
             //
             const float4x4 ContainerInverseTransform;
@@ -104,13 +96,6 @@ Shader "Unlit/WaterRaymarch"
             //
             const float3 LightDir;
 
-            float3 Raycast(float2 uv) {
-                float2 p = uv*2.0-1.0;
-
-                float3 rd = normalize(float3(tan(FovY*0.5) * (p * float2(Aspect, 1.0)), 1.0));
-                return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
-            }
-
             float SampleDensity(float3 p) {
                 float3 lp = mul(ContainerInverseTransform, float4(p, 1.0));
                 
@@ -138,6 +123,13 @@ Shader "Unlit/WaterRaymarch"
             #define MAXDIST 1000.0 // 250.0
 
             #include "./SDFScene.hlsl"
+
+            float3 Raycast(float2 uv) {
+                float2 p = uv*2.0-1.0;
+
+                float3 rd = normalize(float3(tan(FovY*0.5) * (p * float2(Aspect, 1.0)), 1.0));
+                return CamRi * rd.x + CamUp * rd.y + CamFo * rd.z; // float3x3(row, row, row) not column..
+            }
 
             float CalculateDensityAlongRay(float3 ro, float3 rd) {
                 // Bounding Box Intersection
