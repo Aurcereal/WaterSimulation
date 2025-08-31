@@ -16,7 +16,7 @@ Shader "Unlit/WaterRaymarch"
         Pass
         {
             CGPROGRAM
-            #pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV
+            #pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV
             #pragma multi_compile BILLBOARD_FOAM __
             #pragma multi_compile RAYMARCHED_FOAM __
             #pragma multi_compile CAUSTICS __
@@ -202,7 +202,7 @@ Shader "Unlit/WaterRaymarch"
             samplerCUBE EnvironmentMap;
 
             float3 SampleSkybox(float3 rd) {
-                return LightMultiplier*texCUBE(EnvironmentMap, rd);//SampleSpaceSkybox(rd, float2(rd.x, rd.y), CamFo);////;//1.;//;//
+                return LightMultiplier*texCUBE(EnvironmentMap, rd) + SampleSun(rd);
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)

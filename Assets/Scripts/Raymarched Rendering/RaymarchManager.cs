@@ -75,6 +75,11 @@ public class RaymarchManager : MonoBehaviour
         //
         waterRaymarchMat.SetInt("UseCaustics", UseCaustics ? 1 : 0);
 
+        // Sun
+        waterRaymarchMat.SetVector("SunDir", SunDir);
+        waterRaymarchMat.SetFloat("SunRadius", SunRadius);
+        waterRaymarchMat.SetFloat("SunMultiplier", SunMultiplier);
+
         //
         if (billboardFoamFeature != UseBillboardFoam) waterRaymarchMat.SetKeywordActive("BILLBOARD_FOAM", UseBillboardFoam);
         if (raymarchFoamFeature != UseRaymarchedFoam) waterRaymarchMat.SetKeywordActive("RAYMARCHED_FOAM", UseBillboardFoam);

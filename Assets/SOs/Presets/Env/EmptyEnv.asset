@@ -24,3 +24,5 @@ MonoBehaviour:
   visualCompileKeyword: EMPTY_ENV
   enableObjectInteraction: 1
   enableBoundingBoxInteraction: 1
+  sunRadius: 7
+  sunMultiplier: 1

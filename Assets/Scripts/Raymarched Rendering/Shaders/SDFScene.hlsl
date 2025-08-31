@@ -19,10 +19,25 @@ const float3 CamPos;
 #include "../../../Env/EmptyEnvVisual.hlsl"
 #elif defined(FOUNTAIN_ENV)
 #include "../../../Env/FountainEnvVisual.hlsl"
+#elif defined(FALL_ENV)
+#include "../../../Env/FallEnvVisual.hlsl"
 #endif
 
 float GetShadowOcclusion(float3 pos);
 float3 SampleSkybox(float3 rd);
+
+const float3 SunDir;
+const float SunRadius;
+const float SunMultiplier;
+float3 SampleSun(float3 rd) {
+    float sunDot = dot(rd, -SunDir);
+    float sunAngle = acos(sunDot);
+
+    sunAngle /= SunRadius;
+    float energy = 1./(sunAngle*sunAngle);
+
+    return SunMultiplier*energy;
+}
 
 // Material, Hit Params -> Li
 float3 shadeScene(float3 pos, float3 normal, float3 color, float3 rd) {

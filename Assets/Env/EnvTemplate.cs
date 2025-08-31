@@ -23,4 +23,8 @@ public class EnvTemplate : ScriptableObject
     [SerializeField] public bool enableObjectInteraction;
     [SerializeField] public bool enableBoundingBoxInteraction;
 
+    [Header("Sun")]
+    [SerializeField] public float sunRadius = 0.1f;
+    [SerializeField] public float sunMultiplier = 1f;
+
 }
