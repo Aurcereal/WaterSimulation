@@ -205,6 +205,10 @@ Shader "Unlit/WaterRaymarch"
                 return LightMultiplier*texCUBE(EnvironmentMap, rd) + SampleSun(rd);
             }
 
+            float3 SampleCameraSkybox(float3 rd) {
+                return texCUBE(EnvironmentMap, rd);// + SampleSun(rd);
+            }
+
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)
             float3 Refract(float3 wo, float3 norm, float ior) {
                 float cosThetaI = dot(wo, norm);
@@ -491,7 +495,7 @@ Shader "Unlit/WaterRaymarch"
                     #endif
 
                     if(interType != INTERTYPE_WATER) {
-                        if(i==0) return 0.5*SampleEnvironment(hitPos, rd);
+                        if(i==0) return 0.5*SampleCameraEnvironment(ro, rd);
 
                         #ifdef CAUSTICS
                         if(interType == INTERTYPE_OBJECT && i==1 && !firstFollowReflect) {

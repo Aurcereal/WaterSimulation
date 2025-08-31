@@ -131,6 +131,10 @@ Shader "Unlit/CompositeIntoWater"
                 return LightMultiplier*texCUBE(EnvironmentMap, rd).rgb + SampleSun(rd);
             }
 
+            float3 SampleCameraSkybox(float3 rd) {
+                return texCUBE(EnvironmentMap, rd).rgb;// + SampleSun(rd);
+            }
+
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)
             float3 Refract(float3 wo, float3 norm, float ior) {
                 float cosThetaI = dot(wo, norm);
@@ -174,7 +178,7 @@ Shader "Unlit/CompositeIntoWater"
             float3 ShadeWater(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToSDF) {
                 if(distAlongRayToSDF < distAlongRayToWater) {
                     // SDF Before Water
-                    return SampleEnvironment(CamPos, rd);
+                    return SampleCameraEnvironment(CamPos, rd);
                 }
 
                 float ior = 1./IndexOfRefraction; // Screen Space Technique would only work outside water I think
@@ -247,7 +251,7 @@ Shader "Unlit/CompositeIntoWater"
             float3 ShadeWaterFoam(float3 rd, float distAlongRayToWater, float3 pos, float3 norm, float densityAlongRd, float distAlongRayToFoam, float distAlongRayToSDF, float3 foamCol) {
                 if(min(distAlongRayToFoam, distAlongRayToSDF) < distAlongRayToWater) {
                     // Foam or SDF Before Water
-                    return distAlongRayToFoam < distAlongRayToSDF ? foamCol : SampleEnvironment(CamPos, rd);
+                    return distAlongRayToFoam < distAlongRayToSDF ? foamCol : SampleCameraEnvironment(CamPos, rd);
                 }
 
                 float ior = 1./IndexOfRefraction; // Screen Space Technique would only work outside water I think
@@ -332,7 +336,7 @@ Shader "Unlit/CompositeIntoWater"
                 float distAlongRayToSDF = RayIntersectScene(CamPos, rd);
                 if(norm.a == 0.) {
                     return float4(!UseBillboardFoam || distAlongRayToFoam >= 100000.0 || distAlongRayToSDF <= distAlongRayToFoam ? 
-                        SampleEnvironment(CamPos, rd) : FoamColor, 1.);
+                        SampleCameraEnvironment(CamPos, rd) : FoamColor, 1.);
                 }
 
                 #ifdef BILLBOARD_FOAM

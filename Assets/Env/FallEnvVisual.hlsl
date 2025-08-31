@@ -1,4 +1,17 @@
+float3 mountainTransform(float3 p) {
+    float r = length(p.xz);
+    const float2 mountainParam = float2(240., 2.);
+    float v = mountainParam.y*max(0., r-mountainParam.x);
+    v *= v;
+    v *= 30.;
+
+    p.y += v;
+    return p;
+}
+
 float sdScene(float3 p) {
+    //p = mountainTransform(p);
+
     float dObstacle = ObstacleType ? 
         sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
@@ -8,6 +21,7 @@ float sdScene(float3 p) {
 
 // Point -> Material (for now just color)
 float3 sampleSceneColor(float3 p) {
+    //p = mountainTransform(p);
 
     float dObstacle = ObstacleType ? 
         sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
