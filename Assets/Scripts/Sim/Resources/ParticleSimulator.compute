@@ -1,7 +1,7 @@
 #pragma multi_compile SCENE_COLLISION __
 #pragma multi_compile BBX_COLLISION __
 #pragma multi_compile OBSTACLE_COLLISION __
-#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV
+#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV CUP_ENV
 
 #pragma multi_compile SIMULATE_FOAM __
 #pragma multi_compile PRESSURE_FORCE __
@@ -371,6 +371,8 @@ float3 sampleForceField(float3 p);
 #include "../../../Env/FountainEnvPhysics.hlsl"
 #elif defined(FALL_ENV)
 #include "../../../Env/FallEnvPhysics.hlsl"
+#elif defined(CUP_ENV)
+#include "../../../Env/CupEnvPhysics.hlsl"
 #endif
 
 float sdScene(float3 p) {

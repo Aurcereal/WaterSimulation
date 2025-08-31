@@ -22,6 +22,8 @@ const float3 CamPos;
 #include "../../../Env/FountainEnvVisual.hlsl"
 #elif defined(FALL_ENV)
 #include "../../../Env/FallEnvVisual.hlsl"
+#elif defined(CUP_ENV)
+#include "../../../Env/CupEnvVisual.hlsl"
 #endif
 
 float GetShadowOcclusion(float3 pos);

@@ -198,7 +198,7 @@ MonoBehaviour:
   fluidBehaviorPreset: {fileID: 11400000, guid: c0335e7de9d401b459a5e92edeb71b3f, type: 2}
   foamBehaviorPreset: {fileID: 11400000, guid: da21c338ef2455947a9bd4154d99ee0f, type: 2}
   enableSceneCollision: 1
-  envPreset: {fileID: 11400000, guid: 0488800d5c1005f4393a507b36efc16b, type: 2}
+  envPreset: {fileID: 11400000, guid: 0284a5eb7804fd041a75d42d194e44b0, type: 2}
   overrideEnvPreset: 0
   overrideEnableBoundingBoxCollision: 0
   overrideEnableObstacleCollision: 0

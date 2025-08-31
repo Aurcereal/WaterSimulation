@@ -14,6 +14,30 @@ float3x3 rot2D(float o) {
     );
 }
 
+float3x3 rotZ(float o) {
+    return float3x3(
+        float3(cos(o), sin(o), 0.),
+        float3(-sin(o), cos(o), 0.),
+        float3(0.,0.,1.)
+    );
+}
+
+float3x3 rotX(float o) {
+    return float3x3(
+        float3(1., 0., 0.),
+        float3(0., cos(o), sin(o)),
+        float3(0., -sin(o), cos(o))
+    );
+}
+
+float3x3 rotY(float o) {
+    return float3x3(
+        float3(cos(o), 0., -sin(o)),
+        float3(0.,1.,0.),
+        float3(sin(o), 0., cos(o))
+    );
+}
+
 float2 rot2D(float2 v, float o) {
     return mul(float2x2(cos(o), sin(o), -sin(o), cos(o)), v);
 }
