@@ -2,7 +2,7 @@ float sdScene(float3 p) {
     float dObstacle = ObstacleType ? 
         sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
-    float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(120., 0.1, 120.));
+    float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(2400., 0.1, 2400.));
     return min(dObstacle, dFloor);
 }
 
@@ -12,7 +12,7 @@ float3 sampleSceneColor(float3 p) {
     float dObstacle = ObstacleType ? 
         sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
-    float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(50., 0.1, 20.));
+    float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(2400., 0.1, 2400.));
 
     // #define COLOR_COUNT 3
     // const float3 cols[COLOR_COUNT] = {

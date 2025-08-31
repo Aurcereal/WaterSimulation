@@ -51,15 +51,6 @@ Shader "Unlit/CompositeIntoWater"
             sampler2D DensityTex;
             sampler2D FoamTex;
 
-            const float FovY;
-            const float Aspect;
-
-            const float3 CamRi;
-            const float3 CamUp;
-            const float3 CamFo;
-
-            const float3 CamPos;
-
             const int ScreenWidth;
             const int ScreenHeight;
 
@@ -91,6 +82,10 @@ Shader "Unlit/CompositeIntoWater"
             const float4x4 CausticCamVP;
             sampler2D DepthFromCausticCam;
             sampler2D NormalFromCausticCam;
+
+            #define MAXDIST 1000.0
+            #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
+            #include "../../Raymarched Rendering/Shaders/SDFScene.hlsl"
 
             float GetShadowOcclusion(float3 pos) {
                 if(!UseShadowMapping) return 1.;
@@ -129,10 +124,6 @@ Shader "Unlit/CompositeIntoWater"
             inline bool InvalidDepth(float depth) {
                 return depth >= 100000.0;
             }
-
-            #define MAXDIST 1000.0
-            #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
-            #include "../../Raymarched Rendering/Shaders/SDFScene.hlsl"
 
             samplerCUBE EnvironmentMap;
 

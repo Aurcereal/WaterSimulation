@@ -52,7 +52,17 @@ float3 shadeScene(float3 pos, float3 normal, float3 color, float3 rd) {
     float shadowOcclusion = 1.;
     #endif
 
-    return ambientCol + shadowOcclusion * diffuseCol * 0.7;
+    float3 solidCol = ambientCol + shadowOcclusion * diffuseCol * 0.7;
+
+    //
+    const float2 fogFalloff = float2(90., 0.015);
+    float dist = length(pos-CamPos);//dot(pos - CamPos, CamFo);
+    float fog = 1.-min(1., exp(-fogFalloff.y*(dist-fogFalloff.x)));
+    float3 skyCol = SampleSkybox(rd);
+
+    //
+    float3 finalCol = lerp(solidCol, skyCol, fog);
+    return finalCol;
 }
 
 float RayIntersectScene(float3 ro, float3 rd) {

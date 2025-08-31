@@ -491,7 +491,7 @@ Shader "Unlit/WaterRaymarch"
                     #endif
 
                     if(interType != INTERTYPE_WATER) {
-                        if(i==0) return 0.5*SampleEnvironment(hitPos, rd)/(interType == INTERTYPE_OBJECT ? 1.0 : LightMultiplier);
+                        if(i==0) return 0.5*SampleEnvironment(hitPos, rd);
 
                         #ifdef CAUSTICS
                         if(interType == INTERTYPE_OBJECT && i==1 && !firstFollowReflect) {
