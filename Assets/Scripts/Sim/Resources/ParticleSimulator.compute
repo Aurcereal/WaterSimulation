@@ -72,6 +72,7 @@ float3 DensityTextureSize;
 
 //
 const float DeltaTime;
+const float TimeSinceStart;
 
 //
 const float SqrSmoothingRadius;
@@ -95,8 +96,6 @@ const float BubbleGravityMultiplier;
 const float BubbleFluidConformingMultiplier;
 
 const float SprayAirDragMultiplier;
-
-const float TimeSinceStart;
 
 const bool SpawnFoam;
 

@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
   m_Name: CupEnv
   m_EditorClassIdentifier: 
-  particleCount: 50000
+  particleCount: 85197
   spawnWidth: 4.4
   spawnHeight: 50
   spawnDepth: 4.4
   spawnPosition:
-    x: 0
-    y: 27
+    x: 5
+    y: 39.08
     z: 0
   physicsCompileKeyword: CUP_ENV
   visualCompileKeyword: CUP_ENV

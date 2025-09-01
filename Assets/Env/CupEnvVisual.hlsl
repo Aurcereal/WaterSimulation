@@ -1,3 +1,5 @@
+const float TimeSinceStart;
+
 float sdCup(float3 p) {
     float yFac = clamp((p.y-(-4.))/8., 0.001, 1.);
     p.xz -= p.xz/4. * 1.25 * sqrt(yFac);
@@ -8,19 +10,24 @@ float sdCup(float3 p) {
     return min(bottom, washer)-0.1;
 }
 
+float sdPouringCup(float3 p) {
+    //
+    float t = frac(0.05*TimeSinceStart);
+    float pourFac = smoothstep(0.55, 0.8, t);
+
+    const float size = 1.75;
+    float3 cp = p - float3(4.,14.,0.);
+    cp = mul(rotZ(PI*.7*pourFac), cp);
+    return sdCup(cp/size)*size;
+}
+
 float sdScene(float3 p) {
     float dObstacle = ObstacleType ? 
         sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
     float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(2400., 0.1, 2400.));
 
-    //
-    float t = frac(0.1*_Time.y);
-    float pourFac = smoothstep(0.3, 0.8, t);
-
-    float3 cp = p - float3(7.,9.,0.);
-    cp = mul(rotZ(PI*.7*pourFac), cp);
-    float dCup = sdCup(cp);
+    float dCup = sdPouringCup(p);
 
     return min(dCup, min(dObstacle, dFloor));
 }
@@ -31,6 +38,8 @@ float3 sampleSceneColor(float3 p) {
         sdBox(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale) : 
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
     float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(2400., 0.1, 2400.));
+
+    float dCup = sdPouringCup(p);
 
     // #define COLOR_COUNT 3
     // const float3 cols[COLOR_COUNT] = {
@@ -48,8 +57,10 @@ float3 sampleSceneColor(float3 p) {
         float3(1.,.847,.745)
     };
 
-    if(dObstacle <= dFloor) {
+    if(dObstacle <= min(dFloor, dCup)) {
         return float3(0.5, 0.1, 0.1);
+    } else if(dCup <= dFloor) {
+        return float3(0.8, 0.5, 0.8);
     } else {
         // float2 cp = floor(p.xz*0.25);
         // float alt = step(abs(amod(cp.x + cp.y, 2.)-1.), 0.5);

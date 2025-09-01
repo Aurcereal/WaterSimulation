@@ -132,6 +132,7 @@ public class SimulationUniformer
     {
         GameManager.Ins.computeManager.particleSimulatorShader.SetFloat("DeltaTime", dt);
         GameManager.Ins.computeManager.particleSimulatorShader.SetFloat("TimeSinceStart", timeSinceStart);
+        Shader.SetGlobalFloat("TimeSinceStart", timeSinceStart); // For visual shaders..
     }
 
     public void UniformDensityTexture(RenderTexture tex, int3 size)
