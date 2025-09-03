@@ -10,11 +10,12 @@ float sdCup(float3 p) {
 
 float sdPouringCup(float3 p) {
     //
-    float t = frac(0.05*TimeSinceStart);
-    float pourFac = smoothstep(0.55, 0.8, t);
+    float t = frac(0.025*TimeSinceStart);
+    float pourFac = smoothstep(0.275, 0.4, t);
+    float leaveFac = smoothstep(0.44, 0.52, t);
 
     const float size = 1.75;
-    float3 cp = p - float3(4.,14.,0.);
+    float3 cp = p - float3(4.,14.+leaveFac*30.,0.);
     cp = mul(rotZ(PI*.7*pourFac), cp);
     return sdCup(cp/size)*size;
 }

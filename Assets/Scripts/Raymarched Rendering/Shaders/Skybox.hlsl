@@ -7,9 +7,9 @@ float2 rot(float2 v, float o) {
     return float2(cos(o), sin(o)) * v.x + float2(-sin(o), cos(o)) * v.y;
 }
 
-float2 perp(float2 v) {
-    return rot(v, PI*.5);
-}
+// float2 perp(float2 v) {
+//     return rot(v, PI*.5);
+// }
 
 float star(float2 p, float flare)  {
     flare *= 0.7;

@@ -1,25 +1,12 @@
 const float TimeSinceStart;
 
-float sdCup(float3 p) {
-    float yFac = clamp((p.y-(-4.))/8., 0.001, 1.);
-    p.xz -= p.xz/4. * 1.25 * sqrt(yFac);
-
-    float washer = sdWasher(p, float3(2.5, 8., 0.94));
-    float bottom = sdCylinder(p-float3(0.,-3.5,0.), float2(2.5, 1.));
-
-    return min(bottom, washer)-0.1;
-}
-
-float sdPouringCup(float3 p) {
+float sdFunnel(float3 p) {
     //
-    float t = frac(0.025*TimeSinceStart);
-    float pourFac = smoothstep(0.275, 0.4, t);
-    float leaveFac = smoothstep(0.44, 0.52, t);
+    float sphereAdd = sdCone(-(p - float3(0.,15.,0.)), float2(12., 6.));//length(p - float3(0., 10., 0.)) - 4.;
+    float sphereSub = sdCone(-(p - float3(0., 15.4, 0.)), float2(11.7, 6.));//length(p - float3(0., 12.5, 0.)) - 3.5;
+    float cylinderSub = sdCylinder(p, float2(1.2, 50.));
 
-    const float size = 1.75;
-    float3 cp = p - float3(4.,14.+leaveFac*30.,0.);
-    cp = mul(rotZ(PI*.7*pourFac), cp);
-    return sdCup(cp/size)*size;
+    return max(max(sphereAdd, -sphereSub), -cylinderSub);
 }
 
 float sdScene(float3 p) {
@@ -28,9 +15,9 @@ float sdScene(float3 p) {
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
     float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(2400., 0.1, 2400.));
 
-    float dCup = sdPouringCup(p);
+    float dFunnel = sdFunnel(p);
 
-    return min(dCup, min(dObstacle, dFloor));
+    return min(dFunnel, min(dObstacle, dFloor));
 }
 
 // Point -> Material (for now just color)
@@ -40,14 +27,7 @@ float3 sampleSceneColor(float3 p) {
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
     float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(2400., 0.1, 2400.));
 
-    float dCup = sdPouringCup(p);
-
-    // #define COLOR_COUNT 3
-    // const float3 cols[COLOR_COUNT] = {
-    //     float3(245.,157.,191.)/255.,
-    //     float3(238.,89.,121.)/255.,
-    //     float3(249.,154.,93.)/255.
-    // };
+    float dFunnel = sdFunnel(p);
 
     #define COLOR_COUNT 5
     const float3 cols[COLOR_COUNT] = {
@@ -58,9 +38,9 @@ float3 sampleSceneColor(float3 p) {
         float3(1.,.847,.745)
     };
 
-    if(dObstacle <= min(dFloor, dCup)) {
+    if(dObstacle <= min(dFloor, dFunnel)) {
         return float3(0.5, 0.1, 0.1);
-    } else if(dCup <= dFloor) {
+    } else if(dFunnel <= dFloor) {
         return 1.2;
     } else {
         // float2 cp = floor(p.xz*0.25);

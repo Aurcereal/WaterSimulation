@@ -19,6 +19,18 @@ float sdCylinder(float3 p, float2 dim) {
     return s + step(s, 0.) * max(lp.x, lp.y);
 }
 
+float sdCone(float3 p, float2 dim) {
+    float2 lp = float2(length(p.xz), p.y);
+
+    float2 br = float2(dim.x, -dim.y*.5);
+    float2 top = float2(0., dim.y*.5);
+    float2 outDir = -perp(normalize(br-top));
+    float dSlant = dot(lp - br, outDir);
+    float dBottom = -dim.y*.5 - lp.y;
+
+    return max(dSlant, dBottom);
+}
+
 float sdWasher(float3 p, float3 dim) { // dim = (r, height, cutFac)
     float2 lp = float2(length(p.xz), p.y);
     lp.y = abs(lp.y);

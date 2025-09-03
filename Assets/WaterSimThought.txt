@@ -48,6 +48,8 @@ THE FOAM ISNT DISAPPEARING FAST ENOUGH
 	Need a toggle for Foam, Caustics, Shadow Mapping/Occlusion, 3 Render Modes: (Balls, Raymarched, Screenspace)
 	Need a toggle for Springs, Stickiness
 
+Honey Funnel, Ketchup on burger maybe put on and then smashed (would have to be very little liquid to achieve sticking and also stick force would help ig), Water slide spiral, Attractor ball demo moves around on its own or smth
+
 -=Ignore/Done for now=-
 
 https://www.eecs.umich.edu/courses/eecs570/hw/parprefix.pdf

@@ -14,6 +14,10 @@ float3x3 rot2D(float o) {
     );
 }
 
+float2 perp(float2 v) {
+    return mul(float2x2(float2(0., 1.), float2(-1., 0.)), v);
+}
+
 float3x3 rotZ(float o) {
     return float3x3(
         float3(cos(o), sin(o), 0.),

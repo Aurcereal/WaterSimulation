@@ -1,18 +1,13 @@
 #pragma multi_compile SCENE_COLLISION __
 #pragma multi_compile BBX_COLLISION __
 #pragma multi_compile OBSTACLE_COLLISION __
-#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV CUP_ENV
+#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV CUP_ENV HONEY_ENV
 
 #pragma multi_compile SIMULATE_FOAM __
 #pragma multi_compile PRESSURE_FORCE __
 #pragma multi_compile VISCOSITY_FORCE __
 #pragma multi_compile STICK_FORCE __
 #pragma multi_compile SPRING_FORCE __
-// #define SIMULATE_FOAM
-// #define PRESSURE_FORCE
-// #define VISCOSITY_FORCE
-// #define STICK_FORCE
-// #define SPRING_FORCE
 
 #define THREADGROUPSIZE 256
 #define CUBETHREADGROUPSIZE 8
@@ -50,8 +45,10 @@ const float NearDensityPressureMultiplier;
 const float PressureMultiplier;
 
 const float ViscosityStrength;
-const float SpringForceMultiplier;
+
 const bool EnableParticleSprings;
+const float SpringForceMultiplier;
+const float SpringRestLenFac;
 
 const bool EnableStickForce;
 const float MaxStickDistance;
@@ -276,7 +273,7 @@ float3 CalculatePressureForceAndAirPotential(int i, out float airPotential)
 
                                 // Spring Force (turn to compile keyword)
                                 #ifdef SPRING_FORCE
-                                float restLen = SmoothingRadius*.5;
+                                float restLen = SmoothingRadius*SpringRestLenFac; // TODO: default is .5 make it exposed in behavior
 
                                 float forceMult = SpringForceMultiplier * (1. - dist*InvSmoothingRadius) * (restLen - dist);
                                 totalForce += forceMult * (-posDiffNormalize);
@@ -372,6 +369,8 @@ float3 sampleForceField(float3 p);
 #include "../../../Env/FallEnvPhysics.hlsl"
 #elif defined(CUP_ENV)
 #include "../../../Env/CupEnvPhysics.hlsl"
+#elif defined(HONEY_ENV)
+#include "../../../Env/HoneyEnvPhysics.hlsl"
 #endif
 
 float sdScene(float3 p) {

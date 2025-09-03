@@ -81,6 +81,7 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("PressureMultiplier", PressureMultiplier);
         particleSimulatorShader.SetFloat("ViscosityStrength", ViscosityStrength);
         particleSimulatorShader.SetFloat("SpringForceMultiplier", SpringForceMultiplier);
+        particleSimulatorShader.SetFloat("SpringRestLenFac", SpringRestLenFac);
         particleSimulatorShader.SetBool("EnableParticleSprings", EnableParticleSprings);
         particleSimulatorShader.SetBool("EnableStickForce", EnableStickForce);
         particleSimulatorShader.SetFloat("MaxStickDistance", MaxStickDistance);
