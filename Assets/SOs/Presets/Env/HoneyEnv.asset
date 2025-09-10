@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
   m_Name: HoneyEnv
   m_EditorClassIdentifier: 
-  particleCount: 85197
+  particleCount: 25000
   spawnWidth: 4.4
-  spawnHeight: 50
+  spawnHeight: 25
   spawnDepth: 4.4
   spawnPosition:
     x: 0
-    y: 39.08
+    y: 25
     z: 0
   physicsCompileKeyword: HONEY_ENV
   visualCompileKeyword: HONEY_ENV

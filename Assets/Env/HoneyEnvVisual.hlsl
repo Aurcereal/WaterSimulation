@@ -2,9 +2,10 @@ const float TimeSinceStart;
 
 float sdFunnel(float3 p) {
     //
-    float sphereAdd = sdCone(-(p - float3(0.,15.,0.)), float2(12., 6.));//length(p - float3(0., 10., 0.)) - 4.;
-    float sphereSub = sdCone(-(p - float3(0., 15.4, 0.)), float2(11.7, 6.));//length(p - float3(0., 12.5, 0.)) - 3.5;
-    float cylinderSub = sdCylinder(p, float2(1.2, 50.));
+    float sphereAdd = sdCone(-(p - float3(0.,0.,0.)), float2(24., 12.));
+    float sphereSub = sdCone(-(p - float3(0., 4.8, 0.)), float2(33.4, 20.));
+    
+    float cylinderSub = sdCylinder(p, float2(0.6, 50.));
 
     return max(max(sphereAdd, -sphereSub), -cylinderSub);
 }
@@ -15,7 +16,7 @@ float sdScene(float3 p) {
         sdSphere(ObstacleScale * mul(ObstacleInverseTransform, float4(p, 1.)).xyz, ObstacleScale.x);
     float dFloor = sdBox(p - float3(0., -1.5, 0.), float3(2400., 0.1, 2400.));
 
-    float dFunnel = sdFunnel(p);
+    float dFunnel = sdFunnel(p - float3(0.,14.,0.));
 
     return min(dFunnel, min(dObstacle, dFloor));
 }

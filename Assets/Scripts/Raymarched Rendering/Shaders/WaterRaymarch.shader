@@ -439,14 +439,18 @@ Shader "Unlit/WaterRaymarch"
                 return SampleDensity(pos) >= WaterExistenceThreshold;
             }
 
+            //#define SDF_SHADOWS // Make feature
+
             float GetShadowOcclusion(float3 pos) {
                 if(!UseShadows) return 1.;
 
                 pos += normal(pos)*0.07;
 
                 // Occluded by object
+                #ifdef SDF_SHADOWS
                 float objDist = RayIntersectScene(pos, -LightDir);
                 if(objDist < MAXDIST-0.001) return 0.;
+                #endif
 
                 // Get to the liquid
                 if(!IsInsideLiquid(pos)) {
@@ -455,6 +459,7 @@ Shader "Unlit/WaterRaymarch"
                     pos += waterInter.x * (-LightDir);
                 }
 
+                // TODO: can edit shadow extinction coefficients (scalar is fine but vec y not)
                 float densAlongRay = RayIntersectWater(pos, -LightDir, MAXDIST, true);
                 float transmittance = exp(-1. * ExtinctionCoefficients * densAlongRay);
 
