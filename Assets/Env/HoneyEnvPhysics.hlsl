@@ -3,7 +3,7 @@ float sdFunnel(float3 p) {
     float sphereAdd = sdCone(-(p - float3(0.,0.,0.)), float2(24., 12.));
     float sphereSub = sdCone(-(p - float3(0., 4.8, 0.)), float2(33.4, 20.));
     
-    float cylinderSub = sdCylinder(p, float2(0.6, 50.));
+    float cylinderSub = sdCylinder(p, float2(1.0, 50.));
 
     return max(max(sphereAdd, -sphereSub), -cylinderSub);
 }
@@ -21,7 +21,7 @@ float sdEnv(float3 p) {
 float3 sampleForceField(float3 p) {
     float3 groundVec = float3(p.x,0.,p.z);
 
-    float3 inward = -20.*groundVec;
+    float3 inward = -40.*groundVec;
 
     return inward;
 }

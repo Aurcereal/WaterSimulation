@@ -22,14 +22,14 @@ Shader "Unlit/WaterRaymarch"
             #pragma multi_compile CAUSTICS __
             #pragma multi_compile SHADOWS __
 
-            #pragma editor_sync_compilation
+            //#pragma editor_sync_compilation
             #pragma vertex vert
 			#pragma fragment frag
 			#pragma target 4.5
 
             #include "../../../Scripts/Sim/Resources/MathHelper.hlsl"
             #include "../../../Scripts/Sim/Resources/RaytraceMath.hlsl"
-            #include "./Skybox.hlsl"
+            //#include "./Skybox.hlsl"
 
             #define PI 3.141592
 
