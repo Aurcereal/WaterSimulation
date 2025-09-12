@@ -25,5 +25,5 @@ MonoBehaviour:
   waterExistenceEps: 0.02
   nextRayOffset: 0.01
   densityCacheStepSize: 0.25
-  densityCacheSampleCount: 128
+  densityCacheSampleCount: 200
   useDensityStepSize: 0
