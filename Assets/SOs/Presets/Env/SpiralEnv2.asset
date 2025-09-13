@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
-  m_Name: SpiralEnv
+  m_Name: SpiralEnv2
   m_EditorClassIdentifier: 
   particleCount: 44915
-  spawnWidth: 1.7
-  spawnHeight: 5
+  spawnWidth: 2
+  spawnHeight: 7
   spawnDepth: 4
   spawnPosition:
     x: 18.8
-    y: 24.5
+    y: 25.5
     z: 0
   physicsCompileKeyword: SPIRAL_ENV
   visualCompileKeyword: SPIRAL_ENV

@@ -21,9 +21,9 @@ float3 spiralify(float3 p, float sampleZLen, float sampleXLen, float spiralOffse
 }
 
 float sdSpiraledScene(float3 p) {
-    const float width = 1.4;
+    const float width = 1.2-.2*smoothstep(25.6-30.-1.8,24.-30.-1.8,p.x);
     const float height = .15;
-    const float2 railDim = float2(.15,9.35);
+    const float2 railDim = float2(.15,19.35);
 
     p.zy = rot2D(p.zy, 0.25);
     p.z = abs(p.z);
@@ -70,7 +70,7 @@ float sdFloor(float3 p) {
 }
 
 float sdEnv(float3 p) {
-    float dFloor = sdFloor(p);
+    float dFloor = 1000.+sdFloor(p);
     float dBound = 1000.;//-sdBox(p, float3(25., 250., 9.));
 
     float dSpiral = sdSpiral(p);
@@ -78,7 +78,7 @@ float sdEnv(float3 p) {
     return min(dSpiral, min(dFloor, dBound));
 }
 
-//#define FORCE_FIELD
+// #define FORCE_FIELD
 float3 sampleForceField(float3 p) {
     float3 groundVec = float3(p.x,0.,p.z);
     float groundR = length(p.xz);

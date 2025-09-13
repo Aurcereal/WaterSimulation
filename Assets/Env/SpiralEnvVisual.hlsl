@@ -15,8 +15,8 @@ float3 spiralify(float3 p, float sampleZLen, float sampleXLen, float spiralOffse
     
     float3 samp = float3(xSample, ySample, zSample);
     
-    lowSample = float3(xSample-sampleXLen, ySample-spiralHeight, zSample);
-    highSample = float3(xSample+sampleXLen, ySample+spiralHeight, zSample); 
+    lowSample = float3(xSample-sampleXLen, ySample+spiralHeight, zSample);
+    highSample = float3(xSample+sampleXLen, ySample-spiralHeight, zSample); 
     
     bbxDist = spiralHeight*.505-abs(lp.y-spiralHeight*.5);
     
@@ -24,7 +24,7 @@ float3 spiralify(float3 p, float sampleZLen, float sampleXLen, float spiralOffse
 }
 
 float sdSpiraledScene(float3 p) {
-    const float width = 1.4;
+    const float width = 1.2-.2*smoothstep(25.6-30.-1.8,24.-30.-1.8,p.x);
     const float height = .15;
     const float2 railDim = float2(.15,.35);
 
