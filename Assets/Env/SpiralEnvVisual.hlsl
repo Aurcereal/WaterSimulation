@@ -1,4 +1,5 @@
 const float TimeSinceStart;
+const float DebugFloat;
 
 float3 spiralify(float3 p, float sampleZLen, float sampleXLen, float spiralOffset, float spiralThickness, float spiralHeight, out float3 lowSample, out float3 highSample, out float bbxDist) {
     
@@ -23,14 +24,29 @@ float3 spiralify(float3 p, float sampleZLen, float sampleXLen, float spiralOffse
 }
 
 float sdSpiraledScene(float3 p) {
-    const float width = 2.8;
+    const float width = 1.4;
     const float height = .15;
     const float2 railDim = float2(.15,.35);
 
+    p.zy = rot2D(p.zy, 0.25);
     p.z = abs(p.z);
     return min(
-        sdBox(p, float3(60.,height,width)),
-        sdBox(p-float3(0.,height*.5+railDim.y*.5, width*.5-railDim.x*.5), float3(60.,railDim.y,railDim.x))
+        sdBox(p, float3(22.42,height,width)),
+        sdBox(p-float3(0.,height*.5+railDim.y*.5, width*.5-railDim.x*.5), float3(22.42,railDim.y,railDim.x))
+        )-.03;
+}
+
+float sdEndRail(float3 p) {
+    return 1000.;
+    const float width = 1.4;
+    const float height = .15;
+    const float2 railDim = float2(.15,.35);
+
+    p.zy = rot2D(p.zy, smoothstep(-15., 9., p.x) * 0.25);
+    p.z = abs(p.z);
+    return min(
+        sdBox(p, float3(22.42,height,width)),
+        sdBox(p-float3(0.,height*.5+railDim.y*.5, width*.5-railDim.x*.5), float3(22.42,railDim.y,railDim.x))
         )-.03;
 }
 
@@ -39,16 +55,21 @@ float sdSpiral(float3 p)
     float sca = 4.;
     p /= sca;
 
-    //return sdSpiraledScene(p);
+    const float spiralOffset = 1.;
+    const float spiralThickness = 8.;
+    const float spiralHeight = 5.;
     float3 lowSample, highSample;
     float bbxDist;
-    p = spiralify(p, 4., 5., 1., 8., 4., lowSample, highSample, bbxDist);
+    float3 sp = spiralify(p-float3(0.,spiralHeight*2.,0.), 4., 5., spiralOffset, spiralThickness, spiralHeight, lowSample, highSample, bbxDist);
 
-    return sca*0.75*min(min(bbxDist, sdSpiraledScene(p)), min(sdSpiraledScene(lowSample), sdSpiraledScene(highSample)));
+    float spiralD = 0.75*min(min(bbxDist, sdSpiraledScene(sp)), min(sdSpiraledScene(lowSample), sdSpiraledScene(highSample)));
+    float endD = sdEndRail((p-float3(-11., -spiralHeight*.25, -spiralOffset-spiralThickness*.5))*float3(1.,1.,-1.));
+
+    return sca*smin(spiralD, endD, 0.01);
 }
 
 float sdFloor(float3 p) {
-    return sdBox(p - float3(0., -10.5, 0.), float3(2400., 0.1, 2400.));
+    return sdBox(p - float3(0., -100.5, 0.), float3(2400., 0.1, 2400.));
 }
 
 float sdScene(float3 p) {

@@ -126,6 +126,8 @@ public class SimulationParameters : MonoBehaviour
     public static bool OverrideEnableBoundingBoxCollision => Ins.overrideEnableBoundingBoxCollision;
     public static bool OverrideEnableObstacleCollision => Ins.overrideEnableObstacleCollision;
 
+    public static float DebugFloat => Ins.debugFloat;
+
     public enum VisualMode
     {
         DebugSpheres,
@@ -179,6 +181,9 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Advanced")]
     [SerializeField] float particleRadius = 0.05f;
+
+    [Header("Debug")]
+    [SerializeField] float debugFloat = 0f;
 
     private static SimulationParameters Ins;
     void Awake()

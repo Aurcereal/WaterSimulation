@@ -195,10 +195,10 @@ MonoBehaviour:
   screenspaceCausticsVisualPreset: {fileID: 11400000, guid: 2ed613bf1af146a4289d5d054b88ea96, type: 2}
   screenspaceFoamVisualPreset: {fileID: 11400000, guid: caf7c48ae67b71143a1445771f1e7805, type: 2}
   screenspaceVisualPreset: {fileID: 11400000, guid: 39a5b0fe92124b74ea6ff6a6c523ad56, type: 2}
-  fluidBehaviorPreset: {fileID: 11400000, guid: 81fea19b91645584694014d6848029e1, type: 2}
+  fluidBehaviorPreset: {fileID: 11400000, guid: b01bbb882175bd24d9131e3c457f9b97, type: 2}
   foamBehaviorPreset: {fileID: 11400000, guid: da21c338ef2455947a9bd4154d99ee0f, type: 2}
   enableSceneCollision: 1
-  envPreset: {fileID: 11400000, guid: 0488800d5c1005f4393a507b36efc16b, type: 2}
+  envPreset: {fileID: 11400000, guid: 6a080d896038d1a4d934e4ea90a5b296, type: 2}
   overrideEnvPreset: 1
   overrideEnableBoundingBoxCollision: 0
   overrideEnableObstacleCollision: 1
@@ -217,6 +217,7 @@ MonoBehaviour:
     y: 0.05
   cameraZoomSpeed: 1
   particleRadius: 0.305
+  debugFloat: 0
 --- !u!114 &91362119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -594,7 +595,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1857617104}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.1, y: -10, z: 0}
+  m_LocalPosition: {x: 4.1, y: -50, z: 0}
   m_LocalScale: {x: 3.74, y: 7.02, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

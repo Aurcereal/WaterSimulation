@@ -81,6 +81,9 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat.SetFloat("SunMultiplier", SunMultiplier);
 
         //
+        waterRaymarchMat.SetFloat("DebugFloat", DebugFloat);
+
+        //
         if (billboardFoamFeature != UseBillboardFoam) waterRaymarchMat.SetKeywordActive("BILLBOARD_FOAM", UseBillboardFoam);
         if (raymarchFoamFeature != UseRaymarchedFoam) waterRaymarchMat.SetKeywordActive("RAYMARCHED_FOAM", UseBillboardFoam);
         if (causticsFeature != UseCaustics) waterRaymarchMat.SetKeywordActive("CAUSTICS", UseCaustics);

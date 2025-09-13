@@ -126,6 +126,9 @@ public class ScreenSpaceWaterManager
         GameManager.Ins.simFoamManager.UniformParameters();
 
         //
+        compositeIntoWater.SetFloat("DebugFloat", DebugFloat);
+
+        //
         if (UseBillboardFoam != billboardFoamFeature) compositeIntoWater.SetKeywordActive("BILLBOARD_FOAM", UseBillboardFoam);
         if (UseCaustics != causticsFeature) compositeIntoWater.SetKeywordActive("CAUSTICS", UseCaustics);
         if (shadowsFeature != UseShadows) compositeIntoWater.SetKeywordActive("SHADOWS", UseShadows);
