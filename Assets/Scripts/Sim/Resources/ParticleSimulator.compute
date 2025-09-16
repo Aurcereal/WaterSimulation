@@ -1,7 +1,7 @@
 #pragma multi_compile SCENE_COLLISION __
 #pragma multi_compile BBX_COLLISION __
 #pragma multi_compile OBSTACLE_COLLISION __
-#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV CUP_ENV HONEY_ENV SPIRAL_ENV GRAB_ENV
+#pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV CUP_ENV HONEY_ENV SPIRAL_ENV CARTOONBOX_ENV
 
 #pragma multi_compile SIMULATE_FOAM __
 #pragma multi_compile PRESSURE_FORCE __
@@ -101,6 +101,11 @@ const float ParticleLowColorSpeed;
 const float ParticleHighColorSpeed;
 const float4 ParticleLowSpeedColor;
 const float4 ParticleHighSpeedColor;
+
+// Debug Variables
+const float DebugFloat;
+const float4 DebugVector;
+const bool DebugBool;
 
 //
 #include "./MathHelper.hlsl"
@@ -373,8 +378,8 @@ float3 sampleForceField(float3 p);
 #include "../../../Env/HoneyEnvPhysics.hlsl"
 #elif defined(SPIRAL_ENV)
 #include "../../../Env/SpiralEnvPhysics.hlsl"
-#elif defined(GRAB_ENV)
-#include "../../../Env/GrabEnvPhysics.hlsl"
+#elif defined(CARTOONBOX_ENV)
+#include "../../../Env/CartoonBoxEnvPhysics.hlsl"
 #endif
 
 float sdScene(float3 p) {

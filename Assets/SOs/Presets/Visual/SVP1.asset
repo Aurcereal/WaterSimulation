@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8a2ed72cd157984baf2ad4c21475d26, type: 3}
-  m_Name: FluidScreenspaceVisualPreset4
+  m_Name: SVP1
   m_EditorClassIdentifier: 
-  screenSpaceDensityMultiplier: 0.15
+  screenSpaceDensityMultiplier: 0.5
   screenSpaceExtinctionCoefficients:
-    x: 10.49
-    y: 1
-    z: 0.5
+    x: 5
+    y: 2
+    z: 1
   screenSpaceLightMultiplier: 1.4
   indexOfRefraction: 1.33
   shadowMapResolution: 100
-  depthWorldBlurRadius: 144
-  depthBlurBilteralFalloff: 0.5
-  depthBlurIterationCount: 4
+  depthWorldBlurRadius: 180
+  depthBlurBilteralFalloff: 1
+  depthBlurIterationCount: 2
   depthDifferenceCutoffForNormals: 0.5

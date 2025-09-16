@@ -129,6 +129,7 @@ public class SimulationParameters : MonoBehaviour
 
     public static float DebugFloat => Ins.debugFloat;
     public static Vector4 DebugVector => Ins.debugVector;
+    public static bool DebugBool => Ins.debugBool;
 
     public enum VisualMode
     {
@@ -187,6 +188,7 @@ public class SimulationParameters : MonoBehaviour
     [Header("Debug")]
     [SerializeField] float debugFloat = 0f;
     [SerializeField] Vector4 debugVector = Vector4.zero;
+    [SerializeField] bool debugBool = false;
 
     private static SimulationParameters Ins;
     void Awake()

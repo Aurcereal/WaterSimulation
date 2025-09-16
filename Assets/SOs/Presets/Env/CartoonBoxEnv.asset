@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
-  m_Name: GrabEnv
+  m_Name: CartoonBoxEnv
   m_EditorClassIdentifier: 
-  particleCount: 157289
+  particleCount: 79155
   spawnWidth: 1.7
   spawnHeight: 5
   spawnDepth: 4
@@ -20,8 +20,8 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  physicsCompileKeyword: GRAB_ENV
-  visualCompileKeyword: GRAB_ENV
+  physicsCompileKeyword: CARTOONBOX_ENV
+  visualCompileKeyword: CARTOONBOX_ENV
   enableObjectInteraction: 1
   enableBoundingBoxInteraction: 0
   sunRadius: 0.1

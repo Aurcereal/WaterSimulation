@@ -181,12 +181,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentVisualMode: 1
+  currentVisualMode: 2
   useRaymarchedFoamInRaymarchedWater: 1
   useBillboardFoam: 1
-  useShadows: 1
-  useCaustics: 1
-  simulateFoam: 1
+  useShadows: 0
+  useCaustics: 0
+  simulateFoam: 0
   debugVisualPreset: {fileID: 11400000, guid: eb008d68815564749b81afebaf3b0d34, type: 2}
   environmentPreset: {fileID: 11400000, guid: fe4c1ec08d2d15b4ba84877c504e4112, type: 2}
   raymarchCausticsVisualPreset: {fileID: 11400000, guid: 353b4016634002b47a26e942dbea8bb0, type: 2}
@@ -194,13 +194,13 @@ MonoBehaviour:
   raymarchVisualPreset: {fileID: 11400000, guid: ba8c161c2bbdf9f4e881996b81bdd8f8, type: 2}
   screenspaceCausticsVisualPreset: {fileID: 11400000, guid: 2ed613bf1af146a4289d5d054b88ea96, type: 2}
   screenspaceFoamVisualPreset: {fileID: 11400000, guid: caf7c48ae67b71143a1445771f1e7805, type: 2}
-  screenspaceVisualPreset: {fileID: 11400000, guid: f0062a96cdd28eb409d5130c2ac40515, type: 2}
-  fluidBehaviorPreset: {fileID: 11400000, guid: 5848d942ab820764198a99092966c287, type: 2}
+  screenspaceVisualPreset: {fileID: 11400000, guid: c6d590702595f1a4cb977e2d9bd821b9, type: 2}
+  fluidBehaviorPreset: {fileID: 11400000, guid: 2568ce356c29f0e4cab5eb813baca71f, type: 2}
   foamBehaviorPreset: {fileID: 11400000, guid: da21c338ef2455947a9bd4154d99ee0f, type: 2}
   enableSceneCollision: 1
-  envPreset: {fileID: 11400000, guid: 28cbedd4450d76f4e86cbfd7a8fab466, type: 2}
+  envPreset: {fileID: 11400000, guid: dabee1b0023d45744b4bdc440466c986, type: 2}
   overrideEnvPreset: 1
-  overrideEnableBoundingBoxCollision: 1
+  overrideEnableBoundingBoxCollision: 0
   overrideEnableObstacleCollision: 1
   obstacleTransform: {fileID: 1857617105}
   containerTransform: {fileID: 2036646829}

@@ -16,7 +16,7 @@ Shader "Unlit/WaterRaymarch"
         Pass
         {
             CGPROGRAM
-            #pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV CUP_ENV HONEY_ENV SPIRAL_ENV GRAB_ENV
+            #pragma multi_compile CHECKERFLOOR_ENV EMPTY_ENV FOUNTAIN_ENV FALL_ENV CUP_ENV HONEY_ENV SPIRAL_ENV CARTOONBOX_ENV
             #pragma multi_compile BILLBOARD_FOAM __
             #pragma multi_compile RAYMARCHED_FOAM __
             #pragma multi_compile CAUSTICS __

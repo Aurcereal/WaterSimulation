@@ -28,8 +28,8 @@ const float3 CamPos;
 #include "../../../Env/HoneyEnvVisual.hlsl"
 #elif defined(SPIRAL_ENV)
 #include "../../../Env/SpiralEnvVisual.hlsl"
-#elif defined(GRAB_ENV)
-#include "../../../Env/GrabEnvVisual.hlsl"
+#elif defined(CARTOONBOX_ENV)
+#include "../../../Env/CartoonBoxEnvVisual.hlsl"
 #endif
 
 float GetShadowOcclusion(float3 pos);

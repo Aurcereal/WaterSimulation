@@ -112,6 +112,11 @@ public class SimulationUniformer
         particleSimulatorShader.SetVector("ParticleLowSpeedColor", ParticleLowSpeedColor);
         particleSimulatorShader.SetVector("ParticleHighSpeedColor", ParticleHighSpeedColor);
 
+        particleSimulatorShader.SetFloat("DebugFloat", DebugFloat);
+        particleSimulatorShader.SetVector("DebugVector", DebugVector);
+        particleSimulatorShader.SetBool("DebugBool", DebugBool);
+
+
         //
         if (EnableSceneCollision != sceneCollisionFeature) particleSimulatorShader.SetKeywordActive("SCENE_COLLISION", EnableSceneCollision);
         if (SimulateFoam != simulateFoamFeature) particleSimulatorShader.SetKeywordActive("SIMULATE_FOAM", SimulateFoam);
