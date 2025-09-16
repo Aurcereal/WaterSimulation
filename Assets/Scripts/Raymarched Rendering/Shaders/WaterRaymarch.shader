@@ -96,6 +96,9 @@ Shader "Unlit/WaterRaymarch"
             //
             const float3 LightDir;
 
+            const float DebugFloat;
+            const float4 DebugVector;
+
             float SampleDensity(float3 p) {
                 float3 lp = mul(ContainerInverseTransform, float4(p, 1.0));
                 
@@ -512,7 +515,7 @@ Shader "Unlit/WaterRaymarch"
 
                                 float3 waterExitPos = floorPoint + float3(0.,causticWaterInter.x, 0.);
                                 float3 waterExitNormal = CalculateWaterNormal(waterExitPos, .3);
-                                float3 transmittanceToWaterExit = exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * max(1.8, causticWaterInter.y) * 3.);
+                                float3 transmittanceToWaterExit = exp(-.715*ExtinctionCoefficients * float3(1.1, 1.1, 1.) * max(1.8, causticWaterInter.y) * 3.);
 
                                 float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, IndexOfRefraction);
                                 float sunAlignment = max(causticRefractRay.y, 0.);
@@ -523,7 +526,7 @@ Shader "Unlit/WaterRaymarch"
                                 float minDist = max(0., min(dist2D.x, dist2D.y));
                                 float causticsBorderFadeout = smoothstep(0.2, .8, minDist);
 
-                                li += causticsBorderFadeout * transmittance * transmittanceToWaterExit * exp(-ExtinctionCoefficients * float3(1.35, 1.1, 1.) * 1.4) * ( 
+                                li += 5.*causticsBorderFadeout * transmittance * transmittanceToWaterExit * exp(-ExtinctionCoefficients * float3(1.1, 1.1, 1.) * 1.4) * ( 
                                     smoothstep(0.97, 1.0, pow(sunAlignment, 4.)) +
                                     smoothstep(0.98, 1.0, pow(sunAlignment, 8.)) +
                                     smoothstep(0.992, 1.0, pow(sunAlignment, 16.))

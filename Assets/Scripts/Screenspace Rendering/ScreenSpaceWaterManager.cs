@@ -127,6 +127,7 @@ public class ScreenSpaceWaterManager
 
         //
         compositeIntoWater.SetFloat("DebugFloat", DebugFloat);
+        compositeIntoWater.SetVector("DebugVector", DebugVector);
 
         //
         if (UseBillboardFoam != billboardFoamFeature) compositeIntoWater.SetKeywordActive("BILLBOARD_FOAM", UseBillboardFoam);

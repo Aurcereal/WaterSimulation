@@ -48,30 +48,6 @@ float3 sampleSceneColor(float3 p) {
     } else {
         float2 ccp = floor(p.xz*0.125);
         float alt = step(abs(amod(ccp.x + ccp.y, 2.)-1.), 0.5);
-
-        // const float repLenR = 4.;
-        // const float repCountTheta = 4.;
-
-        // float2 cp = p.xz;
-        // float2 polar = toPolar(cp);
-        // polar.y += lerp(0.25, 0.5, (sin(0.015*_Time.y)*.5+.5))*polar.x;
-
-        // float lr = fmod(polar.x, repLenR);
-        // float rID = polar.x-lr+0.001;
-
-        // polar.y += rID*13.249;
-        // polar.y = amod(polar.y, TAU);
-        // float ltheta = fmod(polar.y, TAU/repCountTheta);
-        // float thetaID = polar.y-ltheta+0.1;
-
-        // float rand = hash21(float2(rID, thetaID));
-        // rand *= COLOR_COUNT;
-
-        // float3 accumCol = 0.;
-        // for(int i=0; i<COLOR_COUNT; i++) {
-        //     accumCol += cols[i] * step(rand, 1.*(i+1)) * step(1.*i, rand);
-        // }
-
-        return 1.2-alt*.2;//accumCol;//lerp(accumCol, 1., 0.2);
+        return 1.2-alt*.2;
     }
 }

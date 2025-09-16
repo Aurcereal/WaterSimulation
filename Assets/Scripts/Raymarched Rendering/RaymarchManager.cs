@@ -82,6 +82,7 @@ public class RaymarchManager : MonoBehaviour
 
         //
         waterRaymarchMat.SetFloat("DebugFloat", DebugFloat);
+        waterRaymarchMat.SetVector("DebugVector", DebugVector);
 
         //
         if (billboardFoamFeature != UseBillboardFoam) waterRaymarchMat.SetKeywordActive("BILLBOARD_FOAM", UseBillboardFoam);

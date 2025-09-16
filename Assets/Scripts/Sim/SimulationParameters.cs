@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 using static Unity.Mathematics.math;
@@ -127,6 +128,7 @@ public class SimulationParameters : MonoBehaviour
     public static bool OverrideEnableObstacleCollision => Ins.overrideEnableObstacleCollision;
 
     public static float DebugFloat => Ins.debugFloat;
+    public static Vector4 DebugVector => Ins.debugVector;
 
     public enum VisualMode
     {
@@ -184,6 +186,7 @@ public class SimulationParameters : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] float debugFloat = 0f;
+    [SerializeField] Vector4 debugVector = Vector4.zero;
 
     private static SimulationParameters Ins;
     void Awake()
