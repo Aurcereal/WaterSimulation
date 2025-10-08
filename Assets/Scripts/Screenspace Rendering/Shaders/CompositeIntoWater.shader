@@ -57,8 +57,14 @@ Shader "Unlit/CompositeIntoWater"
             //
             const float DensityMultiplier;
             const float LightMultiplier;
+            const float SkyboxLightMultiplier;
             const float3 ExtinctionCoefficients;
             const float IndexOfRefraction;
+
+            //
+            const float4x4 ContainerInverseTransform;
+            const float4x4 ContainerTransform;
+            const float3 ContainerScale;
 
             //
             const float3 LightDir;
@@ -101,7 +107,7 @@ Shader "Unlit/CompositeIntoWater"
 
                 //
                 float densityAlongSunRay = tex2D(DensityFromSunTex, uv).r;
-                float transmittance = exp(-0.05 * densityAlongSunRay * ExtinctionCoefficients);
+                float transmittance = exp(-0.05*0.2 * densityAlongSunRay * ExtinctionCoefficients);
 
                 return transmittance;
             }
@@ -132,7 +138,7 @@ Shader "Unlit/CompositeIntoWater"
             }
 
             float3 SampleCameraSkybox(float3 rd) {
-                return texCUBE(EnvironmentMap, rd).rgb;// + SampleSun(rd);
+                return SkyboxLightMultiplier*texCUBE(EnvironmentMap, rd).rgb;// + SampleSun(rd);
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)
@@ -198,7 +204,7 @@ Shader "Unlit/CompositeIntoWater"
                 float3 reflectExitPoint = pos + norm*0.0005;
                 float3 reflectLo = SampleEnvironment(reflectExitPoint, reflectRay); // Env is Scene and Skybox
 
-                float distFromWaterToEnd = 6.*densityAlongRd;
+                float distFromWaterToEnd = 30.*densityAlongRd;
                 float distFromWaterToSDF = RayIntersectScene(pos, refractRay);
                 
                 densAlongRefract = AccountForSDFInDensityAlongRay(densAlongRefract, distFromWaterToSDF, distFromWaterToEnd);
@@ -227,14 +233,20 @@ Shader "Unlit/CompositeIntoWater"
                         float3 waterExitPosition = float3(floorPoint.x, waterExitY, floorPoint.z);
                         float3 waterExitNormal = tex2D(NormalFromCausticCam, causticUV).xyz;
 
+                        // Caustic Fadeout
+                        float3 lp = ContainerScale * mul(ContainerInverseTransform, float4(floorPoint, 1.)).xyz;
+                        float2 dist2D = ContainerScale.xz*.5 - abs(lp.xz);
+                        float minDist = max(0., min(dist2D.x, dist2D.y));
+                        float causticsBorderFadeout = smoothstep(0.2, .8, minDist);
+
                         float3 causticRefractRay = Refract(float3(0.,-1.,0.), -waterExitNormal, IndexOfRefraction);
                         float causticRefractSceneDist = RayIntersectScene(waterExitPosition, causticRefractRay);
                         if(causticRefractSceneDist >= MAXDIST) {
                             //return waterExitNormal*.5+.5;
-                            causticLo = transmittanceToWaterExit * exp(-ExtinctionCoefficients * 1.5) *( // * .2 instead of exp
-                                smoothstep(0.987, 1.0, pow(causticRefractRay.y, 16.)) +
-                                smoothstep(0.997, 1.0, pow(causticRefractRay.y, 32.)) +
-                                smoothstep(0.9979, 1.0, pow(causticRefractRay.y, 64.))
+                            causticLo = causticsBorderFadeout*transmittanceToWaterExit * refractTransmittance * exp(-ExtinctionCoefficients * 1.5) *.2*( // * .2 instead of exp
+                                smoothstep(0.967, 1.0, pow(causticRefractRay.y, 16.)) +
+                                smoothstep(0.977, 1.0, pow(causticRefractRay.y, 32.)) +
+                                smoothstep(0.9549, 1.0, pow(causticRefractRay.y, 64.))
                             );
                         }
                     }

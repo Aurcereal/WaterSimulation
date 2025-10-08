@@ -77,6 +77,7 @@ const float InvSmoothingRadius;
 
 //
 const float FoamScaleMultiplier;
+const float FoamSpawnMultiplier;
 
 const float TrappedAirPotentialRemapLow;
 const float TrappedAirPotentialRemapHigh;
@@ -502,7 +503,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float numSpawn = dt * spawnRate * spawnRate;
     float spd = length(vel);
     float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
-    if(spd > 0. && dScene > 0.25) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
+    if(spd > 0. && dScene > 0.25) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier * FoamSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
     // dScene > 0.25 is to prevent foam spawning on edges, it's a bandaid fix for reflecting particles causing weird foam spawning patterns on bound edges
     #endif
 

@@ -4,12 +4,12 @@ float sdFloor(float3 p) {
 
 float sdEnv(float3 p) {
     float extraHeight = 0.;// 20.; // 0. for normal cartoon (use .8 sphere)
-    float dBound = -sdBox(p-float3(0.,extraHeight*.5,0.), float3(22., 8.+extraHeight, 8.));
+    float dBound = -sdBox(p-float3(0.,extraHeight*.5-1.,0.), float3(22., 8.+extraHeight, 8.));
 
-    return dBound;
+    return dBound+100.;
 }
 
-//#define FORCE_FIELD
+#define FORCE_FIELD
 float3 sampleForceField(float3 p) {
     float dObstacle = sdObstacle(p);
     float3 norm = normal(p);

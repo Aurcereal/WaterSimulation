@@ -38,6 +38,7 @@ public class RaymarchManager : MonoBehaviour
         //
         waterRaymarchMat.SetFloat("DensityMultiplier", RaymarchDensityMultiplier);
         waterRaymarchMat.SetFloat("LightMultiplier", RaymarchLightMultiplier);
+        waterRaymarchMat.SetFloat("SkyboxLightMultiplier", SkyboxLightMultiplier);
         waterRaymarchMat.SetVector("ExtinctionCoefficients", (Vector3)RaymarchExtinctionCoefficients);
         waterRaymarchMat.SetFloat("IndexOfRefraction", RaymarchIndexOfRefraction);
         waterRaymarchMat.SetVector("LightDir", (Vector3)LightDir);
@@ -100,9 +101,9 @@ public class RaymarchManager : MonoBehaviour
 
     public void UpdateContainerData()
     {
-        waterRaymarchMat.SetMatrix("ContainerTransform", ContainerTransform);
-        waterRaymarchMat.SetMatrix("ContainerInverseTransform", ContainerInverseTransform);
-        waterRaymarchMat.SetVector("ContainerScale", (Vector3)ContainerScale);
+        Shader.SetGlobalMatrix("ContainerTransform", ContainerTransform);
+        Shader.SetGlobalMatrix("ContainerInverseTransform", ContainerInverseTransform);
+        Shader.SetGlobalVector("ContainerScale", (Vector3)ContainerScale);
     }
 
     public void UpdateObstacleData()

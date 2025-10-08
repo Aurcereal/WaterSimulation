@@ -13,7 +13,7 @@ write about optimizations to run in realtime
 
 Seb Lague Vid
 
-THE FOAM ISNT DISAPPEARING FAST ENOUGH
+Would be good to render SDF depth before rendering screenspace density so fluid behind SDF object doesn't contribute to density, this is particularly bad on the spiral slide environment
 
 - Maybe group water particle into struct with position and velocity
 - Group density and neardensity as a float2 (less reads and writes)
@@ -103,3 +103,81 @@ Talk about bitonic sort and if you do prefix sum on gpu cuz these are like gpu p
 Implemented bitonic sort and count sort on GPU O(lgn) for count sort and like O(lg^2n) for bitonic
 
 emphasize all the optimization effort
+
+-=-=-=-
+(MAKE THE IMPORTANT TERMS BOLD SO AT A GLANCE U SEE ALL THE FEATURES, DONT BOLD OTO MUCH CUZ tHAT DESTROYS PURPOSE)
+normalize terms like water vs fluid and raymarching vs ray marching etc
+During the summer of 2025, I made a realtime fluid simulation and renderer in Unity.  The features include
+
+	- Particle-Based Fluid Simulation based on Smoothed Particle Hydrodynamics (SPH) run using Compute Shaders
+	- Physically Based Raymarched Fluid Renderer written with HLSL
+	- Physically Based Screenspace Fluid Renderer written with HLSL (faster than raymarched but not as accurate)
+	- Particle-Based Foam Simulation for crashing waves run using Compute Shaders
+	- Foam rendering using using volumetric raymarching or billboard sprites written with HLSL
+	- Shadows Rendered using either shadow maps or raymarching
+	- Caustics Rendered using deferred rendering-like techniques or raytracing (mention nvidia article and how i extended it to screenspace)
+	- Spatial Hashing and different GPU sorting algorithms to allow the simulation to run at high framerates
+
+-=-=-=- Demo -=-=-=-
+
+Show stuff next
+
+This project taught me a lot about GPU programming, PBR, and SPH Fluid Simulation.  I started this project after I was inspired by two videos from Sebastion Lague (link) on simulating and rendering fluids.  His video and the following papers were very helpful (write the paper and what it helped with).  More implementation details on the project below
+
+-=-=-=- Particle Simulation -=-=-=-
+
+I started by creating a particle simulation with a simple gravity force.  In order to make the particles more fluid like, they need to interact, so we need to be able to compute a pressure force.  I used a technique from Smoothed Particle Hydrodynamics where each discrete particle becomes radially 'blurred'.  Each particle represents a small spherical volume of fluid rather than a volumeless point with mass.  We then represent the particle world with a density field, where we want to be able to sample any position and get the density at that position.  In order to sample this density field efficiently, we need to iterate over all particles near our sample point and add their density contribution.  This is done using a technique called Spatial Hashing; it splits the world into grid cells and uses ideas similar to Worley Noise and Hashmaps, more information can be found from this paper (INSERT).  This technique also needs to sort over all particles in the world, which became a hard performance bottleneck when I put the simulation on the GPU.  After we have our density field, we compute our gradient vector field (the direction in which the density increases the fastest).  Fluid generally flows from high density to low density, so we can apply a force against the gradient to make the behavior of the particles more fluid-like.  More information on the pressure force can be found from this paper (INSERT).
+
+I previously wrote the particle simulation in C#, so in order to put it on the GPU, I had to rewrite it using compute shaders.  Converting the logic was mostly straightforward, except for the sorting of the particles required in Spatial Hashing.  I implemented Bitonic Sort and Count Sort on the GPU for this.
+
+I used SDFs for the particle environment and so that I could easily interact with the particles.  Here's a demo of the particle simulation with an invisible sphere interacting (we'll describe how to render the water and the environment below).
+
+-=-=-=- Fluid Rendering -=-=-=-
+
+To render our fluid particles in a way that looks like fluid, I used two different techniques: raymarching, and a screenspace technique from a (GDC PRESENTATION??).
+I implemented the raymarching technique first.  It works by taking the density field from the simulation, caching it in a texture every frame, and using a fullscreen shader to raymarch the cached density field.  We shoot rays out from the camera, refract and reflect them on the water using Fresnel's law, calculate the density along rays going through the water, and compute how light is extinguished from the sun to the camera.  I used a lot of techniques I learned from the pathtracer and realtime renderer I made, along with information from This (PAPER FRESNEL FROM SEBLAGUE).
+
+While raymarching looked nice, it did cause a decrease in framerate when the bounding box in which we cache densities and render was too large.  In order to have high framerates and be able to have the fluid rendered anywhere, I used a technique from (GDFCF WHAT ??!? forget what its' called) presentation called screenspace fluid rendering.  It works using a deferred-rendering-like setup with multiple render passes.  We start by rendering the depths of the particles as spheres from the camera (this can be done more efficiently quads by having the quads render depths as camera-oriented spheres).  Once we have that depth texture, we apply a world space Gaussian blur, but make it so pixels that are far apart in depth aren't blurred together as much.  This makes it so only the parts of the depth texture that represent geometry actually close to each other are blurred.  We use this blurred depth texture as a representation of our visible water geometry.  We run another shader pass to compute normals from our blurred depth texture.  We can also get positions from depths.  Then, we need to get the density along each ray that's sent out from the camera that refracts through the water.  For this, we can render our particles at a low opacity in an additive way, so parts of the screen that have lots of particles will be closer to having full alpha.  This isn't perfect since it doesn't simulate how rays bend through water.  With the normals and positions of our blurred geometry and the density along our camera rays, we can apply our water PBR techniques to render like how we did in the raymarching shader.  It's faster than raymarched and fluid can be rendered anywhere, but it doesn't look as good and we can only have a single ray bounce whereas we could have as many as we want with raymarched.
+
+Both rendering techniques are good for different use cases.  For each of the rendering techniques, I made an SDF Renderer to render a customizable environment around the fluid.  Here are some of the visual demos I made using these environments and SDF interactions with the fluid.
+
+-=-=-=- Foam Simulation and Rendering -=-=-=-
+
+(have a billboard and volume demo of u turning stuff on, u need to show turning features on gradually or smth, also a screenspace foam demo)
+To get an appearance of crashing waves, I added foam to the simulation.  When fluid particles have a lot of kinetic energy or are crashing into each other, they generate foam particles.  The foam particles are simulated with compute shaders; they act as rising bubbles beneath the water, foam on the water, and spray when outside of the water.  Many of the techniques I used come from (PAPER).
+I first tried rendering the foam as many camera-oriented billboard sprites.  This was good for performance but didn't look that good to me, so I tried rendering them using volumetric raymarching based on (THIS PAPER).  To do this, I had to use the Spatial Hashing technique described earlier for the foam particles.  I liked the result of using both billboard rendering and raymarched rendering.  The screenspace water mode only supports billboard foam while raymarched water mode supports both.  Here are some demos of the foam being simulated and rendered in the raymarched and screenspace mode.
+
+
+-=-=-=- Shadows -=-=-=-
+
+Shadow mapping and raymarched shadows
+
+(cut down stuff like why say matrix who cares)
+I also implemented shadows in the environment around the fluid.  I had two different implementations for the raymarched fluid mode and the screenspace fluid mode.  For the raymarching mode, when a ray samples the SDF environment, I send a raymarched ray to the sun to see how much light from the sun gets extinguished through the fluid.  For the screenspace rendering mode, without raymarching, I used shadowmapping.  I re-used the code from when the screenspace rendering mode gets how much density is along each camera ray in a texture by rendering the particles with low opacities in an additive way, except this time, I rendered that texture from the sun, to act as a shadow map.  I then used a view projection matrix when rendering the SDF environment to add shadow mapping to the screenspace fluid mode.  Here are some demos of the shadows in both rendering modes.
+
+-=-=-=- Caustics -=-=-=-
+
+Screenspace and raymarched
+
+After shadows, I implemented caustics, the visual result of light refracting through the surface of fluid.  Like shadows, this had two separate implementations in the screenspace rendering mode and the raymarching rendering mode.  For the raymarching rendering mode, I referenced this (NVIDIA CAUSTICS ARTICLE).  When a ray samples a point in the SDF environment, it checks if it's in the fluid, and if it is, it samples caustics light by shooting a ray along its normal (in a more realistic renderer, we'd shoot out a lot more rays, but the ray along the normal will likely get the most light because of Lambert's law) and refracting the ray on the surface of the water, and finally, seeing how close that ray is to the sun direction.  
+The screenspace rendering implementation is very similar, except for how we get information on how the ray refracts through the water; since we can't use raymarching.  We assume the floor is flat so all the rays we're shooting are along the y-axis.  We then render the positions and normals of the top of the water and use that information to calculate where and how the ray we shoot refracts through the water.
+Here are some demos of the caustics in both rendering modes.
+
+-=-=-=-
+
+link repo on website and link website on repo and have description on repo readme w screenshots
+
+Will need a lot of mp4 to gif conversions for website
+
+Breakdown -
+
+Pretty basic overview that demos simulation with the balls then screenswipes between raymarching to screenspace in the raymarched scene where we have foam, shadows, and caustics then can show a couple other fav scenes while subtitles explain a bit more in depth of how it works and stuff like the top part of the script plan
+
+SCRAPPED:
+
+I started by creating a particle simulation with a simple gravity force.  In order to make the particles more fluid like, they need to interact, so we need to be able to compute a pressure force.  I used a technique from Smoothed Particle Hydrodynamics where each discrete particle becomes radially 'blurred'.  Each particle represents a small spherical volume of fluid rather than a volumeless point with mass.  We then represent the particle world with a density field, where we want to be able to sample any position and get the density at that position.  To do this, when we sample a point, we can iterate over all particles near that point and add up their density contribution, which can be calculated using a radial smoothing function (the smoothing creates our blur).  The smoothing function is just a decreasing function of the distance between sample point and particle.  The technique that allows us to iterate over all particles near our sample point instead of every particle in the world (which would be way slower) is called Spatial Hashing; it splits the world into grid cells and uses ideas similar to Worley Noise and Hashmaps, more information can be found from this paper (INSERT).  This technique also needs to sort over all particles in the world, which became a hard performance bottleneck when I put the simulation on the GPU.
+
+After we have our density field, we want to compute the gradient field (the direction in which the density increases the fastest).  Since our density is computed by adding up the samples of every nearby particles' smoothing function, we can compute the gradient by adding up the samples of every particle's smoothing function's gradient (which can be derived analytically).  Fluid generally flows from high density to low density, so we can apply a force against the gradient to make the behavior of the particles more fluid-like.  More information on the pressure force can be found from this paper (INSERT).  I also used some other papers to implement other forces to make the particles more fluid-like; these include a spring force, a stickiness force (for props in the world), and a viscosity force.
+
+For the screenspace rendering mode, without raymarching, assuming the floor was flat, I rendered the positions and normals of the top of the water, then, when we render a point in the SDF environment that's inside the fluid, we can imagine shooting a ray along the normal (we're assuming the surface is flat so the normal points up along the y axis) and using the info on the top of the water to see how that ray refracts out of the water and comparing it with the sun direction.
+

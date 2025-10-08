@@ -15,6 +15,7 @@ public class FoamBehaviorPreset : ScriptableObject
     [Range(0.0f, 200.0f)] [SerializeField] public float trappedAirMultiplier = 1.0f;
     [Range(0.0f, 200.0f)] [SerializeField] public float kineticPotentialRemapLow = 1.0f;
     [Range(0.0f, 200.0f)] [SerializeField] public float kineticPotentialRemapHigh = 4.0f;
+    [SerializeField] public float foamSpawnMultiplier = 1f;
 
     [Header("Spray/Foam/Bubble Classification")]
     [Range(0.0f, 50.0f)][SerializeField] public float highestSprayDensity = 0.8f;

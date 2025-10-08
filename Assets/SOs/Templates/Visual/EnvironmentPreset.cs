@@ -9,6 +9,7 @@ public class EnvironmentPreset : ScriptableObject
     // what is this. maybe remove it and just use an environment override stuff in simulation params
     [Header("Skybox")]
     [SerializeField] public Cubemap environmentMap;
+    [SerializeField] public float skyboxLightMultiplier = 1f;
 
     [Header("Obstacle")]
     [SerializeField] public bool obstacleType; // can later make stuff for objects aside from environment to move and stuff.. and color

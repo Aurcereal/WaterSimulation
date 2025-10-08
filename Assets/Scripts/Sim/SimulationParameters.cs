@@ -70,6 +70,7 @@ public class SimulationParameters : MonoBehaviour
     public static float WaterExistenceEps => Ins.raymarchVisualPreset.waterExistenceEps;
     public static float NextRayOffset => Ins.raymarchVisualPreset.nextRayOffset;
     public static Cubemap EnvironmentMap => Ins.environmentPreset.environmentMap;
+    public static float SkyboxLightMultiplier => Ins.environmentPreset.skyboxLightMultiplier;
 
     public static float2 CameraRotateSpeed => Ins.cameraRotateSpeed;
     public static float2 CameraPanSpeed => Ins.cameraPanSpeed;
@@ -97,6 +98,7 @@ public class SimulationParameters : MonoBehaviour
     public static float KineticPotentialRemapLow => Ins.foamBehaviorPreset.kineticPotentialRemapLow;
     public static float KineticPotentialRemapHigh => Ins.foamBehaviorPreset.kineticPotentialRemapHigh;
     public static float FoamScaleMultiplier => Ins.screenspaceFoamVisualPreset.foamScaleMultiplier;
+    public static float FoamSpawnMultiplier => Ins.foamBehaviorPreset.foamSpawnMultiplier;
     public static float HighestSprayDensity => Ins.foamBehaviorPreset.highestSprayDensity;
     public static float LowestBubbleDensity => Ins.foamBehaviorPreset.lowestBubbleDensity;
     public static float BubbleGravityMultiplier => Ins.foamBehaviorPreset.bubbleGravityMultiplier;

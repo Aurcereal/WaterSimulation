@@ -74,6 +74,7 @@ Shader "Unlit/WaterRaymarch"
             //
             const float DensityMultiplier;
             const float LightMultiplier;
+            const float SkyboxLightMultiplier;
             const float3 ExtinctionCoefficients;
             const float IndexOfRefraction;
 
@@ -209,7 +210,7 @@ Shader "Unlit/WaterRaymarch"
             }
 
             float3 SampleCameraSkybox(float3 rd) {
-                return texCUBE(EnvironmentMap, rd);// + SampleSun(rd);
+                return SkyboxLightMultiplier*texCUBE(EnvironmentMap, rd);// + SampleSun(rd);
             }
 
             // ior is Index of Medium we're in div by Index of Medium we're entering (this divided by that)

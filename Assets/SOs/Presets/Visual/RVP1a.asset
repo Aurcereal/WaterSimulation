@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aeb166201e56356468f38fc814515dee, type: 3}
-  m_Name: RVP1
+  m_Name: RVP1a
   m_EditorClassIdentifier: 
   densityMultiplier: 0.038
-  lightMultiplier: 7
+  lightMultiplier: 1.8
   extinctionCoefficients:
-    x: 0.2
+    x: 0.3
     y: 0.2
     z: 0.2
   indexOfRefraction: 1.33

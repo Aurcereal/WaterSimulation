@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
   m_Name: CheckerEnv
   m_EditorClassIdentifier: 
-  particleCount: 38873
+  particleCount: 66278
   spawnWidth: 19.5
   spawnHeight: 5.1
   spawnDepth: 4.2
   spawnPosition:
-    x: 0
+    x: 8
     y: 0
     z: 0
   physicsCompileKeyword: CHECKERFLOOR_ENV

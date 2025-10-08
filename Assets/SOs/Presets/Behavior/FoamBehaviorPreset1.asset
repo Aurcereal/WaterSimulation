@@ -18,6 +18,7 @@ MonoBehaviour:
   trappedAirMultiplier: 20
   kineticPotentialRemapLow: 10
   kineticPotentialRemapHigh: 40
+  foamSpawnMultiplier: 0.4
   highestSprayDensity: 0.4
   lowestBubbleDensity: 40
   bubbleGravityMultiplier: 49

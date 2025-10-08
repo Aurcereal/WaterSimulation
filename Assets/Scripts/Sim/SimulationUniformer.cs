@@ -90,6 +90,7 @@ public class SimulationUniformer
 
         //
         particleSimulatorShader.SetInt("MaxFoamParticleCount", MaxFoamParticleCount);
+        particleSimulatorShader.SetFloat("FoamSpawnMultiplier", FoamSpawnMultiplier);
         particleSimulatorShader.SetFloat("FoamScaleMultiplier", FoamScaleMultiplier);
         particleSimulatorShader.SetFloat("TrappedAirPotentialRemapLow", TrappedAirPotentialRemapLow);
         particleSimulatorShader.SetFloat("TrappedAirPotentialRemapHigh", TrappedAirPotentialRemapHigh);

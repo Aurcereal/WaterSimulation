@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: EnvironmentPreset1
   m_EditorClassIdentifier: 
   environmentMap: {fileID: 8900000, guid: 91231629c1b2627498c11ce1f7109c97, type: 3}
+  skyboxLightMultiplier: 1
   obstacleType: 0
   environmentFloorType: 1
   floorColor1: {r: 0.7830189, g: 0, b: 0, a: 0}

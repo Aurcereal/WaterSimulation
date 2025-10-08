@@ -18,7 +18,7 @@ MonoBehaviour:
   spawnDepth: 4
   spawnPosition:
     x: 0
-    y: 0
+    y: -1
     z: 0
   physicsCompileKeyword: CARTOONBOX_ENV
   visualCompileKeyword: CARTOONBOX_ENV

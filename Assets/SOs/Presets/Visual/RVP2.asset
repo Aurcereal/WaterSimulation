@@ -16,7 +16,7 @@ MonoBehaviour:
   lightMultiplier: 1.8
   extinctionCoefficients:
     x: 0.17
-    y: 0.15
+    y: 0.05
     z: 0.15
   indexOfRefraction: 1.33
   numBounces: 2
