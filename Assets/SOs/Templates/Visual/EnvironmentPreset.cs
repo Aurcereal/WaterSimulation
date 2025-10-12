@@ -11,9 +11,6 @@ public class EnvironmentPreset : ScriptableObject
     [SerializeField] public Cubemap environmentMap;
     [SerializeField] public float skyboxLightMultiplier = 1f;
 
-    [Header("Obstacle")]
-    [SerializeField] public bool obstacleType; // can later make stuff for objects aside from environment to move and stuff.. and color
-
     // TODO: connect up floor stuff
     public enum EnvironmentFloorType
     {

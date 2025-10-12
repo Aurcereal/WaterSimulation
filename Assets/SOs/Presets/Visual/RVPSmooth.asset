@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeb166201e56356468f38fc814515dee, type: 3}
   m_Name: RVPSmooth
   m_EditorClassIdentifier: 
-  densityMultiplier: 0.038
+  densityMultiplier: 0.008
   lightMultiplier: 1.8
   extinctionCoefficients:
     x: 0.2
@@ -21,7 +21,7 @@ MonoBehaviour:
   indexOfRefraction: 1.33
   numBounces: 2
   traceReflectAndRefract: 1
-  waterExistenceThreshold: 0.4
+  waterExistenceThreshold: 0.56
   waterExistenceEps: 0.02
   nextRayOffset: 0.01
   densityCacheStepSize: 0.25

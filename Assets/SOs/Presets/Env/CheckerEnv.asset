@@ -12,17 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
   m_Name: CheckerEnv
   m_EditorClassIdentifier: 
-  particleCount: 66278
-  spawnWidth: 19.5
+  particleCount: 142532
+  spawnWidth: 6.7
   spawnHeight: 5.1
   spawnDepth: 4.2
   spawnPosition:
-    x: 8
+    x: 0
     y: 0
-    z: 0
+    z: 4
   physicsCompileKeyword: CHECKERFLOOR_ENV
   visualCompileKeyword: CHECKERFLOOR_ENV
   enableObjectInteraction: 1
   enableBoundingBoxInteraction: 1
   sunRadius: 0.1
-  sunMultiplier: 40
+  sunMultiplier: 5
+  boundingBoxPosition:
+    x: 0
+    y: 0
+    z: 0
+  boundingBoxDimensions:
+    x: 14
+    y: 8
+    z: 14
+  obstacleType: 1
+  pressureFadeIn:
+    x: 0.8
+    y: 2
+  foamFadeIn:
+    x: 3
+    y: 4

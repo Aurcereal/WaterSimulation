@@ -17,14 +17,16 @@ public class SimulationParameters : MonoBehaviour
     public static Mesh SphereMesh => Ins.sphereMesh;
     public static bool UseShadows => Ins.useShadows;
 
-    public static Matrix4x4 ContainerTransform => Ins.containerTransform.transform.localToWorldMatrix;
-    public static Matrix4x4 ContainerInverseTransform => Ins.containerTransform.transform.worldToLocalMatrix;
-    public static float3 ContainerScale => Ins.containerTransform.transform.localScale;
+    public static Matrix4x4 ContainerTransform => OverrideEnvPreset ? Ins.containerTransform.transform.localToWorldMatrix
+        : Matrix4x4.TRS(Ins.envPreset.boundingBoxPosition, Quaternion.identity, Ins.envPreset.boundingBoxDimensions);
+    public static Matrix4x4 ContainerInverseTransform => OverrideEnvPreset ? Ins.containerTransform.transform.worldToLocalMatrix
+        : ContainerTransform.inverse;
+    public static float3 ContainerScale => OverrideEnvPreset ? Ins.containerTransform.transform.localScale : Ins.envPreset.boundingBoxDimensions;
 
     public static Matrix4x4 ObstacleTransorm => Ins.obstacleTransform.transform.localToWorldMatrix;
     public static Matrix4x4 ObstacleInverseTransform => Ins.obstacleTransform.transform.worldToLocalMatrix;
     public static float3 ObstacleScale => Ins.obstacleTransform.transform.localScale;
-    public static bool ObstacleType => Ins.environmentPreset.obstacleType;
+    public static bool ObstacleType => Ins.overrideEnvPreset ? Ins.overrideObstacleType : Ins.envPreset.obstacleType;
 
     public static float3 Gravity => Ins.fluidBehaviorPreset.enableGravityForce ? Ins.fluidBehaviorPreset.gravity : float3(0);
 
@@ -32,6 +34,7 @@ public class SimulationParameters : MonoBehaviour
     public static float TargetDensity => Ins.fluidBehaviorPreset.targetDensity;
     public static float NearDensityPressureMultiplier => Ins.fluidBehaviorPreset.nearDensityPressureMultiplier;
     public static float PressureMultiplier => Ins.fluidBehaviorPreset.pressureMultiplier;
+    public static float2 PressureFadeIn => Ins.envPreset.pressureFadeIn;
 
     public static bool EnableViscosityForce => Ins.fluidBehaviorPreset.enableViscosityForce;
     public static float ViscosityStrength => Ins.fluidBehaviorPreset.viscosityStrength;
@@ -88,6 +91,7 @@ public class SimulationParameters : MonoBehaviour
     public static float ScreenspaceIndexOfRefraction => Ins.screenspaceVisualPreset.indexOfRefraction;
 
     public static bool SimulateFoam => Ins.simulateFoam;
+    public static float2 FoamFadeIn => Ins.envPreset.foamFadeIn;
     public const int FoamSpatialLookupSize = 1048576;
     public static float FoamGridSize => 5f*FoamVolumeRadius;
     public static float FoamVolumeRadius => Ins.raymarchFoamVisualPreset.foamVolumeRadius;
@@ -169,6 +173,7 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] bool overrideEnvPreset = false;
     [SerializeField] bool overrideEnableBoundingBoxCollision = false;
     [SerializeField] bool overrideEnableObstacleCollision = false;
+    [SerializeField] bool overrideObstacleType = false;
 
     [Header("Unity References")]
     [SerializeField] Transform obstacleTransform; ///

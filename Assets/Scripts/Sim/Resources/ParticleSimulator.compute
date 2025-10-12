@@ -42,6 +42,7 @@ const float ParticleRadius;
 const float SmoothingRadius;
 const float TargetDensity;
 const float NearDensityPressureMultiplier;
+const float2 PressureFadeIn;
 const float PressureMultiplier;
 
 const float ViscosityStrength;
@@ -76,6 +77,8 @@ const float SqrSmoothingRadius;
 const float InvSmoothingRadius;
 
 //
+const float2 FoamFadeIn;
+
 const float FoamScaleMultiplier;
 const float FoamSpawnMultiplier;
 
@@ -457,6 +460,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     // Densities being 0 (should never happen) causes positions to become NaN and particles to disappear
     #if defined PRESSURE_FORCE || defined SPRING_FORCE || defined SIMULATE_FOAM
     float3 pressureAcceleration = CalculatePressureForceAndAirPotential(i, airPotential) / dens;
+    pressureAcceleration *= fit01(TimeSinceStart, PressureFadeIn.x, PressureFadeIn.y);
     #else
     float3 pressureAcceleration = 0.;
     #endif
@@ -502,7 +506,7 @@ void UpdateParticles (uint3 id : SV_DispatchThreadID)
     float spawnRate = kineticPotential * (TrappedAirMultiplier * airPotential); // ODOT: Maybe add wave crest
     float numSpawn = dt * spawnRate * spawnRate;
     float spd = length(vel);
-    float numSpawnMultiplier = clamp(TimeSinceStart - 2.5, 0., 1.);
+    float numSpawnMultiplier = fit01(TimeSinceStart, FoamFadeIn.x, FoamFadeIn.y);
     if(spd > 0. && dScene > 0.25) SpawnFoamParticlesInCylinder(0., pos, vel, numSpawn * numSpawnMultiplier * FoamSpawnMultiplier, SmoothingRadius, spd * dt, vel/spd);
     // dScene > 0.25 is to prevent foam spawning on edges, it's a bandaid fix for reflecting particles causing weird foam spawning patterns on bound edges
     #endif

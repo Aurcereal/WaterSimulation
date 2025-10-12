@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
+using static Unity.Mathematics.math;
+
 [CreateAssetMenu(fileName = "EnvPreset", menuName = "ScriptableObjects/Env/EnvTemplate", order = 1)]
 public class EnvTemplate : ScriptableObject
 {
@@ -26,5 +28,16 @@ public class EnvTemplate : ScriptableObject
     [Header("Sun")]
     [SerializeField] public float sunRadius = 0.1f;
     [SerializeField] public float sunMultiplier = 1f;
+
+    [Header("Bounding Box")]
+    public float3 boundingBoxPosition;
+    public float3 boundingBoxDimensions = float3(1f);
+
+    [Header("Object")]
+    public bool obstacleType;
+
+    [Header("Fade Ins")]
+    public float2 pressureFadeIn = float2(0.8f, 2.0f);
+    public float2 foamFadeIn = float2(2.5f, 3.5f);
 
 }

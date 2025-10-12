@@ -106,3 +106,7 @@ float smin( float a, float b, float k )
     float h = max( k-abs(a-b), 0.0 )/k;
     return min(a,b) - h*h*k*(1.0/4.0);
 }
+
+float fit01(float t, float a, float b) {
+    return clamp((t-a)/(b-a), 0., 1.);
+}

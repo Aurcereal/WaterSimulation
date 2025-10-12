@@ -123,7 +123,7 @@ Shader "Unlit/WaterRaymarch"
 
             #define STEPSIZE 0.01
             #define BIGSTEPSIZE 0.1 // 0.1
-            #define WATERNORMEPS 0.1 // 0.001
+            #define WATERNORMEPS 0.3 // 0.1 // 0.001
             #define MAXDIST 1000.0 // 250.0
 
             #include "./SDFScene.hlsl"
@@ -489,7 +489,7 @@ Shader "Unlit/WaterRaymarch"
                     #endif
                     float t = inter.x; float densityAlongRay = inter.y; foamTransmittance *= inter.z;
                     float3 hitPos = ro + rd*t;
-                    float3 norm = CalculateWaterNormal(hitPos);
+                    float3 norm = CalculateWaterNormal(hitPos-.1*rd);
                     if(isInsideLiquid) norm *= -1.0;
 
                     // Moved this above inter break

@@ -181,7 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentVisualMode: 2
+  currentVisualMode: 1
   useRaymarchedFoamInRaymarchedWater: 1
   useBillboardFoam: 1
   useShadows: 1
@@ -191,7 +191,7 @@ MonoBehaviour:
   environmentPreset: {fileID: 11400000, guid: fe4c1ec08d2d15b4ba84877c504e4112, type: 2}
   raymarchCausticsVisualPreset: {fileID: 11400000, guid: 353b4016634002b47a26e942dbea8bb0, type: 2}
   raymarchFoamVisualPreset: {fileID: 11400000, guid: 62c774ec6c638474b857ce7d731ac24c, type: 2}
-  raymarchVisualPreset: {fileID: 11400000, guid: b1032cf6c58cd12459a4667c33c55a59, type: 2}
+  raymarchVisualPreset: {fileID: 11400000, guid: 9275b6dd7544abd4c80a7c242b3b68ea, type: 2}
   screenspaceCausticsVisualPreset: {fileID: 11400000, guid: 2ed613bf1af146a4289d5d054b88ea96, type: 2}
   screenspaceFoamVisualPreset: {fileID: 11400000, guid: caf7c48ae67b71143a1445771f1e7805, type: 2}
   screenspaceVisualPreset: {fileID: 11400000, guid: f0062a96cdd28eb409d5130c2ac40515, type: 2}
@@ -199,9 +199,10 @@ MonoBehaviour:
   foamBehaviorPreset: {fileID: 11400000, guid: da21c338ef2455947a9bd4154d99ee0f, type: 2}
   enableSceneCollision: 0
   envPreset: {fileID: 11400000, guid: 28cbedd4450d76f4e86cbfd7a8fab466, type: 2}
-  overrideEnvPreset: 1
+  overrideEnvPreset: 0
   overrideEnableBoundingBoxCollision: 1
   overrideEnableObstacleCollision: 1
+  overrideObstacleType: 0
   obstacleTransform: {fileID: 1857617105}
   containerTransform: {fileID: 2036646829}
   lightTransform: {fileID: 705507995}
@@ -217,8 +218,8 @@ MonoBehaviour:
     y: 0.05
   cameraZoomSpeed: 1
   particleRadius: 0.305
-  debugFloat: 0
-  debugVector: {x: 0, y: 0, z: 0, w: 0}
+  debugFloat: 0.3
+  debugVector: {x: -0.1, y: 0, z: 0, w: 0}
   debugBool: 0
 --- !u!114 &91362119
 MonoBehaviour:
@@ -628,7 +629,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2036646828}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalPosition: {x: 0, y: -50, z: 0}
   m_LocalScale: {x: 14, y: 8, z: 14}
   m_ConstrainProportionsScale: 0
   m_Children: []

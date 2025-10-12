@@ -79,6 +79,7 @@ public class SimulationUniformer
         particleSimulatorShader.SetFloat("TargetDensity", TargetDensity);
         particleSimulatorShader.SetFloat("NearDensityPressureMultiplier", NearDensityPressureMultiplier);
         particleSimulatorShader.SetFloat("PressureMultiplier", PressureMultiplier);
+        particleSimulatorShader.SetVector("PressureFadeIn", (Vector2)PressureFadeIn);
         particleSimulatorShader.SetFloat("ViscosityStrength", ViscosityStrength);
         particleSimulatorShader.SetFloat("SpringForceMultiplier", SpringForceMultiplier);
         particleSimulatorShader.SetFloat("SpringRestLenFac", SpringRestLenFac);
@@ -90,6 +91,7 @@ public class SimulationUniformer
 
         //
         particleSimulatorShader.SetInt("MaxFoamParticleCount", MaxFoamParticleCount);
+        particleSimulatorShader.SetVector("FoamFadeIn", (Vector2) FoamFadeIn);
         particleSimulatorShader.SetFloat("FoamSpawnMultiplier", FoamSpawnMultiplier);
         particleSimulatorShader.SetFloat("FoamScaleMultiplier", FoamScaleMultiplier);
         particleSimulatorShader.SetFloat("TrappedAirPotentialRemapLow", TrappedAirPotentialRemapLow);
