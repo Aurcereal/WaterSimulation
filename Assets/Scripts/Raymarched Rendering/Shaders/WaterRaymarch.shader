@@ -443,7 +443,7 @@ Shader "Unlit/WaterRaymarch"
                 return SampleDensity(pos) >= WaterExistenceThreshold;
             }
 
-            //#define SDF_SHADOWS // Make feature
+            #define SDF_SHADOWS // Make feature
 
             float GetShadowOcclusion(float3 pos) {
                 if(!UseShadows) return 1.;

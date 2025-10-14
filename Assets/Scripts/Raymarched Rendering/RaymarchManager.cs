@@ -148,7 +148,7 @@ public class RaymarchManager : MonoBehaviour
         waterRaymarchMat.SetTexture("DensityTexture", densityTexture);
     }
 
-    string? currCompileMacro;
+    string currCompileMacro;
     public void HandleNewEnv()
     {
         if (currCompileMacro != null) waterRaymarchMat.DisableKeyword(currCompileMacro);

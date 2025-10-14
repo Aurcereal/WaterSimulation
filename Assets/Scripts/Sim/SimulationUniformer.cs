@@ -150,7 +150,7 @@ public class SimulationUniformer
         GameManager.Ins.computeManager.particleSimulatorShader.SetVector("DensityTextureSize", (Vector3)(float3)size);
     }
 
-    string? currPhysicsCompileKeyword = null;
+    string currPhysicsCompileKeyword = null;
     public void HandleNewEnv()
     {
         var particleSimulatorShader = GameManager.Ins.computeManager.particleSimulatorShader;

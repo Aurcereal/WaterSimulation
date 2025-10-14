@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4348ac73919d7347b01730d7921cc61, type: 3}
+  m_Name: VicsousEnv
+  m_EditorClassIdentifier: 
+  particleCount: 10000
+  spawnWidth: 3
+  spawnHeight: 3
+  spawnDepth: 3
+  spawnPosition:
+    x: 0
+    y: 1
+    z: 0
+  fluidBehaviorPreset: {fileID: 11400000, guid: a9d938bee6768d64c989d7cdc68b2cde, type: 2}
+  physicsCompileKeyword: CHECKERFLOOR_ENV
+  visualCompileKeyword: CHECKERFLOOR_ENV
+  enableObjectInteraction: 1
+  enableBoundingBoxInteraction: 1
+  sunRadius: 0.1
+  sunMultiplier: 5
+  boundingBoxPosition:
+    x: 0
+    y: 0
+    z: 0
+  boundingBoxDimensions:
+    x: 7
+    y: 8
+    z: 7
+  obstacleType: 1
+  pressureFadeIn:
+    x: 0
+    y: 3
+  foamFadeIn:
+    x: 3
+    y: 4
