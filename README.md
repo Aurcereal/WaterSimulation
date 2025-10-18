@@ -3,20 +3,13 @@
 
 TODO: clickable vid to brekadown with icon on it like stylization readme, or just a short vid of one scene integrated i ngithub
 
-https://github.com/user-attachments/assets/06329d2e-abed-46d8-b07a-bce7907244e3
-
-
-https://github.com/user-attachments/assets/01dfa4bb-26fd-4ff2-8ed1-322f3970d156
-
+https://github.com/user-attachments/assets/0193b138-dc22-41c0-a666-946e171a1ed9
 
 https://github.com/user-attachments/assets/d905c8ff-5326-4d59-9d7c-a48f3f3aa5ea
 
+https://github.com/user-attachments/assets/01dfa4bb-26fd-4ff2-8ed1-322f3970d156
 
-https://github.com/user-attachments/assets/0193b138-dc22-41c0-a666-946e171a1ed9
-
-
-
-
+https://github.com/user-attachments/assets/06329d2e-abed-46d8-b07a-bce7907244e3
 
 
 ||||
