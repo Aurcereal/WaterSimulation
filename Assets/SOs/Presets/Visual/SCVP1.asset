@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SCVP1
   m_EditorClassIdentifier: 
   causticsDepthNormalResolution: 1000
-  causticsDepthWorldBlurRadius: 300
+  causticsDepthWorldBlurRadius: 200
   causticsDepthBlurIterationCount: 2

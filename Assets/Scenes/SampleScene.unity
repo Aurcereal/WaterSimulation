@@ -181,11 +181,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429cef57c68d8d74c8e99a7edcfd183d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentVisualMode: 1
+  currentVisualMode: 2
   useRaymarchedFoamInRaymarchedWater: 1
   useBillboardFoam: 1
   useShadows: 1
-  useCaustics: 0
+  useCaustics: 1
   simulateFoam: 0
   debugVisualPreset: {fileID: 11400000, guid: eb008d68815564749b81afebaf3b0d34, type: 2}
   environmentPreset: {fileID: 11400000, guid: fe4c1ec08d2d15b4ba84877c504e4112, type: 2}
@@ -199,7 +199,7 @@ MonoBehaviour:
   overridenFluidBehaviorPreset: {fileID: 11400000, guid: 2e2ab50bbc18a634992e35e6608df766, type: 2}
   foamBehaviorPreset: {fileID: 11400000, guid: da21c338ef2455947a9bd4154d99ee0f, type: 2}
   enableSceneCollision: 0
-  envPreset: {fileID: 11400000, guid: 7dfcdd34bf2584d45a2ac96c35f2c483, type: 2}
+  envPreset: {fileID: 11400000, guid: e20ecd5af319d2b489ed8cde87c26c88, type: 2}
   overrideEnvPreset: 0
   overrideEnableBoundingBoxCollision: 1
   overrideEnableObstacleCollision: 1
