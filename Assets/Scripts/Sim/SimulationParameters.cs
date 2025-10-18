@@ -13,9 +13,12 @@ public class SimulationParameters : MonoBehaviour
     public static float3 SpawnDimensions => new(Ins.envPreset.spawnWidth, Ins.envPreset.spawnHeight, Ins.envPreset.spawnDepth);
     public static float3 SpawnPosition => Ins.envPreset.spawnPosition;
 
-    public static float SmoothingRadius => Ins.fluidBehaviorPreset.smoothingRadius;
+    public static float SmoothingRadius => FluidBehaviorPreset.smoothingRadius;
     public static Mesh SphereMesh => Ins.sphereMesh;
     public static bool UseShadows => Ins.useShadows;
+
+    public static FluidBehaviorPreset FluidBehaviorPreset
+        => Ins.overrideFluidBehavior ? Ins.overridenFluidBehaviorPreset : Ins.envPreset.fluidBehaviorPreset;
 
     public static Matrix4x4 ContainerTransform => OverrideEnvPreset ? Ins.containerTransform.transform.localToWorldMatrix
         : Matrix4x4.TRS(Ins.envPreset.boundingBoxPosition, Quaternion.identity, Ins.envPreset.boundingBoxDimensions);
@@ -28,26 +31,26 @@ public class SimulationParameters : MonoBehaviour
     public static float3 ObstacleScale => Ins.obstacleTransform.transform.localScale;
     public static bool ObstacleType => Ins.overrideEnvPreset ? Ins.overrideObstacleType : Ins.envPreset.obstacleType;
 
-    public static float3 Gravity => Ins.fluidBehaviorPreset.enableGravityForce ? Ins.fluidBehaviorPreset.gravity : float3(0);
+    public static float3 Gravity => FluidBehaviorPreset.enableGravityForce ? FluidBehaviorPreset.gravity : float3(0);
 
-    public static bool EnablePressureForce => Ins.fluidBehaviorPreset.enablePressureForce;
-    public static float TargetDensity => Ins.fluidBehaviorPreset.targetDensity;
-    public static float NearDensityPressureMultiplier => Ins.fluidBehaviorPreset.nearDensityPressureMultiplier;
-    public static float PressureMultiplier => Ins.fluidBehaviorPreset.pressureMultiplier;
+    public static bool EnablePressureForce => FluidBehaviorPreset.enablePressureForce;
+    public static float TargetDensity => FluidBehaviorPreset.targetDensity;
+    public static float NearDensityPressureMultiplier => FluidBehaviorPreset.nearDensityPressureMultiplier;
+    public static float PressureMultiplier => FluidBehaviorPreset.pressureMultiplier;
     public static float2 PressureFadeIn => Ins.envPreset.pressureFadeIn;
 
-    public static bool EnableViscosityForce => Ins.fluidBehaviorPreset.enableViscosityForce;
-    public static float ViscosityStrength => Ins.fluidBehaviorPreset.viscosityStrength;
+    public static bool EnableViscosityForce => FluidBehaviorPreset.enableViscosityForce;
+    public static float ViscosityStrength => FluidBehaviorPreset.viscosityStrength;
 
-    public static bool EnableParticleSprings => Ins.fluidBehaviorPreset.enableSpringForce;
-    public static float SpringForceMultiplier => Ins.fluidBehaviorPreset.springForceMultiplier;
-    public static float SpringRestLenFac => Ins.fluidBehaviorPreset.springRestLenFac;
+    public static bool EnableParticleSprings => FluidBehaviorPreset.enableSpringForce;
+    public static float SpringForceMultiplier => FluidBehaviorPreset.springForceMultiplier;
+    public static float SpringRestLenFac => FluidBehaviorPreset.springRestLenFac;
 
-    public static bool EnableStickForce => Ins.fluidBehaviorPreset.enableStickForce;
-    public static float MaxStickDistance => Ins.fluidBehaviorPreset.maxStickDistance;
-    public static float StickForceMultiplier => Ins.fluidBehaviorPreset.stickForceMultiplier;
+    public static bool EnableStickForce => FluidBehaviorPreset.enableStickForce;
+    public static float MaxStickDistance => FluidBehaviorPreset.maxStickDistance;
+    public static float StickForceMultiplier => FluidBehaviorPreset.stickForceMultiplier;
 
-    public static float ForceFieldMultiplier => Ins.fluidBehaviorPreset.forceFieldMultiplier;
+    public static float ForceFieldMultiplier => FluidBehaviorPreset.forceFieldMultiplier;
 
     public static float ParticleRadius => Ins.particleRadius;
     public static float2 ParticleColorSpeedRange => new(Ins.debugVisualPreset.particleLowColorSpeed, Ins.debugVisualPreset.particleHighColorSpeed);
@@ -164,7 +167,8 @@ public class SimulationParameters : MonoBehaviour
     [SerializeField] ScreenspaceVisualPreset screenspaceVisualPreset;
 
     [Header("Behavior Presets")]
-    [SerializeField] FluidBehaviorPreset fluidBehaviorPreset;
+    [SerializeField] bool overrideFluidBehavior = true;
+    [SerializeField] FluidBehaviorPreset overridenFluidBehaviorPreset;
     [SerializeField] FoamBehaviorPreset foamBehaviorPreset;
 
     [Header("Environment Preset")]
@@ -206,6 +210,9 @@ public class SimulationParameters : MonoBehaviour
     bool prevOverrideEnvPreset = false;
     void OnValidate()
     {
+        if (Application.isEditor)
+            return;
+
         // This Monobehavior func is called when a value changes
         GameManager.Ins?.simUniformer.UniformAllParameters();
         RaymarchManager.Ins?.UniformAllParameters();

@@ -194,7 +194,7 @@ public class ScreenSpaceWaterManager
         commandBuffer.Blit(null, MainCamera.targetTexture, compositeIntoWater);
     }
     
-    string? currCompileMacro;
+    string currCompileMacro;
     public void HandleNewEnv()
     {
         if (currCompileMacro != null) compositeIntoWater.DisableKeyword(currCompileMacro);

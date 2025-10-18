@@ -17,6 +17,9 @@ public class EnvTemplate : ScriptableObject
     [Range(0.05f, 100)][SerializeField] public float spawnDepth = 40.0f;
     [SerializeField] public float3 spawnPosition = 0f;
 
+    [Header("Physics")]
+    [SerializeField] public FluidBehaviorPreset fluidBehaviorPreset;
+
     [Header("Keywords")]
     [SerializeField] public string physicsCompileKeyword; // For ParticleSimulator
     [SerializeField] public string visualCompileKeyword; // For SDFScene
