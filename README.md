@@ -7,6 +7,7 @@ TODO: clickable vid to brekadown with icon on it like stylization readme, or jus
 |---|---|---|
 | Row 1 Cell 1 | Row 1 Cell 2 | turn to 2by2? |
 | Row 2 Cell 1 | Row 2 Cell 2 | turn to 2by2? |
+Pour cup, cut purple jelly, the new main thing with smooth water, ?check premiere?
 
 https://gist.githubusercontent.com/trusktr/93175b620d47827ffdedbf52433e3b37/raw/e980fa9116cb28dfbdee0dc5c17adc5ed91df783/image-grid.md
 
@@ -59,6 +60,7 @@ Fluid generally flows from high density to low density, so we can apply a force 
 
 ### GPU Simulation
 
-wrote this in todo.txt but can do with and without certain things like cross compare, also putting that for stick force ican do with and without with water falling down on a sphere and going down and converging and falling down into another stream vs without stick force it just behaves like you'd expect kinda sliding off.  its ok to show the fluid rendering when talking about forces just be like 'The demo video uses fluid rendering that is explained at a *link section cool readme*'
+wrote this in todo.txt but can do with and without certain things like cross compare, also putting that for stick force ican do with and without with water falling down on a sphere and going down and converging and falling down into another stream vs without stick force it just behaves like you'd expect kinda sliding off.  its ok to show the fluid rendering when talking about forces just be like 'The demo video uses fluid rendering that is explained at a *link section cool markdown*'
+Small gifs in a table could work well for cross compare, Premiere Pro Export -> CloudConvert
 
 TODO: More particles on debug demo crashing waves red for fast
