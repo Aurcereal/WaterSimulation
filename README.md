@@ -25,6 +25,8 @@ https://github.com/user-attachments/assets/01dfa4bb-26fd-4ff2-8ed1-322f3970d156
 
 https://github.com/user-attachments/assets/06329d2e-abed-46d8-b07a-bce7907244e3
 
+https://github.com/user-attachments/assets/acd5c6b7-909d-4df0-98d2-aae3b2ace916
+
 TODO: capsule like a water bottle/pill type of thing, water falls in and crashes around the capsule with debugfloats for sizing
 TODO: multiple static objects in a scene, water crashes around them, cone and other variety random
 
