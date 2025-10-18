@@ -1,8 +1,6 @@
 # PBR Rendered Fluid Simulation
 ---
 
-TODO: clickable vid to brekadown with icon on it like stylization readme, or just a short vid of one scene integrated i ngithub
-
 https://github.com/user-attachments/assets/0193b138-dc22-41c0-a666-946e171a1ed9
 
 During the summer of 2025, I made a realtime fluid simulation and renderer in Unity.  The features include
@@ -27,16 +25,15 @@ https://github.com/user-attachments/assets/01dfa4bb-26fd-4ff2-8ed1-322f3970d156
 
 https://github.com/user-attachments/assets/06329d2e-abed-46d8-b07a-bce7907244e3
 
-TODO: some more object interaction ones and check yggd, low res exp prolly necessary to integrate to github
 TODO: capsule like a water bottle/pill type of thing, water falls in and crashes around the capsule with debugfloats for sizing
 TODO: multiple static objects in a scene, water crashes around them, cone and other variety random
-TODO: incredibly viscous (clearly obviously viscous) demo scene, small container prolly
 
 EVERYTHING BELOW CAN BE ADDED LATER JUST DO THE TOP TWO FIRST
 
 # Written Breakdown
----
-If you'd prefer a video breakdown, here's a link(INSERT HERE) to the video version of the breakdown.
+If you'd prefer a video breakdown, here's a link to the video version of the breakdown.
+TODO: clickable vid to brekadown with icon on it like stylization readme, or just a short vid of one scene integrated i ngithub
+Before you add video breakdown, delete this 'written breakdown' section and start with particle sim breakdown
 
 ## Particle Simulation Breakdown
 ---
@@ -67,3 +64,8 @@ wrote this in todo.txt but can do with and without certain things like cross com
 Small gifs in a table could work well for cross compare, Premiere Pro Export -> CloudConvert
 
 TODO: More particles on debug demo crashing waves red for fast
+
+### Fluid Rendering
+
+To render our fluid particles in a way that looks like fluid, I used two different techniques: raymarching, and a screenspace technique from a (GDC PRESENTATION??).
+I implemented the raymarching technique first.  It works by taking the density field from the simulation, caching it in a texture every frame, and using a fullscreen shader to raymarch the cached density field.  We shoot rays out from the camera, refract and reflect them on the water using Fresnel's law, calculate the density along rays going through the water, and compute how light is extinguished from the sun to the camera.  I referred to THIS (FRESNEL PAPER FROM SEB LAGUE) paper for information on how light interacts with fluid.
