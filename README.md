@@ -5,22 +5,6 @@ TODO: clickable vid to brekadown with icon on it like stylization readme, or jus
 
 https://github.com/user-attachments/assets/0193b138-dc22-41c0-a666-946e171a1ed9
 
-https://github.com/user-attachments/assets/d905c8ff-5326-4d59-9d7c-a48f3f3aa5ea
-
-https://github.com/user-attachments/assets/01dfa4bb-26fd-4ff2-8ed1-322f3970d156
-
-https://github.com/user-attachments/assets/06329d2e-abed-46d8-b07a-bce7907244e3
-
-
-|||
-|---|---|
-| ![](https://github.com/user-attachments/assets/0193b138-dc22-41c0-a666-946e171a1ed9) | https://github.com/user-attachments/assets/d905c8ff-5326-4d59-9d7c-a48f3f3aa5ea |
-| https://github.com/user-attachments/assets/01dfa4bb-26fd-4ff2-8ed1-322f3970d156 | https://github.com/user-attachments/assets/06329d2e-abed-46d8-b07a-bce7907244e3 |
-Pour cup, cut purple jelly, the new main thing with smooth water, ?check premiere?
-
-https://gist.githubusercontent.com/trusktr/93175b620d47827ffdedbf52433e3b37/raw/e980fa9116cb28dfbdee0dc5c17adc5ed91df783/image-grid.md
-
-
 During the summer of 2025, I made a realtime fluid simulation and renderer in Unity.  The features include
 
 - Particle-Based Fluid Simulation based on Smoothed Particle Hydrodynamics (SPH) run using Compute Shaders
@@ -32,10 +16,16 @@ During the summer of 2025, I made a realtime fluid simulation and renderer in Un
 - Caustics Rendered using deferred rendering-like techniques or raytracing (mention nvidia article and how i extended it to screenspace)
 - Spatial Hashing and different GPU sorting algorithms to allow the simulation to run at high framerates
 
-TODO: table of contents
+TODO: table of contents here
 
 ## Demo Scenes
 ---
+
+https://github.com/user-attachments/assets/d905c8ff-5326-4d59-9d7c-a48f3f3aa5ea
+
+https://github.com/user-attachments/assets/01dfa4bb-26fd-4ff2-8ed1-322f3970d156
+
+https://github.com/user-attachments/assets/06329d2e-abed-46d8-b07a-bce7907244e3
 
 TODO: some more object interaction ones and check yggd, low res exp prolly necessary to integrate to github
 TODO: capsule like a water bottle/pill type of thing, water falls in and crashes around the capsule with debugfloats for sizing
@@ -43,6 +33,10 @@ TODO: multiple static objects in a scene, water crashes around them, cone and ot
 TODO: incredibly viscous (clearly obviously viscous) demo scene, small container prolly
 
 EVERYTHING BELOW CAN BE ADDED LATER JUST DO THE TOP TWO FIRST
+
+# Written Breakdown
+---
+If you'd prefer a video breakdown, here's a link(INSERT HERE) to the video version of the breakdown.
 
 ## Particle Simulation Breakdown
 ---
