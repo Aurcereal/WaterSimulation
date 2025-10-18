@@ -22,6 +22,7 @@ TODO: table of contents
 TODO: some more object interaction ones and check yggd, low res exp prolly necessary to integrate to github
 TODO: capsule like a water bottle/pill type of thing, water falls in and crashes around the capsule with debugfloats for sizing
 TODO: multiple static objects in a scene, water crashes around them, cone and other variety random
+TODO: incredibly viscous (clearly obviously viscous) demo scene, small container prolly
 
 EVERYTHING BELOW CAN BE ADDED LATER JUST DO THE TOP TWO FIRST
 
