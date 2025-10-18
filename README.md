@@ -3,6 +3,14 @@
 
 TODO: clickable vid to brekadown with icon on it like stylization readme, or just a short vid of one scene integrated i ngithub
 
+||||
+|---|---|---|
+| Row 1 Cell 1 | Row 1 Cell 2 | turn to 2by2? |
+| Row 2 Cell 1 | Row 2 Cell 2 | turn to 2by2? |
+
+https://gist.githubusercontent.com/trusktr/93175b620d47827ffdedbf52433e3b37/raw/e980fa9116cb28dfbdee0dc5c17adc5ed91df783/image-grid.md
+
+
 During the summer of 2025, I made a realtime fluid simulation and renderer in Unity.  The features include
 
 - Particle-Based Fluid Simulation based on Smoothed Particle Hydrodynamics (SPH) run using Compute Shaders
