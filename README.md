@@ -3,7 +3,7 @@
 
 https://github.com/user-attachments/assets/0193b138-dc22-41c0-a666-946e171a1ed9
 
-During the summer of 2025, I made a realtime fluid simulation and renderer in Unity.  The features include
+This is a realtime fluid simulation and renderer made in Unity.  The features include
 
 - Particle-Based Fluid Simulation based on Smoothed Particle Hydrodynamics (SPH) run using Compute Shaders
 - Physically Based Raymarched Fluid Renderer written with HLSL
